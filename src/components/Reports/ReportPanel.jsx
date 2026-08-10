@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertTriangle, Download, FileText, Printer, RefreshCw, X } from 'lucide-react'
+import { AlertTriangle, Download, FileText, RefreshCw, X } from 'lucide-react'
 import Button from '../shared/Button'
 import Icon3D from '../shared/Icon3D'
 import { useReportData } from '../../hooks/useReportData'
@@ -12,7 +12,7 @@ import {
   downloadCSV,
   downloadHTML,
   formatRangeLabel,
-  printHTML,
+  openReport,
   rangeFor,
   reportFilename,
 } from '../../utils/reports'
@@ -40,6 +40,9 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
   const [preset, setPreset] = useState('last7')
   const [from, setFrom] = useState(() => rangeFor('last7').from)
   const [to, setTo] = useState(() => rangeFor('last7').to)
+  // Set only when a browser refuses the report's tab, so the sheet can explain
+  // where the file went instead.
+  const [blocked, setBlocked] = useState(false)
 
   // Re-resolve the preset every time the sheet opens: a tab left open overnight
   // would otherwise still think "last 7 days" ends yesterday.
@@ -73,7 +76,10 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
 
   const rangeLabel = formatRangeLabel(from, to)
 
-  const html = () =>
+  // `interactive` adds the on-screen "Save as PDF" bar and the auto-print — right
+  // for a tab that exists to be printed, wrong for a file someone saved to keep,
+  // which shouldn't ambush them with a print dialog every time they open it.
+  const html = (interactive) =>
     buildReportHTML({
       title: report.title,
       subtitle: report.subtitle,
@@ -85,7 +91,23 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
       rows,
       groups: report.groups,
       accent: report.accent,
+      interactive,
     })
+
+  /**
+   * A tab of its own, which is the only place a page can print itself on a
+   * phone. If the browser blocks it, save the same page instead and say so —
+   * a button that appears to do nothing is worse than one that does something
+   * slightly different.
+   */
+  function openPDF() {
+    if (openReport(html(true))) {
+      setBlocked(false)
+      return
+    }
+    downloadHTML(reportFilename(kind, from, to, 'html'), html(false))
+    setBlocked(true)
+  }
 
   function choosePreset(id) {
     setPreset(id)
@@ -250,9 +272,21 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
               <p className="mt-3 text-xs font-medium leading-relaxed text-ink-400">
                 <strong className="font-extrabold text-ink-500">CSV</strong> opens in Excel or
                 Sheets — one row per entry, ready to sort.{' '}
-                <strong className="font-extrabold text-ink-500">Print</strong> gives a laid-out page
-                grouped by day; choose “Save as PDF” in the dialog to keep it.
+                <strong className="font-extrabold text-ink-500">PDF</strong> opens the laid-out
+                report in a new tab and offers the print dialog; pick “Save as PDF” there.
               </p>
+
+              {blocked && (
+                <p
+                  role="status"
+                  className="mt-3 rounded-2xl border-2 border-ink-900/15 bg-cream-200 p-3 text-xs font-semibold leading-relaxed text-ink-500"
+                >
+                  Your browser blocked the new tab, so the report was{' '}
+                  <strong className="font-extrabold">downloaded as a file</strong> instead. Open it
+                  from your downloads and print from there — or allow pop-ups for this site and try
+                  again.
+                </p>
+              )}
             </div>
 
             <div className="border-t-2 border-ink-900/10 bg-cream-50 px-5 pt-4 pb-safe">
@@ -274,24 +308,14 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
                 <Button
                   size="lg"
                   variant="secondary"
-                  icon={Printer}
+                  icon={FileText}
                   className="flex-1"
                   disabled={loading || empty || Boolean(error)}
-                  onClick={() => printHTML(html())}
+                  onClick={openPDF}
                 >
-                  Print / PDF
+                  PDF
                 </Button>
               </div>
-
-              <button
-                type="button"
-                disabled={loading || empty || Boolean(error)}
-                onClick={() => downloadHTML(reportFilename(kind, from, to, 'html'), html())}
-                className="mt-2 inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-xl text-xs font-extrabold text-ink-400 transition-colors hover:bg-cream-200 hover:text-ink-900 disabled:opacity-40"
-              >
-                <FileText className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
-                Or save the laid-out page as a file
-              </button>
             </div>
           </motion.div>
         </div>

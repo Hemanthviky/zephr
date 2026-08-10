@@ -204,6 +204,7 @@ export function buildReportHTML({
   groups = null,
   accent = null,
   note = '',
+  interactive = false,
 }) {
   const head = columns
     .map(
@@ -347,11 +348,32 @@ export function buildReportHTML({
 
   .empty { padding:30px; text-align:center; font-weight:700; color:var(--ink-400);
            border:2px dashed rgba(27,25,21,.2); border-radius:20px; background:var(--cream-50); }
+
+  /* The bar exists only on screen — it's the way to reach the print dialog on a
+     phone, where a page can't open one for a frame it isn't. It must never
+     appear on the paper, hence the print rule at the bottom. */
+  .bar { position:sticky; top:0; z-index:9; display:flex; align-items:center; gap:10px;
+         flex-wrap:wrap; margin:0 0 14px; padding:10px 12px; border:2.5px solid var(--ink);
+         border-radius:18px; background:var(--lime); box-shadow:0 4px 0 0 var(--ink); }
+  .bar button { font:inherit; font-weight:800; font-size:13px; cursor:pointer;
+                padding:9px 16px; min-height:42px; border:2px solid var(--ink); border-radius:999px;
+                background:var(--cream-50); color:var(--ink); box-shadow:0 3px 0 0 var(--ink); }
+  .bar button:active { transform:translateY(3px); box-shadow:none; }
+  .bar span { font-size:11.5px; font-weight:700; color:rgba(27,25,21,.7); }
+  @media print { .bar { display:none !important; } }
   footer { margin-top:14px; padding-top:11px; border-top:2px dashed rgba(27,25,21,.2);
            display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
            font-size:10px; font-weight:700; color:var(--ink-400); }
 </style></head>
 <body><div class="sheet">
+  ${
+    interactive
+      ? `<div class="bar">
+           <button type="button" onclick="window.print()">Save as PDF</button>
+           <span>Pick “Save as PDF” as the destination in the dialog.</span>
+         </div>`
+      : ''
+  }
   <div class="id">
     <div class="band"><span class="mark">Zephr · ${escapeHTML(subtitle)}</span></div>
     <div class="id-body">
@@ -383,36 +405,44 @@ export function buildReportHTML({
     <span>Generated ${escapeHTML(stamp)}${note ? ` · ${escapeHTML(note)}` : ''}</span>
     <span>Typed by hand, counted for you — Zephr</span>
   </footer>
-</div></body></html>`
+</div>${
+    interactive
+      ? `
+<script>
+  // Offer the dialog straight away, once the webfonts have had a moment — the
+  // whole point of the tap was to get a PDF. If it's dismissed, or a browser
+  // declines to auto-open it, the button above is still sitting there.
+  window.addEventListener('load', function () { setTimeout(function () { window.print() }, 450) })
+</script>`
+      : ''
+  }
+</body></html>`
 }
 
 /**
- * Print without leaving the page.
+ * Open the report in a tab of its own, where it can print itself.
  *
- * A hidden iframe rather than window.open: a popup blocker can swallow a new
- * window even on a click, and the user is left with a button that silently does
- * nothing. The frame is removed once the dialog closes.
+ * This used to render into a hidden iframe and call `print()` on it. That works
+ * on a desktop and is a trap on a phone: Android Chrome has no concept of
+ * printing one frame, so `frame.contentWindow.print()` quietly prints the
+ * *top-level* document instead — you tap "PDF" and get a picture of the app
+ * with the report sheet open over it. There is no flag that fixes that; the
+ * document has to be the one at the top of a window.
+ *
+ * So the report gets its own tab, and prints from inside itself. `window.open`
+ * is called straight out of the click handler, which is what keeps it out of
+ * the popup blocker. If a browser blocks it anyway, the caller is told and can
+ * fall back to downloading the same page as a file.
+ *
+ * @returns {boolean} whether the tab opened
  */
-export function printHTML(html) {
-  const frame = document.createElement('iframe')
-  frame.setAttribute('aria-hidden', 'true')
-  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden'
-  document.body.appendChild(frame)
+export function openReport(html) {
+  const view = window.open('', '_blank')
+  if (!view) return false
 
-  frame.onload = () => {
-    const view = frame.contentWindow
-    if (!view) return
-    view.focus()
-    view.print()
-    // Chrome's print dialog is modal to the tab, so onafterprint is reliable;
-    // the timeout is the fallback for the browsers where it never fires.
-    const cleanup = () => setTimeout(() => frame.remove(), 300)
-    view.onafterprint = cleanup
-    setTimeout(cleanup, 60_000)
-  }
-
-  const doc = frame.contentDocument
-  doc.open()
-  doc.write(html)
-  doc.close()
+  view.document.open()
+  view.document.write(html)
+  view.document.close()
+  view.focus()
+  return true
 }
