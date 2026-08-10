@@ -41,11 +41,54 @@ export function isoAt(dateISO, hm) {
   return base.toISOString()
 }
 
+/**
+ * The chart is read in 12-hour time, always.
+ *
+ * Not the browser's preference: a ward chart here is written "8:42 pm", and
+ * whether the laptop happens to be set to en-GB shouldn't turn every row into
+ * 20:42. `en-IN` is pinned for the same reason the currency is pinned to ₹ —
+ * it's the format this app is written for, not a guess about the machine.
+ */
+const CLOCK_LOCALE = 'en-IN'
+const CLOCK_FORMAT = { hour: 'numeric', minute: '2-digit', hour12: true }
+
 /** '8:42 pm' — the reading on the chart. */
 export function formatClock(iso) {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return '—'
-  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  return d.toLocaleTimeString(CLOCK_LOCALE, CLOCK_FORMAT)
+}
+
+/** The same, for a form value: '20:42' → '8:42 pm'. */
+export function formatHM12(hm) {
+  const { hour, minute, meridiem } = to12(hm)
+  return `${hour}:${String(minute).padStart(2, '0')} ${meridiem.toLowerCase()}`
+}
+
+/**
+ * 'HH:MM' (how the value is stored and how <input type="time"> would want it)
+ * → the three parts a person actually types: 1–12, 0–59, AM/PM.
+ */
+export function to12(hm) {
+  const [h, m] = String(hm ?? '')
+    .split(':')
+    .map(Number)
+  const hours = Number.isFinite(h) ? ((h % 24) + 24) % 24 : 0
+  const minutes = Number.isFinite(m) ? Math.min(59, Math.max(0, m)) : 0
+  return {
+    hour: hours % 12 === 0 ? 12 : hours % 12,
+    minute: minutes,
+    meridiem: hours < 12 ? 'AM' : 'PM',
+  }
+}
+
+/** And back again. 12 AM is midnight, 12 PM is noon — the two everyone slips on. */
+export function from12(hour, minute, meridiem) {
+  const h12 = Math.min(12, Math.max(1, Number(hour) || 12))
+  const base = h12 % 12
+  const hours = meridiem === 'PM' ? base + 12 : base
+  const minutes = Math.min(59, Math.max(0, Number(minute) || 0))
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
 }
 
 /**

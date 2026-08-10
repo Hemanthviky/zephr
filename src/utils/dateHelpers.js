@@ -78,12 +78,17 @@ export function formatFullDate(iso) {
   })
 }
 
-/** "Logged at 8:42 pm" for individual entries. */
+/**
+ * "Logged at 8:42 pm" for individual entries.
+ *
+ * 12-hour, pinned — not left to the browser's locale, which would print 20:42
+ * on any machine set to en-GB and disagree with every other time in the app.
+ */
 export function formatTime(timestamp) {
   if (!timestamp) return ''
   const d = new Date(timestamp)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  return d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })
 }
 
 /**

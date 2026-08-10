@@ -1,78 +1,336 @@
-import { Clock, Minus, Plus, RotateCcw } from 'lucide-react'
-import { nowHM } from '../../utils/hospitalMath'
+import { useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Minus, Plus, RotateCcw } from 'lucide-react'
+import { formatHM12, from12, nowHM, to12 } from '../../utils/hospitalMath'
+
+const HOURS = Array.from({ length: 12 }, (_, i) => i + 1)
+/**
+ * Twelve minutes, not sixty — one per numeral on the face beside it.
+ *
+ * Both pickers are then the same twelve cells in the same two rows, which is
+ * the only way two dropdowns of 12 and 60 items ever open to the same height.
+ * The minutes in between aren't lost: that's what the dial and ±5 are for, and
+ * a 60-item list was the tall scroller this field was built to get rid of.
+ */
+const MINUTE_STEPS = Array.from({ length: 12 }, (_, i) => i * 5)
+const TICKS = Array.from({ length: 12 }, (_, i) => i * 30)
 
 /**
- * When it happened.
+ * When it happened — a clock face you can actually turn.
  *
- * Pre-filled with the clock, because 95% of the time you're logging the cup
- * you're holding — and fully editable, because the other 5% is remembering at
- * 4pm that the 11am dose went in. The ±5 minute buttons exist for the common
- * correction ("it was just before the round"), the native time input for the
- * uncommon one, and "Now" to get back after either.
+ * Deliberately not `<input type="time">`: that control's face is chosen by the
+ * browser's own locale, so the same page reads "8:42 pm" on one machine and
+ * "20:42" on the next, and no HTML attribute can ask it for one or the other.
+ * Here 24-hour time never appears; 'HH:MM' survives only as the value handed to
+ * the database.
  *
- * The control is a real <input type="time">, so a phone opens its own clock
- * picker and a keyboard user can just type — neither of which a bespoke
- * spinner would give for free.
+ * The dial is the whole point. Drag it and the minute hand follows your thumb —
+ * which is both the fastest way to say "quarter past" and, at 88px square, less
+ * height than the stacked pickers it replaces. The hour stays a native <select>
+ * (a phone gives it a scroll wheel of its own) because dragging a single dial
+ * for both is how you end up setting 3:05 when you meant 4:00.
+ *
+ * Pre-filled with the clock, since 95% of the time you're logging the cup in
+ * your hand. ±5 is for the ordinary correction, ↺ for getting back to now.
  */
 export default function TimeField({ value, onChange, id = 'chart-time', label = 'Time' }) {
+  const { hour, minute, meridiem } = to12(value)
+  const dialRef = useRef(null)
+  const dragging = useRef(false)
+  // Which picker is open, if either. One slot below the card holds both, so
+  // opening the hour and opening the minute move nothing on the page.
+  const [panel, setPanel] = useState(null)
+
   const isNow = value === nowHM()
 
+  const setPart = (patch) =>
+    onChange(from12(patch.hour ?? hour, patch.minute ?? minute, patch.meridiem ?? meridiem))
+
   const shift = (minutes) => onChange(shiftHM(value, minutes))
+
+  /** Where on the face the pointer is, as a minute. 12 o'clock is 0, clockwise. */
+  function minuteAt(event) {
+    const rect = dialRef.current?.getBoundingClientRect()
+    if (!rect) return minute
+    const dx = event.clientX - (rect.left + rect.width / 2)
+    const dy = event.clientY - (rect.top + rect.height / 2)
+    const degrees = ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360
+    return Math.round(degrees / 6) % 60
+  }
+
+  function startDrag(event) {
+    dragging.current = true
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+    setPart({ minute: minuteAt(event) })
+  }
+
+  function onDrag(event) {
+    if (!dragging.current) return
+    setPart({ minute: minuteAt(event) })
+  }
+
+  function endDrag(event) {
+    dragging.current = false
+    try {
+      event.currentTarget.releasePointerCapture?.(event.pointerId)
+    } catch {
+      /* the pointer was already gone — nothing to release */
+    }
+  }
+
+  function onDialKey(event) {
+    const step = event.key === 'ArrowUp' || event.key === 'ArrowRight' ? 1
+      : event.key === 'ArrowDown' || event.key === 'ArrowLeft' ? -1
+        : event.key === 'PageUp' ? 5
+          : event.key === 'PageDown' ? -5
+            : 0
+    if (!step) return
+    event.preventDefault()
+    setPart({ minute: (minute + step + 60) % 60 })
+  }
+
+  // Hands. The hour hand creeps between the numerals as the minutes pass, which
+  // is what stops the face reading as a sticker.
+  const minuteAngle = minute * 6
+  const hourAngle = (hour % 12) * 30 + minute * 0.5
 
   return (
     <div>
       <div className="mb-2 flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="label-caps">
+        <span className="label-caps" id={`${id}-label`}>
           {label}
-        </label>
-        <span className="text-xs font-bold text-ink-400">{describe(value)}</span>
+        </span>
+        <span className="nums text-xs font-bold text-ink-400">{formatHM12(value)}</span>
       </div>
 
-      <div className="flex items-stretch gap-2">
-        <button
-          type="button"
-          onClick={() => shift(-5)}
-          aria-label="Five minutes earlier"
-          className="tactile flex h-[68px] w-[52px] shrink-0 items-center justify-center rounded-2xl border-2 border-ink-900 bg-cream-50 shadow-press-sm"
+      <div className="flex items-center gap-3 rounded-2xl border-[2.5px] border-ink-900/15 bg-cream-50 p-2.5 shadow-inset">
+        {/* ── The dial ─────────────────────────────────────────────────── */}
+        <svg
+          ref={dialRef}
+          viewBox="0 0 100 100"
+          role="slider"
+          tabIndex={0}
+          aria-label="Minutes — drag the dial"
+          aria-valuemin={0}
+          aria-valuemax={59}
+          aria-valuenow={minute}
+          aria-valuetext={formatHM12(value)}
+          onPointerDown={startDrag}
+          onPointerMove={onDrag}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onKeyDown={onDialKey}
+          className="h-[88px] w-[88px] shrink-0 cursor-grab touch-none select-none rounded-full active:cursor-grabbing"
         >
-          <Minus className="h-5 w-5" strokeWidth={3.5} aria-hidden="true" />
-        </button>
+          <circle cx="50" cy="50" r="46" fill="#FDF7EA" stroke="#1B1915" strokeWidth="3" />
+          <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(27,25,21,0.08)" strokeWidth="1.5" />
 
-        <div className="relative min-w-0 flex-1">
-          <Clock
-            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-300"
-            strokeWidth={2.75}
-            aria-hidden="true"
+          {TICKS.map((angle, index) => (
+            <line
+              key={angle}
+              x1="50"
+              y1={index % 3 === 0 ? 9 : 11}
+              x2="50"
+              y2={index % 3 === 0 ? 17 : 15}
+              stroke="#1B1915"
+              strokeOpacity={index % 3 === 0 ? 0.75 : 0.28}
+              strokeWidth={index % 3 === 0 ? 3.5 : 2}
+              strokeLinecap="round"
+              transform={`rotate(${angle} 50 50)`}
+            />
+          ))}
+
+          {/* Minute hand — the one under your thumb, so it's the coloured one. */}
+          <line
+            x1="50"
+            y1="50"
+            x2="50"
+            y2="19"
+            stroke="#12B39A"
+            strokeWidth="4"
+            strokeLinecap="round"
+            transform={`rotate(${minuteAngle} 50 50)`}
           />
-          <input
-            id={id}
-            type="time"
-            value={value}
-            onChange={(event) => onChange(event.target.value || nowHM())}
-            className="nums h-[68px] w-full rounded-2xl border-[2.5px] border-ink-900/15 bg-cream-50 pl-12 pr-3 font-display text-2xl font-extrabold text-ink-900 shadow-inset transition-colors focus:border-lime-500"
+          <line
+            x1="50"
+            y1="50"
+            x2="50"
+            y2="31"
+            stroke="#1B1915"
+            strokeWidth="5.5"
+            strokeLinecap="round"
+            transform={`rotate(${hourAngle} 50 50)`}
           />
+
+          <circle cx="50" cy="50" r="4" fill="#1B1915" />
+          <circle cx="50" cy="50" r="1.6" fill="#FDF7EA" />
+
+          <text
+            x="50"
+            y="72"
+            textAnchor="middle"
+            fontSize="9"
+            fontWeight="800"
+            letterSpacing="1"
+            fill="#948B7B"
+          >
+            {meridiem}
+          </text>
+        </svg>
+
+        {/* ── The readout, which is also the input ─────────────────────── */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-0.5">
+            <Part
+              id={`${id}-hour`}
+              label="Hour"
+              display={hour}
+              open={panel === 'hour'}
+              onToggle={() => setPanel((open) => (open === 'hour' ? null : 'hour'))}
+            />
+            <span
+              className="font-display text-2xl font-extrabold leading-none text-ink-300"
+              aria-hidden="true"
+            >
+              :
+            </span>
+            <Part
+              id={`${id}-minute`}
+              label="Minute"
+              display={String(minute).padStart(2, '0')}
+              open={panel === 'minute'}
+              onToggle={() => setPanel((open) => (open === 'minute' ? null : 'minute'))}
+            />
+          </div>
+
+          <div className="mt-1.5 flex items-stretch gap-1.5">
+            <div
+              className="grid grid-cols-2 gap-0.5 rounded-xl border-2 border-ink-900/10 bg-cream-200 p-0.5"
+              role="radiogroup"
+              aria-labelledby={`${id}-label`}
+            >
+              {['AM', 'PM'].map((option) => {
+                const active = meridiem === option
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setPart({ meridiem: option })}
+                    className={[
+                      'min-h-[34px] rounded-lg px-2 font-display text-xs font-extrabold transition-colors',
+                      active ? 'border-2 border-ink-900 bg-lime-400' : 'text-ink-400 hover:bg-cream-50',
+                    ].join(' ')}
+                  >
+                    {option}
+                  </button>
+                )
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => shift(-5)}
+              aria-label="Five minutes earlier"
+              title="−5 min"
+              className="tactile flex h-[38px] w-[34px] shrink-0 items-center justify-center rounded-xl border-2 border-ink-900 bg-cream-50 shadow-press-sm"
+            >
+              <Minus className="h-4 w-4" strokeWidth={3.5} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => shift(5)}
+              aria-label="Five minutes later"
+              title="+5 min"
+              className="tactile flex h-[38px] w-[34px] shrink-0 items-center justify-center rounded-xl border-2 border-ink-900 bg-cream-50 shadow-press-sm"
+            >
+              <Plus className="h-4 w-4" strokeWidth={3.5} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange(nowHM())}
+              disabled={isNow}
+              aria-label="Set to now"
+              title="Now"
+              className="tactile flex h-[38px] w-[34px] shrink-0 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm disabled:opacity-40 disabled:shadow-none"
+            >
+              <RotateCcw className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+            </button>
+          </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => shift(5)}
-          aria-label="Five minutes later"
-          className="tactile flex h-[68px] w-[52px] shrink-0 items-center justify-center rounded-2xl border-2 border-ink-900 bg-cream-50 shadow-press-sm"
-        >
-          <Plus className="h-5 w-5" strokeWidth={3.5} aria-hidden="true" />
-        </button>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onChange(nowHM())}
-        disabled={isNow}
-        className="tactile mt-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-pill border-2 border-ink-900 bg-lime-400 px-3.5 text-xs font-extrabold shadow-press-sm disabled:opacity-40 disabled:shadow-none"
-      >
-        <RotateCcw className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
-        {isNow ? 'Set to now' : 'Back to now'}
-      </button>
+      {/* One panel, two pickers, twelve cells either way — so the hour list and
+          the minute list are exactly the same size, and neither can push the
+          rest of the form around when it opens. */}
+      <AnimatePresence initial={false}>
+        {panel && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 rounded-2xl border-2 border-ink-900/10 bg-cream-200 p-1.5">
+              <p className="label-caps px-1 pb-1.5">
+                {panel === 'hour' ? 'Hour' : 'Minutes · drag the dial for the ones between'}
+              </p>
+              <div className="grid grid-cols-6 gap-1" role="group">
+                {(panel === 'hour' ? HOURS : MINUTE_STEPS).map((option) => {
+                  const active = panel === 'hour' ? option === hour : option === minute
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => {
+                        setPart(panel === 'hour' ? { hour: option } : { minute: option })
+                        setPanel(null)
+                      }}
+                      className={[
+                        'nums tactile min-h-[38px] rounded-xl border-2 font-display text-sm font-extrabold transition-colors',
+                        active
+                          ? 'border-ink-900 bg-lime-400 shadow-press-sm'
+                          : 'border-transparent bg-cream-50 text-ink-500 hover:border-ink-900/25',
+                      ].join(' ')}
+                    >
+                      {panel === 'hour' ? option : String(option).padStart(2, '0')}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
+  )
+}
+
+/**
+ * One half of the digital readout, and the button that opens its picker.
+ *
+ * Not a native <select>: the browser sizes that popup to its option count, so
+ * an hour list and a minute list can never open to the same height however
+ * they're styled. This opens the shared grid below instead.
+ */
+function Part({ id, label, display, open, onToggle }) {
+  return (
+    <button
+      id={id}
+      type="button"
+      onClick={onToggle}
+      aria-expanded={open}
+      aria-label={`${label}: ${display}`}
+      className={[
+        'nums tactile h-[44px] min-w-0 flex-1 rounded-xl border-2 font-display text-2xl font-extrabold text-ink-900 transition-colors',
+        open ? 'border-ink-900 bg-cream-50 shadow-press-sm' : 'border-transparent bg-cream-200 hover:border-ink-900/20',
+      ].join(' ')}
+    >
+      {display}
+    </button>
   )
 }
 
@@ -84,15 +342,4 @@ function shiftHM(hm, minutes) {
   const base = (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0)
   const next = ((base + minutes) % 1440 + 1440) % 1440
   return `${String(Math.floor(next / 60)).padStart(2, '0')}:${String(next % 60).padStart(2, '0')}`
-}
-
-/** '8:42 pm' under the label — the 24h field alone reads as a form, not a time. */
-function describe(hm) {
-  const [h, m] = String(hm ?? '')
-    .split(':')
-    .map(Number)
-  if (!Number.isFinite(h) || !Number.isFinite(m)) return ''
-  const d = new Date()
-  d.setHours(h, m, 0, 0)
-  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
 }
