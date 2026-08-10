@@ -1,0 +1,170 @@
+# Zephr
+
+A personal tracker with two modules behind one login:
+
+- **Food** — log what you ate in grams, see calories and macros land against your daily goal, day by day.
+- **Money** — log expenses and income by hand, see what's left this month, where it went, and how the last six months compare.
+
+No bank syncing, no barcode scanning, no AI photo estimates. You type what happened; the app does the arithmetic and remembers it. Everything is per-user and syncs across devices through Supabase.
+
+**Stack:** React 18 + Vite · Tailwind (custom theme) · Supabase (Postgres + Auth) · recharts · framer-motion · deploys to Vercel as a static build.
+
+---
+
+## 1. Prerequisites
+
+| You need | Version | Notes |
+| --- | --- | --- |
+| Node.js | **18.18+** (22 LTS recommended) | `node --version` |
+| npm | 9+ | ships with Node |
+| Supabase account | free tier | [supabase.com](https://supabase.com) — no card required |
+
+The free Supabase tier is enough for this app indefinitely: it's a handful of small tables and no server-side compute.
+
+---
+
+## 2. Create a Supabase project and find your keys
+
+1. Go to [app.supabase.com](https://app.supabase.com) → **New project**.
+2. Give it a name, set a database password (save it somewhere — you won't need it for this app, but you'll want it later), pick the region closest to you, and create.
+3. Wait ~2 minutes for provisioning.
+4. Open **Project Settings → API**. You need two values:
+   - **Project URL** → `VITE_SUPABASE_URL` (looks like `https://abcdefgh.supabase.co`)
+   - **Project API keys → `anon` `public`** → `VITE_SUPABASE_ANON_KEY` (a long JWT)
+
+> **Never use the `service_role` key in this app.** It bypasses Row Level Security, and anything in a Vite `VITE_*` variable ends up in the browser bundle. The `anon` key is safe to ship *because* RLS is enabled on every table — that's what step 3 sets up.
+
+### Email confirmation
+
+By default Supabase emails a confirmation link on signup. The app handles this — it shows a "check your inbox" screen instead of silently failing. To skip it while developing, go to **Authentication → Providers → Email** and turn **Confirm email** off.
+
+---
+
+## 3. Run the schema
+
+Open **SQL Editor → New query** in your Supabase dashboard, paste the entire contents of [`supabase/schema.sql`](supabase/schema.sql), and click **Run**.
+
+The whole file is idempotent (`create table if not exists`, `drop policy if exists` before each `create policy`), so re-running it is safe and won't touch existing rows.
+
+It creates six tables:
+
+| Table | Module | What it holds |
+| --- | --- | --- |
+| `goals` | Food | One row per user: daily calorie/protein/carb/fat targets. Auto-created on signup by a trigger. |
+| `entries` | Food | One row per logged food: name, grams, and a snapshot of its nutrition. |
+| `wallets` | Money | Cash / Bank / Card, plus any you add. Seeded on first visit to the Money tab. |
+| `categories` | Money | Nine defaults (Food & Dining, Transport, Rent & Housing, Shopping, Bills & Utilities, Entertainment, Health, Groceries, Other) plus your own. Seeded on first visit. |
+| `budgets` | Money | Optional monthly cap per category. Primary key is `(user_id, category_id, month)`; `month` is always the 1st. |
+| `transactions` | Money | One row per manually entered expense or income. |
+
+**Already running an older version with just `goals` and `entries`?** The money tables are appended in a clearly marked `MONEY MODULE` section at the bottom of the file — run only that section.
+
+Every table has Row Level Security enabled with policies restricting all operations to `auth.uid() = user_id`. Nutrition snapshots on `entries` are deliberately denormalised: correcting the food database later must not silently rewrite what you ate last March. Same reasoning applies to `transactions`, whose `wallet_id`/`category_id` foreign keys are `on delete set null` — deleting a wallet never deletes the spending history attached to it.
+
+---
+
+## 4. Run it locally
+
+```bash
+npm install
+
+cp .env.example .env      # Windows: copy .env.example .env
+# paste your two values into .env
+
+npm run dev               # http://localhost:5173
+```
+
+Your `.env`:
+
+```
+VITE_SUPABASE_URL=https://abcdefgh.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJI...
+```
+
+`.env` is gitignored; `.env.example` is not. If either variable is missing the app renders a setup screen telling you so, rather than failing at the first fetch. Vite only reads env vars at startup — **restart the dev server after editing `.env`.**
+
+| Script | Does |
+| --- | --- |
+| `npm run dev` | Dev server with HMR |
+| `npm run build` | Production build to `dist/` |
+| `npm run preview` | Serve the built output locally |
+| `npm run lint` | ESLint over `src/` |
+
+---
+
+## 5. Deploy to Vercel (free)
+
+1. Push the repo to GitHub.
+2. [vercel.com](https://vercel.com) → **Add New → Project** → import the repo.
+3. Vercel detects Vite. Confirm:
+   - **Framework preset:** Vite
+   - **Build command:** `npm run build`
+   - **Output directory:** `dist`
+   - **Install command:** `npm install`
+4. Under **Environment Variables**, add both — for Production, Preview *and* Development:
+
+   | Name | Value |
+   | --- | --- |
+   | `VITE_SUPABASE_URL` | your project URL |
+   | `VITE_SUPABASE_ANON_KEY` | your anon key |
+
+5. **Deploy.**
+6. Back in Supabase → **Authentication → URL Configuration**, set **Site URL** to your Vercel domain and add it to **Redirect URLs**. Without this, confirmation emails point at `localhost`.
+
+Adding env vars after a deploy requires a redeploy to take effect — they're baked in at build time.
+
+No serverless functions, no custom server, nothing to configure beyond the above.
+
+---
+
+## Using it
+
+**Food.** Search 160 foods (fruit, veg, grains, proteins, dairy, Indian dishes, fast food, snacks, drinks) — type "dosa" or "dal" and pick. Selecting one pre-fills its typical serving in grams; adjust and the calories update live before you commit. The arc shows what's left of your calorie goal; the three bars are protein, carbs and fat. Arrows move between days, and you can't navigate into the future.
+
+**Money.** Tap **Add expense** for amount → category → wallet → note → date, with an expense/income toggle. The arc counts down from your total category budgets if you've set any, or from income logged that month if you haven't. Below it: a donut of where the month went, a six-month trend line, and the transaction list grouped by day — tap a row to edit, trash to delete.
+
+**Goals and budgets** live behind the sliders icon at the top-right of each tab. Food goals are one set of numbers that carry forever; money budgets are per category, per month.
+
+Switching tabs preserves each side's state — the day you were on, the month you'd scrolled to, the data already fetched, and your scroll position.
+
+---
+
+## Project structure
+
+```
+src/
+├── App.jsx                    tab routing, auth gate, per-tab scroll/state retention
+├── main.jsx
+├── index.css                  Tailwind layers + base theme
+├── lib/supabaseClient.js      client + human-readable error translation
+├── data/
+│   ├── foodDatabase.js        160 foods, per-100g, with search ranking
+│   └── defaultCategories.js   seeded categories, wallets, icon/colour choices
+├── hooks/
+│   ├── useAuth.js             session, sign in/up/out
+│   ├── useEntries.js          a day's food log (optimistic writes)
+│   ├── useGoals.js            daily nutrition targets
+│   ├── useTransactions.js     a month's transactions + 6 months of history
+│   ├── useWallets.js          wallets, seeded on first use
+│   ├── useCategories.js       categories, seeded on first use
+│   └── useBudgets.js          per-category monthly budgets
+├── utils/
+│   ├── dateHelpers.js         local-timezone calendar days (never UTC)
+│   ├── nutritionMath.js       scaling, totals, goal status
+│   └── expenseMath.js         months, currency, category totals, budget summary
+└── components/
+    ├── Auth/                  AuthLayout, LoginForm, SignupForm
+    ├── Tracker/               the Food module
+    ├── Expenses/              the Money module
+    ├── Settings/GoalsPanel    nutrition goals
+    └── shared/                Button, Input, ProgressBar, Icon3D, TabBar
+```
+
+### Notes for whoever works on this next
+
+- **Dates are local, always.** `toISODate()` builds `YYYY-MM-DD` from local calendar parts. Using `toISOString()` anywhere would shift a 1am log in IST onto the previous day. `budgets.month` is always the 1st, enforced by a check constraint.
+- **Writes are optimistic with rollback.** Add/edit/delete update local state first and restore the previous snapshot if Supabase rejects the change, surfacing a real error message. Nothing fails silently.
+- **Seeding only happens on a confirmed-empty fetch**, once per mount. A failed request must never be mistaken for "new user", or the default categories would duplicate on every network hiccup.
+- **Currency is one constant.** `CURRENCY` in `utils/expenseMath.js` is set to INR/₹; change those three fields and every amount in the app follows.
+- **3D icons** come from Microsoft's Fluent Emoji set over jsDelivr, wrapped in `Icon3D`. If the CDN is blocked it falls back to the platform's own colour emoji, so nothing renders as a broken image. lucide-react is used only for small inline chrome (chevrons, trash, close).
+- **The Money module is lazy-loaded** — recharts is larger than the rest of the app combined, and opening Zephr to log a banana shouldn't download a charting library.
