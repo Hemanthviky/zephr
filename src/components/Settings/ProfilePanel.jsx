@@ -246,9 +246,20 @@ function CardSlide({ user, onUpdateName, saving, error, onClearError, onNext, on
             </span>
           </div>
 
-          <div className="px-5 pb-5">
-            <div className="-mt-10 mb-4 flex items-end justify-between gap-3">
-              <Avatar name={name} size={80} />
+          {/* z-10, and it matters: the lime band above is `relative`, which
+              makes it a positioned element and puts it in a later paint step
+              than this block. Without a stacking order of its own the band
+              draws straight over the top half of the monogram. */}
+          <div className="relative z-10 px-5 pb-5">
+            <div className="-mt-11 mb-4 flex items-end justify-between gap-3">
+              {/* Cream ring: the monogram should look punched *through* the
+                  band, not dropped on top of it. */}
+              <span
+                className="inline-flex shrink-0 bg-cream-50 p-1"
+                style={{ borderRadius: 30 }}
+              >
+                <Avatar name={name} size={80} />
+              </span>
               {!editing && (
                 <button
                   type="button"
