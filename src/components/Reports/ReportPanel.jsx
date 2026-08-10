@@ -8,14 +8,12 @@ import { REPORT_KINDS, buildReport } from '../../utils/reportBuilders'
 import {
   RANGE_PRESETS,
   buildCSV,
-  buildReportHTML,
   downloadCSV,
-  downloadHTML,
   formatRangeLabel,
-  openReport,
   rangeFor,
   reportFilename,
 } from '../../utils/reports'
+import { downloadReportPDF } from '../../utils/reportPdf'
 import { todayISO } from '../../utils/dateHelpers'
 
 /**
@@ -40,9 +38,8 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
   const [preset, setPreset] = useState('last7')
   const [from, setFrom] = useState(() => rangeFor('last7').from)
   const [to, setTo] = useState(() => rangeFor('last7').to)
-  // Set only when a browser refuses the report's tab, so the sheet can explain
-  // where the file went instead.
-  const [blocked, setBlocked] = useState(false)
+  const [building, setBuilding] = useState(false)
+  const [pdfError, setPdfError] = useState(null)
 
   // Re-resolve the preset every time the sheet opens: a tab left open overnight
   // would otherwise still think "last 7 days" ends yesterday.
@@ -76,37 +73,37 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
 
   const rangeLabel = formatRangeLabel(from, to)
 
-  // `interactive` adds the on-screen "Save as PDF" bar and the auto-print — right
-  // for a tab that exists to be printed, wrong for a file someone saved to keep,
-  // which shouldn't ambush them with a print dialog every time they open it.
-  const html = (interactive) =>
-    buildReportHTML({
-      title: report.title,
-      subtitle: report.subtitle,
-      rangeLabel,
-      userName,
-      userEmail,
-      summary: report.summary,
-      columns: report.columns,
-      rows,
-      groups: report.groups,
-      accent: report.accent,
-      interactive,
-    })
-
   /**
-   * A tab of its own, which is the only place a page can print itself on a
-   * phone. If the browser blocks it, save the same page instead and say so —
-   * a button that appears to do nothing is worse than one that does something
-   * slightly different.
+   * Straight to a file. No new tab, no print dialog, no preview to dismiss.
+   *
+   * jsPDF is a dynamic import, so the first tap has a chunk to fetch — hence
+   * the pending state on the button rather than a second of nothing happening.
    */
-  function openPDF() {
-    if (openReport(html(true))) {
-      setBlocked(false)
-      return
+  async function savePDF() {
+    if (building) return
+    setBuilding(true)
+    setPdfError(null)
+    try {
+      await downloadReportPDF({
+        kind,
+        from,
+        to,
+        report,
+        rows,
+        rangeLabel,
+        userName,
+        userEmail,
+      })
+    } catch (err) {
+      setPdfError(
+        'Couldn’t build the PDF. Check your connection and try again — the CSV is always available.'
+      )
+      // Kept in the console: the message above is all the user can act on, but
+      // whatever jsPDF actually objected to shouldn't vanish.
+      console.error('[Zephr] PDF export failed', err)
+    } finally {
+      setBuilding(false)
     }
-    downloadHTML(reportFilename(kind, from, to, 'html'), html(false))
-    setBlocked(true)
   }
 
   function choosePreset(id) {
@@ -138,6 +135,7 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
   }
 
   const empty = !loading && rows.length === 0
+  const disabled = loading || empty || Boolean(error) || building
 
   return (
     <AnimatePresence>
@@ -276,21 +274,20 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
               </div>
 
               <p className="mt-3 text-xs font-medium leading-relaxed text-ink-400">
+                Both save straight to your downloads.{' '}
                 <strong className="font-extrabold text-ink-500">CSV</strong> opens in Excel or
                 Sheets — one row per entry, ready to sort.{' '}
-                <strong className="font-extrabold text-ink-500">PDF</strong> opens the laid-out
-                report in a new tab and offers the print dialog; pick “Save as PDF” there.
+                <strong className="font-extrabold text-ink-500">PDF</strong> is the laid-out report,
+                grouped by day, ready to print or send.
               </p>
 
-              {blocked && (
+              {pdfError && (
                 <p
-                  role="status"
-                  className="mt-3 rounded-2xl border-2 border-ink-900/15 bg-cream-200 p-3 text-xs font-semibold leading-relaxed text-ink-500"
+                  role="alert"
+                  className="mt-3 flex items-start gap-2 rounded-2xl border-2 border-coral-500 bg-coral-100 p-3 text-xs font-semibold leading-relaxed text-coral-600"
                 >
-                  Your browser blocked the new tab, so the report was{' '}
-                  <strong className="font-extrabold">downloaded as a file</strong> instead. Open it
-                  from your downloads and print from there — or allow pop-ups for this site and try
-                  again.
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2.75} />
+                  <span>{pdfError}</span>
                 </p>
               )}
             </div>
@@ -299,9 +296,10 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
               <div className="flex gap-2">
                 <Button
                   size="lg"
+                  variant="secondary"
                   icon={Download}
                   className="flex-1"
-                  disabled={loading || empty || Boolean(error)}
+                  disabled={disabled}
                   onClick={() =>
                     downloadCSV(
                       reportFilename(kind, from, to, 'csv'),
@@ -313,13 +311,13 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
                 </Button>
                 <Button
                   size="lg"
-                  variant="secondary"
                   icon={FileText}
                   className="flex-1"
-                  disabled={loading || empty || Boolean(error)}
-                  onClick={openPDF}
+                  loading={building}
+                  disabled={disabled}
+                  onClick={savePDF}
                 >
-                  PDF
+                  {building ? 'Building…' : 'PDF'}
                 </Button>
               </div>
             </div>

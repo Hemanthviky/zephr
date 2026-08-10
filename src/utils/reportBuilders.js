@@ -34,14 +34,19 @@ const MEAL_TABS = {
   snack: '#12B39A',
 }
 
-/** "Sat, 9 Aug 2026" — the group heading on the printed page. */
+/**
+ * "Sat, 9 Aug 2026" — the group heading on the report.
+ *
+ * Assembled from parts rather than handed to `toLocaleDateString` whole: asking
+ * for all four fields at once gets you "Sat, 9 Aug, 2026" on some ICU builds and
+ * "Sat 9 Aug 2026" on others, and a report shouldn't be punctuated differently
+ * depending on which browser exported it. Only the two names are localised.
+ */
 function dayHeading(iso) {
-  return fromISODate(iso).toLocaleDateString('en-IN', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
+  const date = fromISODate(iso)
+  const weekday = date.toLocaleDateString('en-IN', { weekday: 'short' })
+  const month = date.toLocaleDateString('en-IN', { month: 'short' })
+  return `${weekday}, ${date.getDate()} ${month} ${date.getFullYear()}`
 }
 
 /** Split rows into day sections, in whichever direction the module reads. */
