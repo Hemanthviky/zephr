@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { FileDown, Plus } from 'lucide-react'
 import DateNav from '../Tracker/DateNav'
 import ChartSummary from './ChartSummary'
 import ChartTimeline from './ChartTimeline'
 import LogSheet from './LogSheet'
+import ReportPanel from '../Reports/ReportPanel'
 import Icon3D from '../shared/Icon3D'
 import Avatar from '../shared/Avatar'
+import { IconButton } from '../shared/Button'
 import { useHospitalLog, useFluidTarget } from '../../hooks/useHospitalLog'
 import { firstName, displayName } from '../../hooks/useAuth'
 import { todayISO } from '../../utils/dateHelpers'
@@ -30,6 +32,7 @@ export default function Hospital({ user, onOpenProfile }) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [sheetKind, setSheetKind] = useState('drink')
   const [editing, setEditing] = useState(null)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const {
     rows,
@@ -89,6 +92,13 @@ export default function Hospital({ user, onOpenProfile }) {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            <IconButton
+              icon={FileDown}
+              label="Download a report"
+              size="sm"
+              onClick={() => setReportOpen(true)}
+            />
+
             {onOpenProfile && (
               <button
                 type="button"
@@ -182,6 +192,15 @@ export default function Hospital({ user, onOpenProfile }) {
           </div>
         </div>
       </div>
+
+      <ReportPanel
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        kind="hospital"
+        userId={user.id}
+        userName={displayName(user)}
+        userEmail={user.email}
+      />
 
       <LogSheet
         open={sheetOpen}

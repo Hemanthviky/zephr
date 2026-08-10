@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { forwardRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Trash2, Check, X, Pencil } from 'lucide-react'
 import Icon3D from '../shared/Icon3D'
@@ -13,8 +13,14 @@ import { walletIcon, UNCATEGORISED } from '../../data/defaultCategories'
  * the number on the right, and a two-tap delete confirmed on the row itself.
  * The row body is the edit affordance — tapping the thing you want to change is
  * more obvious than hunting a pencil at 390px wide.
+ *
+ * forwardRef because the list is an `AnimatePresence mode="popLayout"`, which
+ * measures each leaving child through a ref on the direct child.
  */
-export default function ExpenseEntryRow({ transaction, category, wallet, onEdit, onDelete, index = 0 }) {
+const ExpenseEntryRow = forwardRef(function ExpenseEntryRow(
+  { transaction, category, wallet, onEdit, onDelete, index = 0 },
+  ref
+) {
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -33,6 +39,7 @@ export default function ExpenseEntryRow({ transaction, category, wallet, onEdit,
 
   return (
     <motion.li
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
       animate={{ opacity: isPending ? 0.6 : 1, y: 0, scale: 1 }}
@@ -144,4 +151,6 @@ export default function ExpenseEntryRow({ transaction, category, wallet, onEdit,
       )}
     </motion.li>
   )
-}
+})
+
+export default ExpenseEntryRow

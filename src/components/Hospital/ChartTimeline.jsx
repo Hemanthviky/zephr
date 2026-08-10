@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { forwardRef, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertTriangle, Check, Pencil, RefreshCw, Trash2, X } from 'lucide-react'
 import Icon3D from '../shared/Icon3D'
@@ -174,8 +174,12 @@ export default function ChartTimeline({
  * Delete stays a separate target and is confirmed inline on the row, the same
  * two-tap pattern the food log uses — a modal for "remove one cup of water" is
  * far too much ceremony, and a one-tap trash deletes things people meant to keep.
+ *
+ * forwardRef because the band around it is an `AnimatePresence
+ * mode="popLayout"`: it measures each leaving row through a ref on the direct
+ * child, and a plain function component swallows that ref.
  */
-function ChartRow({ row, index, total, onEdit, onDelete }) {
+const ChartRow = forwardRef(function ChartRow({ row, index, total, onEdit, onDelete }, ref) {
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -195,6 +199,7 @@ function ChartRow({ row, index, total, onEdit, onDelete }) {
 
   return (
     <motion.li
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 14, scale: 0.98 }}
       animate={{ opacity: isPending ? 0.6 : 1, y: 0, scale: 1 }}
@@ -321,7 +326,7 @@ function ChartRow({ row, index, total, onEdit, onDelete }) {
       </div>
     </motion.li>
   )
-}
+})
 
 function EmptyState({ date, filter, onAdd }) {
   const today = isToday(date)

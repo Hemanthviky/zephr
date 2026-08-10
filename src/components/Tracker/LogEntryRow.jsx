@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { forwardRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Trash2, Check, X } from 'lucide-react'
 import { getFoodByName } from '../../data/foodDatabase'
@@ -24,7 +24,14 @@ function describeServings(grams, serving) {
   return `${label} ${nearestHalf === 1 ? 'serving' : 'servings'}`
 }
 
-export default function LogEntryRow({ entry, onDelete, index = 0 }) {
+/**
+ * forwardRef, and it isn't optional: the list around this row is an
+ * `AnimatePresence mode="popLayout"`, which measures each child on the way out
+ * so the survivors can slide up without the leaver's height. It measures
+ * through a ref on the direct child, and a plain function component silently
+ * swallows it — React warns, and the exit animation loses its grip.
+ */
+const LogEntryRow = forwardRef(function LogEntryRow({ entry, onDelete, index = 0 }, ref) {
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -48,6 +55,7 @@ export default function LogEntryRow({ entry, onDelete, index = 0 }) {
 
   return (
     <motion.li
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
       animate={{ opacity: isPending ? 0.6 : 1, y: 0, scale: 1 }}
@@ -140,4 +148,6 @@ export default function LogEntryRow({ entry, onDelete, index = 0 }) {
       )}
     </motion.li>
   )
-}
+})
+
+export default LogEntryRow

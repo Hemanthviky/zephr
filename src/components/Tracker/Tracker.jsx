@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Plus, SlidersHorizontal } from 'lucide-react'
+import { FileDown, Plus, SlidersHorizontal } from 'lucide-react'
 import DateNav from './DateNav'
 import NutritionLabel from './NutritionLabel'
 import FoodLog from './FoodLog'
 import AddFoodForm from './AddFoodForm'
 import GoalsPanel from '../Settings/GoalsPanel'
+import ReportPanel from '../Reports/ReportPanel'
 import Icon3D from '../shared/Icon3D'
 import Avatar from '../shared/Avatar'
 import { IconButton } from '../shared/Button'
@@ -33,6 +34,7 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
   const [date, setDate] = useState(todayISO)
   const [addOpen, setAddOpen] = useState(false)
   const [goalsOpen, setGoalsOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const {
     entries,
@@ -90,6 +92,13 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            <IconButton
+              icon={FileDown}
+              label="Download a report"
+              size="sm"
+              onClick={() => setReportOpen(true)}
+            />
+
             <IconButton
               icon={SlidersHorizontal}
               label="Daily goals"
@@ -182,6 +191,15 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
         onAdd={addEntry}
         saving={saving}
         error={addOpen ? entriesError : null}
+      />
+
+      <ReportPanel
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        kind="food"
+        userId={user.id}
+        userName={displayName(user)}
+        userEmail={user.email}
       />
 
       <GoalsPanel

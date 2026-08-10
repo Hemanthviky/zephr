@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Plus, SlidersHorizontal } from 'lucide-react'
+import { FileDown, Plus, SlidersHorizontal } from 'lucide-react'
 import MonthNav from './MonthNav'
 import BudgetSummary from './BudgetSummary'
 import SpendingChart from './SpendingChart'
@@ -8,6 +8,7 @@ import ExpenseLog from './ExpenseLog'
 import AddExpenseForm from './AddExpenseForm'
 import WalletPicker from './WalletPicker'
 import BudgetsPanel from './BudgetsPanel'
+import ReportPanel from '../Reports/ReportPanel'
 import Icon3D from '../shared/Icon3D'
 import Avatar from '../shared/Avatar'
 import { IconButton } from '../shared/Button'
@@ -38,6 +39,7 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [budgetsOpen, setBudgetsOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
   const [walletFilter, setWalletFilter] = useState(null)
 
   const {
@@ -141,6 +143,13 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            <IconButton
+              icon={FileDown}
+              label="Download a report"
+              size="sm"
+              onClick={() => setReportOpen(true)}
+            />
+
             <IconButton
               icon={SlidersHorizontal}
               label="Budgets"
@@ -268,6 +277,15 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
         saving={saving}
         error={addOpen ? txError : null}
         loadingOptions={categoriesLoading || walletsLoading}
+      />
+
+      <ReportPanel
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        kind="money"
+        userId={user.id}
+        userName={displayName(user)}
+        userEmail={user.email}
       />
 
       <BudgetsPanel

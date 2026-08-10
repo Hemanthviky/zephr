@@ -134,6 +134,14 @@ No serverless functions, no custom server, nothing to configure beyond the above
 
 The day's fluids and medicines share one timeline, oldest first, split into Overnight / Morning / Afternoon / Evening / Night, with the clock down the left edge and each drink carrying the running total it produced. The summary is a drip bag: how much has gone in, against a daily target you set on the card itself. That target is stored per device and per user (a fluid restriction comes from a ward round, not a settings panel), so it doesn't sync — everything on the chart itself does.
 
+**Reports.** Every tab has a download icon at the top-right. Pick a period — Today, Yesterday, Last 7 days, Last 30 days, This month, Last month, This year, Everything, or two dates of your own — and the sheet shows what's in it (rows, totals, daily average) before you commit to anything. Then:
+
+- **CSV** — one row per entry, opens in Excel or Sheets. Amounts are bare numbers so you can sum them; expenses are negative and income positive. UTF-8 with a BOM, so ₹ survives the trip into Excel.
+- **Print / PDF** — a laid-out page grouped by day, with the summary at the top and a repeating table header on every sheet of paper. "Save as PDF" in the print dialog is the PDF exporter; nothing extra is bundled to produce one.
+- **Save the laid-out page** as a self-contained `.html` file, if you'd rather email it than print it.
+
+Files are named `zephr-hospital-2026-08-01_2026-08-10.csv` — module, then span — so a folder of them sorts itself.
+
 **Goals and budgets** live behind the sliders icon at the top-right of each tab. Food goals are one set of numbers that carry forever. Money budgets are per month: one overall total, and — optionally — a split of it across categories. Set either, both, or neither; a total wins over the split, because it's a figure you stated rather than one the app inferred, and a half-filled breakdown shouldn't quietly lower a cap you typed by hand.
 
 Every navigator has a third control people miss: the label between the arrows is a button. Tapping it opens a calendar — days on the Food and Hospital tabs, months on the Money tab — because arrows are right for yesterday and wrong for the 3rd of last March.
@@ -162,17 +170,21 @@ src/
 │   ├── useWallets.js          wallets, seeded on first use
 │   ├── useCategories.js       categories, seeded on first use
 │   ├── useBudgets.js          the month's overall cap + its per-category split
-│   └── useHospitalLog.js      a day's chart + 30 days of medicine suggestions
+│   ├── useHospitalLog.js      a day's chart + 30 days of medicine suggestions
+│   └── useReportData.js       an arbitrary date range, fetched on demand
 ├── utils/
 │   ├── dateHelpers.js         local-timezone calendar days (never UTC)
 │   ├── nutritionMath.js       scaling, totals, goal status
 │   ├── expenseMath.js         months, currency, category totals, budget summary
-│   └── hospitalMath.js        wall-clock times, day bands, ml totals
+│   ├── hospitalMath.js        wall-clock times, day bands, ml totals
+│   ├── reports.js             range presets, CSV, the printable document
+│   └── reportBuilders.js      what each module's report says (columns, totals)
 └── components/
     ├── Auth/                  AuthLayout, LoginForm, SignupForm
     ├── Tracker/               the Food module
     ├── Expenses/              the Money module
     ├── Hospital/              the ward chart — fluids and medicines
+    ├── Reports/ReportPanel    one export sheet, all three modules
     ├── Settings/GoalsPanel    nutrition goals
     └── shared/                Button, Input, ProgressBar, Icon3D, TabBar
 ```
@@ -185,4 +197,6 @@ src/
 - **Currency is one constant.** `CURRENCY` in `utils/expenseMath.js` is set to INR/₹; change those three fields and every amount in the app follows.
 - **3D icons** come from Microsoft's Fluent Emoji set over jsDelivr, wrapped in `Icon3D`. If the CDN is blocked it falls back to the platform's own colour emoji, so nothing renders as a broken image. lucide-react is used only for small inline chrome (chevrons, trash, close).
 - **The Money and Hospital modules are lazy-loaded** — recharts is larger than the rest of the app combined, and opening Zephr to log a banana shouldn't download a charting library or a ward chart.
+- **CSV cells starting with `=`, `+`, `-` or `@` get an apostrophe.** Spreadsheets execute those as formulas, so a note someone typed becomes code on whoever's machine opens the file. `csvCell()` in `utils/reports.js` is the only place that needs to know.
+- **Reports fetch nothing until opened.** The panel is mounted beside all three modules; `useReportData` is gated on `enabled` so a page load never pulls a year of history.
 - **A chart row keeps `date` and `at` separately.** `date` is the calendar day it belongs to and the only thing queried; `at` is the wall-clock time, built from local parts in `isoAt()` and freely editable afterwards. They are not derived from each other — logging last night's 11pm dose at 8am this morning has to land on yesterday's chart at 23:00, and only two independent fields can say that.
