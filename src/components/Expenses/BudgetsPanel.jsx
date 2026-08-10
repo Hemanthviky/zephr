@@ -3,16 +3,20 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Save, AlertTriangle, Trash2 } from 'lucide-react'
 import Button from '../shared/Button'
 import Icon3D from '../shared/Icon3D'
-import { CURRENCY, formatMonthLabel, formatMoney, totalBudget } from '../../utils/expenseMath'
+import { CURRENCY, budgetPlan, formatMonthLabel, formatMoney } from '../../utils/expenseMath'
 
 /**
- * Per-category monthly budgets.
+ * The month's budgets: one overall cap, and an optional split beneath it.
  *
  * Built on GoalsPanel's pattern — same sheet, same sticky save footer, same
  * live sanity line at the bottom of the form — so the two settings screens in
  * the app feel like one screen with different fields.
  *
- * Budgets are per month by design: leaving a category blank means "no cap this
+ * The total comes first because it's the decision people actually make ("I've
+ * got forty thousand this month"); the categories are how you choose to break
+ * it up, and they're allowed to be incomplete. Set neither, one, or both.
+ *
+ * Budgets are per month by design: leaving a field blank means "no cap this
  * month", not zero.
  */
 export default function BudgetsPanel({
@@ -21,7 +25,9 @@ export default function BudgetsPanel({
   month,
   categories,
   budgets,
+  total = 0,
   spentByCategory,
+  monthSpent = 0,
   onSave,
   saving,
   error,
@@ -30,13 +36,15 @@ export default function BudgetsPanel({
   onDeleteCategory,
 }) {
   const [draft, setDraft] = useState({})
+  const [totalDraft, setTotalDraft] = useState('')
   const [dirty, setDirty] = useState(false)
 
   useEffect(() => {
     if (open && !dirty) {
       setDraft(Object.fromEntries(Object.entries(budgets).map(([id, value]) => [id, String(value)])))
+      setTotalDraft(total > 0 ? String(total) : '')
     }
-  }, [open, budgets, dirty])
+  }, [open, budgets, total, dirty])
 
   useEffect(() => {
     if (!open) {
@@ -53,19 +61,26 @@ export default function BudgetsPanel({
     }
   }, [open, onClose])
 
-  const total = totalBudget(
-    Object.fromEntries(Object.entries(draft).map(([id, value]) => [id, Number(value) || 0]))
+  // The live plan is computed off the draft, not the saved values, so the
+  // summary line at the bottom moves with every keystroke.
+  const plan = budgetPlan(
+    Object.fromEntries(Object.entries(draft).map(([id, value]) => [id, Number(value) || 0])),
+    Number(totalDraft) || 0
   )
-  const capped = Object.values(draft).filter((value) => Number(value) > 0).length
 
   function update(categoryId, value) {
     setDirty(true)
     setDraft((prev) => ({ ...prev, [categoryId]: value }))
   }
 
+  function updateTotal(value) {
+    setDirty(true)
+    setTotalDraft(value)
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
-    const ok = await onSave(draft)
+    const ok = await onSave({ categories: draft, total: totalDraft })
     if (ok) {
       setDirty(false)
       onClose()
@@ -120,9 +135,54 @@ export default function BudgetsPanel({
 
             <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
               <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-5 pb-5">
-                <p className="text-sm font-medium leading-relaxed text-ink-400">
-                  Set a cap per category for {formatMonthLabel(month, { short: true })}. Leave one
-                  blank and it just won’t count towards your monthly limit.
+                {/* ── The overall cap ──────────────────────────────────────
+                    Given the same treatment as the amount field in the add
+                    form: it's the one number here with no sensible default,
+                    and the one most people will set and never revisit. */}
+                <div className="rounded-2xl border-2 border-ink-900 bg-lime-100 p-3.5 shadow-press-sm">
+                  <label htmlFor="month-total" className="label-caps mb-2 block">
+                    Total for {formatMonthLabel(month, { short: true })}
+                  </label>
+                  <div className="relative">
+                    <span
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-display text-2xl font-extrabold text-ink-300"
+                      aria-hidden="true"
+                    >
+                      {CURRENCY.symbol}
+                    </span>
+                    <input
+                      id="month-total"
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      step="1"
+                      placeholder="No overall cap"
+                      value={totalDraft}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => updateTotal(e.target.value)}
+                      className="nums w-full min-h-[64px] rounded-2xl border-[2.5px] border-ink-900/15 bg-cream-50 pl-11 pr-4 font-display text-3xl font-extrabold text-ink-900 shadow-inset transition-colors placeholder:font-sans placeholder:text-base placeholder:font-semibold placeholder:text-ink-300 focus:border-lime-500"
+                    />
+                  </div>
+                  <p className="mt-2 text-xs font-semibold leading-snug text-ink-500">
+                    {plan.total > 0 ? (
+                      <>
+                        The ring counts down from this.{' '}
+                        <span className="nums">{formatMoney(monthSpent)}</span> spent so far —{' '}
+                        <span className="nums font-extrabold text-ink-700">
+                          {formatMoney(Math.abs(plan.total - monthSpent))}
+                        </span>{' '}
+                        {monthSpent > plan.total ? 'over' : 'left'}.
+                      </>
+                    ) : (
+                      'Leave this blank and the ring falls back to whatever the categories below add up to.'
+                    )}
+                  </p>
+                </div>
+
+                <p className="pt-2 text-sm font-medium leading-relaxed text-ink-400">
+                  {plan.total > 0
+                    ? `Optionally split it up. Leave a category blank and it just isn’t capped — it still counts towards the total above.`
+                    : `Set a cap per category for ${formatMonthLabel(month, { short: true })}. Leave one blank and it just won’t count towards your monthly limit.`}
                 </p>
 
                 {categories.map((category) => {
@@ -193,17 +253,55 @@ export default function BudgetsPanel({
                   )
                 })}
 
-                <div className="flex items-start gap-2.5 rounded-2xl border-2 border-lime-500 bg-lime-100 p-3 text-sm font-semibold text-lime-700">
-                  <Icon3D name={total > 0 ? 'sparkles' : 'bulb'} size={20} />
+                {/* Live reconciliation of the two halves. Over-allocating is a
+                    warning, not an error — deciding to overspend on purpose is
+                    a real thing to do, and the panel shouldn't block a save
+                    over it. */}
+                <div
+                  className={[
+                    'flex items-start gap-2.5 rounded-2xl border-2 p-3 text-sm font-semibold',
+                    plan.overAllocated
+                      ? 'border-tangerine-500 bg-tangerine-100 text-tangerine-600'
+                      : 'border-lime-500 bg-lime-100 text-lime-700',
+                  ].join(' ')}
+                >
+                  <Icon3D
+                    name={plan.overAllocated ? 'bulb' : plan.total > 0 || plan.allocated > 0 ? 'sparkles' : 'bulb'}
+                    size={20}
+                  />
                   <span>
-                    {total > 0 ? (
+                    {plan.total > 0 ? (
+                      plan.capped === 0 ? (
+                        <>
+                          <strong className="nums">{formatMoney(plan.total)}</strong> for the month,
+                          not split up. The ring counts down from it either way.
+                        </>
+                      ) : plan.overAllocated ? (
+                        <>
+                          Your categories add up to{' '}
+                          <strong className="nums">{formatMoney(plan.allocated)}</strong> — that’s{' '}
+                          <strong className="nums">
+                            {formatMoney(plan.allocated - plan.total)}
+                          </strong>{' '}
+                          more than the total above. The ring still counts down from the total.
+                        </>
+                      ) : (
+                        <>
+                          <strong className="nums">{formatMoney(plan.allocated)}</strong> of{' '}
+                          <strong className="nums">{formatMoney(plan.total)}</strong> split across{' '}
+                          {plan.capped} {plan.capped === 1 ? 'category' : 'categories'} —{' '}
+                          <strong className="nums">{formatMoney(plan.unallocated)}</strong>{' '}
+                          unallocated.
+                        </>
+                      )
+                    ) : plan.allocated > 0 ? (
                       <>
-                        <strong className="nums">{formatMoney(total)}</strong> budgeted across{' '}
-                        {capped} {capped === 1 ? 'category' : 'categories'} — that’s the number the
-                        ring counts down from.
+                        <strong className="nums">{formatMoney(plan.allocated)}</strong> budgeted
+                        across {plan.capped} {plan.capped === 1 ? 'category' : 'categories'} — with
+                        no total set, that’s the number the ring counts down from.
                       </>
                     ) : (
-                      'No caps set yet. Without budgets, the ring falls back to income minus spending for the month.'
+                      'Nothing capped yet. Without a total or any category budgets, the ring falls back to income minus spending for the month.'
                     )}
                   </span>
                 </div>

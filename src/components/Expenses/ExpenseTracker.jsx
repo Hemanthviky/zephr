@@ -70,6 +70,7 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
 
   const {
     budgets,
+    total: budgetTotal,
     loading: budgetsLoading,
     saving: budgetsSaving,
     error: budgetsError,
@@ -172,7 +173,7 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
               <BudgetSummary
                 transactions={transactions}
                 budgets={budgets}
-                categories={categories}
+                budgetTotal={budgetTotal}
                 categoryTotals={categoryTotals}
                 month={month}
                 loading={loadingShell}
@@ -275,7 +276,9 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
         month={month}
         categories={categories}
         budgets={budgets}
+        total={budgetTotal}
         spentByCategory={spentByCategory}
+        monthSpent={monthTotals.expense}
         onSave={saveBudgets}
         saving={budgetsSaving}
         error={budgetsError}

@@ -150,5 +150,14 @@ export function friendlyError(error, fallback = 'Something went wrong. Try again
   if (message.includes('row-level security') || message.includes('violates row-level')) {
     return 'That save was rejected by the database. Did schema.sql run successfully?'
   }
+  // A table or column the app expects isn't there — which on an existing
+  // project means schema.sql has gained something since it was last run.
+  if (
+    message.includes('could not find the table') ||
+    message.includes('could not find the') ||
+    message.includes('does not exist')
+  ) {
+    return 'Your database is missing something this needs. Re-run supabase/schema.sql in the Supabase SQL editor.'
+  }
   return error.message || fallback
 }

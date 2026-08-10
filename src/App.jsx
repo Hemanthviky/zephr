@@ -34,6 +34,24 @@ const PREVIEW =
     ? null
     : new URLSearchParams(window.location.search).get('preview')
 
+/**
+ * Which tab you're on lives in the URL fragment (`#money`), so a refresh puts
+ * you back where you were instead of dropping you on Food mid-task.
+ *
+ * The fragment rather than storage: it survives a reload, it's shareable, and
+ * it can't disagree with what the address bar says. It's still not a route —
+ * the pathname is what decides 404 — so nothing above needs to know about it.
+ */
+const TAB_IDS = new Set(['food', 'money'])
+
+function tabFromHash() {
+  if (typeof window === 'undefined') return 'food'
+  // Anything unrecognised falls back to Food. That deliberately includes the
+  // `#access_token=…` fragment Supabase lands on after an email confirmation.
+  const id = window.location.hash.slice(1)
+  return TAB_IDS.has(id) ? id : 'food'
+}
+
 export default function App() {
   const {
     user,
@@ -146,10 +164,16 @@ function previewPage(name) {
  * at, the month you'd navigated to, the entries already fetched. Scroll offset
  * isn't part of React state, so it's captured on the way out and restored on
  * the way back in.
+ *
+ * That covers switching. A reload is the other half: the active tab is mirrored
+ * into the URL fragment, so refreshing in the middle of the month's expenses
+ * leaves you in the month's expenses.
  */
 function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, onClearError }) {
-  const [tab, setTab] = useState('food')
-  const [moneyVisited, setMoneyVisited] = useState(false)
+  const [tab, setTab] = useState(tabFromHash)
+  // Reloading straight onto Money has to mount Money, or the lazy module would
+  // sit behind a `moneyVisited` flag that only a tab switch can ever set.
+  const [moneyVisited, setMoneyVisited] = useState(tab === 'money')
   const [profileOpen, setProfileOpen] = useState(false)
   const scrollPositions = useRef({ food: 0, money: 0 })
 
@@ -164,6 +188,30 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
     if (next === 'money') setMoneyVisited(true)
     setTab(next)
   }
+
+  // replaceState, not a hash assignment: writing location.hash pushes a history
+  // entry, and after a few taps the back button would walk you through every
+  // switch you made instead of leaving the app.
+  useEffect(() => {
+    const { pathname, search } = window.location
+    window.history.replaceState(null, '', `${pathname}${search}#${tab}`)
+  }, [tab])
+
+  // Someone editing the fragment by hand — or a browser restoring it — should
+  // still land on the right tab.
+  useEffect(() => {
+    const onHashChange = () => {
+      const next = tabFromHash()
+      setTab((current) => {
+        if (next === current) return current
+        scrollPositions.current[current] = window.scrollY
+        return next
+      })
+      if (next === 'money') setMoneyVisited(true)
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
 
   // Layout effect, not a plain effect: restore before paint so the page never
   // flashes at the top before jumping back down. `behavior: 'instant'` because

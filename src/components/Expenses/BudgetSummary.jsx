@@ -12,42 +12,51 @@ import { round0 } from '../../utils/nutritionMath'
 /**
  * "Remaining this month" — the Money module's hero card.
  *
- * Same visual grammar as the food tracker's progress card, on purpose: a 270°
- * arc carrying the one number that matters, linear bars underneath for the
- * breakdown, a demoted detail strip at the bottom. Only the labels change.
+ * This used to be the food tracker's progress card with different labels: the
+ * same 270° arc, the same 212px ring. It looked consistent and read wrong. A
+ * calorie goal resets every morning, so a dial that empties and refills is
+ * exactly right for it. A budget doesn't reset — it's drawn down across a month
+ * that is itself running out, and the question is never just "how much is
+ * left", it's "how much is left *and how far through the month am I*". Two
+ * quantities racing each other is a bar with two positions on it, not a ring
+ * with a tick mark on the rim that nobody could read.
  *
- * Three modes, driven by what the user has actually set up:
- *   budget — category budgets exist, so the arc is spent ÷ budget
- *   income — no budgets, but income logged: arc is spent ÷ income
- *   none   — neither, so there's nothing to divide by; show the raw spend
+ * So Money gets the month as a track: what you've spent filling from the left,
+ * a marker showing where today falls, and the gap between them telling you
+ * whether you're ahead or behind at a glance. Same tokens, same borders, same
+ * colours — coral once you're over — so it still belongs to the same app. The
+ * shared grammar is the palette and the chunk, not the geometry.
+ *
+ * Four modes, driven by what the user has actually set up:
+ *   total  — an overall monthly cap is set, so the bar is spent ÷ that
+ *   budget — no total, but category budgets exist: bar is spent ÷ their sum
+ *   income — neither, but income logged: bar is spent ÷ income
+ *   none   — nothing to divide by; show the raw spend and no bar
  */
-
-const RADIUS = 80
-const STROKE = 17
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS
-const ARC = 0.75
-
 export default function BudgetSummary({
   transactions,
   budgets,
-  categories,
+  budgetTotal = 0,
   categoryTotals,
   month,
   loading = false,
 }) {
-  const summary = budgetSummary(transactions, budgets)
+  const summary = budgetSummary(transactions, budgets, budgetTotal)
 
   if (loading) return <BudgetSummarySkeleton />
 
   const hasLimit = summary.mode !== 'none'
   const over = summary.over
-  // Ahead of schedule = you've burned less of the budget than of the month.
   const pace = monthProgress(month)
-  const onPace = hasLimit && !over && summary.progress <= pace + 0.03
   const live = isCurrentMonth(month)
+  // Ahead of schedule = you've burned less of the budget than of the month.
+  const onPace = hasLimit && !over && summary.progress <= pace + 0.03
 
   const headline = hasLimit ? Math.abs(round0(summary.remaining)) : round0(summary.spent)
   const caption = !hasLimit ? 'spent so far' : over ? 'over budget' : 'left to spend'
+
+  const days = daysInMonth(month)
+  const dayOfMonth = live ? Math.max(1, Math.round(pace * days)) : days
 
   // Only the three biggest categories get a bar — a nine-bar wall of colour is
   // a chart, and the chart is right below this card.
@@ -59,91 +68,84 @@ export default function BudgetSummary({
       aria-label={`Money for the month: ${formatMoney(summary.spent)} spent`}
     >
       <div className="card overflow-hidden p-5 pb-4">
-        {/* Percentage-sized, for the same reason as the food tracker's ring:
-            it has to survive a 280px screen and it may as well use a desktop
-            column when there is one. */}
-        <div className="relative mx-auto w-full max-w-[212px] lg:max-w-[236px]">
-          <svg viewBox="0 0 200 200" className="aspect-square w-full -rotate-[135deg]">
-            <circle
-              cx="100"
-              cy="100"
-              r={RADIUS}
-              fill="none"
-              stroke="#F7EDD8"
-              strokeWidth={STROKE}
-              strokeLinecap="round"
-              strokeDasharray={`${ARC * CIRCUMFERENCE} ${CIRCUMFERENCE}`}
-            />
-            <motion.circle
-              cx="100"
-              cy="100"
-              r={RADIUS}
-              fill="none"
-              stroke={over ? '#FF5A38' : '#C6F32B'}
-              strokeWidth={STROKE}
-              strokeLinecap="round"
-              strokeDasharray={`${ARC * CIRCUMFERENCE} ${CIRCUMFERENCE}`}
-              initial={false}
-              animate={{
-                strokeDashoffset: (1 - (hasLimit ? summary.progress : 0)) * ARC * CIRCUMFERENCE,
-              }}
-              transition={{ type: 'spring', stiffness: 90, damping: 20 }}
-              style={{ filter: 'drop-shadow(0 3px 0 rgba(27,25,21,0.14))' }}
-            />
-
-            {/* Where you *should* be by today, if spending evenly. */}
-            {hasLimit && live && (
-              <line
-                x1="100"
-                y1="100"
-                x2="100"
-                y2={100 - RADIUS - STROKE / 2 - 2}
-                stroke="#1B1915"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                opacity="0.35"
-                transform={`rotate(${pace * ARC * 360} 100 100)`}
-              />
-            )}
-          </svg>
-
-          <div className="absolute inset-0 flex flex-col items-center justify-center pb-2 text-center">
-            <span className="label-caps">{caption}</span>
-            {/* text-money / -long carry their own leading, tracking and weight,
-                and both clamp against the viewport so a six-figure total
-                doesn't run out of ring on a small phone. */}
-            <span
+        {/* ── The number ──────────────────────────────────────────────── */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="label-caps">{caption}</p>
+            <p
               className={`nums font-display ${over ? 'text-coral-500' : 'text-ink-900'} ${
                 headline >= 100000 ? 'text-money-long' : 'text-money'
               }`}
             >
               {formatMoney(headline)}
-            </span>
-            <span className="mt-1 px-6 text-[0.7rem] font-bold leading-tight text-ink-400">
+            </p>
+            <p className="mt-1.5 text-xs font-bold text-ink-400">
+              {/* 'earned' only for the income fallback — both budget modes are
+                  money the user set aside, not money that came in. */}
               {hasLimit
-                ? `of ${formatMoney(summary.limit)} ${summary.mode === 'budget' ? 'budgeted' : 'earned'}`
+                ? `of ${formatMoney(summary.limit)} ${summary.mode === 'income' ? 'earned' : 'budgeted'}`
                 : 'no budget set yet'}
-            </span>
+            </p>
           </div>
 
           {onPace && live && (
             <motion.div
-              className="pointer-events-none absolute -right-1 -top-1"
+              className="shrink-0"
               initial={{ scale: 0, rotate: -20, opacity: 0 }}
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 15, delay: 0.25 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 15, delay: 0.2 }}
             >
-              <Icon3D name="sparkles" size={40} />
+              <Icon3D name="sparkles" size={44} />
             </motion.div>
           )}
+          {over && <Icon3D name="chartdown" size={44} className="shrink-0" />}
         </div>
 
+        {/* ── The month, as a track ───────────────────────────────────── */}
+        {hasLimit ? (
+          <div className="mt-4">
+            <MonthTrack progress={summary.progress} over={over} pace={pace} live={live} />
+
+            <div className="mt-2 flex items-baseline justify-between gap-2 text-[0.7rem] font-bold">
+              <span className={over ? 'text-coral-600' : 'text-ink-500'}>
+                <span className="nums font-display text-sm font-extrabold">
+                  {Math.round(summary.progress * 100)}%
+                </span>{' '}
+                of budget
+              </span>
+
+              <span className="truncate text-ink-400">
+                {live ? (
+                  <>
+                    day <span className="nums">{dayOfMonth}</span> of{' '}
+                    <span className="nums">{days}</span> ·{' '}
+                    <span className={onPace ? 'text-lime-700' : over ? 'text-coral-600' : 'text-ink-500'}>
+                      {over ? 'over' : onPace ? 'ahead' : 'behind pace'}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="nums">{days}</span> days · closed
+                  </>
+                )}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border-2 border-dashed border-ink-900/15 p-3">
+            <Icon3D name="target" size={30} />
+            <p className="text-xs font-semibold leading-snug text-ink-400">
+              Set a total for the month in Budgets and this becomes a countdown.
+            </p>
+          </div>
+        )}
+
         {/* Spent / in / net */}
-        <div className="mx-auto -mt-3 mb-5 flex w-full max-w-[320px] items-center justify-center gap-1">
+        <div className="mt-5 flex items-center justify-center gap-1 rounded-2xl border-2 border-ink-900/10 bg-cream-100 p-2">
           <Chip label="spent" value={formatMoney(summary.spent, { compact: true })} tone="ink" />
-          <span className="h-6 w-px bg-ink-900/10" />
+          <span className="h-7 w-px bg-ink-900/10" />
           <Chip label="income" value={formatMoney(summary.income, { compact: true })} tone="lime" />
-          <span className="h-6 w-px bg-ink-900/10" />
+          <span className="h-7 w-px bg-ink-900/10" />
           <Chip
             label="net"
             value={formatMoney(summary.net, { compact: true, sign: true })}
@@ -151,9 +153,9 @@ export default function BudgetSummary({
           />
         </div>
 
-        {/* Top categories, as the macro bars' direct counterpart */}
+        {/* Top categories */}
         {topCategories.length > 0 ? (
-          <div className="space-y-3.5">
+          <div className="mt-5 space-y-3.5">
             {topCategories.map((category) => (
               <div key={category.id} className="flex items-center gap-3">
                 <span
@@ -175,7 +177,7 @@ export default function BudgetSummary({
             ))}
           </div>
         ) : (
-          <div className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-ink-900/15 p-3.5">
+          <div className="mt-5 flex items-center gap-3 rounded-2xl border-2 border-dashed border-ink-900/15 p-3.5">
             <Icon3D name="moneybag" size={34} />
             <p className="text-sm font-semibold leading-snug text-ink-400">
               Nothing spent this month yet. Add one and the breakdown fills in.
@@ -190,10 +192,9 @@ export default function BudgetSummary({
             <Detail label="Categories" value={String(categoryTotals.length)} />
             <Detail
               label="Avg / day"
-              value={formatMoney(
-                summary.spent / Math.max(1, Math.round(pace * daysInMonth(month))),
-                { compact: true }
-              )}
+              value={formatMoney(summary.spent / Math.max(1, Math.round(pace * days)), {
+                compact: true,
+              })}
               title="Spent so far, divided by days elapsed this month"
             />
             <Detail
@@ -205,6 +206,63 @@ export default function BudgetSummary({
         )}
       </div>
     </section>
+  )
+}
+
+/**
+ * The month as a single bar: spend filling from the left, today marked on it.
+ *
+ * The marker is the whole point. Filled past it means you're spending faster
+ * than the month is passing — the one thing a budget can tell you that a
+ * running total can't, and something the arc's tick on the rim never managed
+ * to say out loud.
+ */
+function MonthTrack({ progress, over, pace, live }) {
+  const filled = Math.min(1, progress)
+  const overflow = Math.min(1, Math.max(0, progress - 1))
+
+  return (
+    <div
+      className="relative h-6 w-full overflow-hidden rounded-pill border-2 border-ink-900/15 bg-cream-200 shadow-inset"
+      role="progressbar"
+      aria-label="Budget used this month"
+      aria-valuenow={Math.round(progress * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
+      <motion.div
+        className="absolute inset-y-0 left-0 rounded-pill"
+        style={{ background: over ? '#FF5A38' : '#C6F32B' }}
+        initial={false}
+        animate={{ width: `${filled * 100}%` }}
+        transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+      />
+
+      {/* Past the cap: hard stripes, so "just over" and "double" don't look
+          identical the way a clamped bar makes them. */}
+      {over && (
+        <motion.div
+          className="absolute inset-y-0 right-0"
+          style={{
+            background: 'repeating-linear-gradient(45deg, #B32E13 0 6px, #E33E1C 6px 12px)',
+          }}
+          initial={{ width: 0 }}
+          animate={{ width: `${Math.max(overflow, 0.08) * 100}%` }}
+          transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+        />
+      )}
+
+      {/* Where today falls. Only on a month still running — on a closed month
+          "today" is off the end and the line would just sit against the edge. */}
+      {live && (
+        <span
+          className="absolute inset-y-0 w-[3px] -translate-x-1/2 rounded-pill bg-ink-900/70"
+          style={{ left: `${pace * 100}%` }}
+          aria-hidden="true"
+          title="Where today falls in the month"
+        />
+      )}
+    </div>
   )
 }
 
@@ -247,8 +305,12 @@ function BudgetSummarySkeleton() {
   return (
     <section className="card-stacked" aria-busy="true" aria-label="Loading this month">
       <div className="card p-5">
-        <div className="skeleton mx-auto aspect-square w-full max-w-[212px] rounded-full lg:max-w-[236px]" />
-        <div className="mt-6 space-y-4">
+        <div className="skeleton h-3 w-24" />
+        <div className="skeleton mt-2.5 h-12 w-3/5" />
+        <div className="skeleton mt-3 h-3 w-32" />
+        <div className="skeleton mt-4 h-6 w-full rounded-pill" />
+        <div className="skeleton mt-5 h-14 w-full" />
+        <div className="mt-5 space-y-4">
           {[0, 1, 2].map((i) => (
             <div key={i} className="space-y-2">
               <div className="skeleton h-3 w-28" />

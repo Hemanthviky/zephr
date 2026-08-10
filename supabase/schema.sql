@@ -203,6 +203,26 @@ create table if not exists public.budgets (
 create index if not exists budgets_user_month_idx on public.budgets (user_id, month);
 
 -- ----------------------------------------------------------------------------
+-- month_budgets: one overall cap for the whole month, set directly rather than
+-- inferred from the category rows above.
+--
+-- A separate table rather than a null-category row in `budgets`: that table's
+-- primary key is (user_id, category_id, month), and Postgres will not accept a
+-- null inside a primary key. Two tables also keep two different questions
+-- apart — "what am I allowed to spend this month" and "how do I intend to
+-- split it" — which is how the budgets panel asks them.
+--
+-- Optional, like everything else here. No row means no overall cap, and the
+-- month falls back to the sum of the category budgets exactly as before.
+-- ----------------------------------------------------------------------------
+create table if not exists public.month_budgets (
+  user_id uuid           not null references auth.users (id) on delete cascade,
+  month   date           not null check (extract(day from month) = 1),
+  amount  numeric(12, 2) not null check (amount >= 0),
+  primary key (user_id, month)
+);
+
+-- ----------------------------------------------------------------------------
 -- transactions: one manually entered expense or income.
 -- on delete set null for wallet/category so deleting a wallet never silently
 -- deletes the spending history attached to it.
@@ -228,15 +248,17 @@ create index if not exists transactions_user_date_idx
 -- `for all` with only `using` would already double as the insert check in
 -- Postgres, but `with check` is spelled out so the intent survives an edit.
 -- ----------------------------------------------------------------------------
-alter table public.wallets      enable row level security;
-alter table public.categories   enable row level security;
-alter table public.budgets      enable row level security;
-alter table public.transactions enable row level security;
+alter table public.wallets       enable row level security;
+alter table public.categories    enable row level security;
+alter table public.budgets       enable row level security;
+alter table public.month_budgets enable row level security;
+alter table public.transactions  enable row level security;
 
-drop policy if exists "own wallets"      on public.wallets;
-drop policy if exists "own categories"   on public.categories;
-drop policy if exists "own budgets"      on public.budgets;
-drop policy if exists "own transactions" on public.transactions;
+drop policy if exists "own wallets"       on public.wallets;
+drop policy if exists "own categories"    on public.categories;
+drop policy if exists "own budgets"       on public.budgets;
+drop policy if exists "own month budgets" on public.month_budgets;
+drop policy if exists "own transactions"  on public.transactions;
 
 create policy "own wallets" on public.wallets
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
@@ -245,6 +267,9 @@ create policy "own categories" on public.categories
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create policy "own budgets" on public.budgets
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own month budgets" on public.month_budgets
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create policy "own transactions" on public.transactions

@@ -46,7 +46,7 @@ Open **SQL Editor → New query** in your Supabase dashboard, paste the entire c
 
 The whole file is idempotent (`create table if not exists`, `drop policy if exists` before each `create policy`), so re-running it is safe and won't touch existing rows.
 
-It creates six tables:
+It creates seven tables:
 
 | Table | Module | What it holds |
 | --- | --- | --- |
@@ -55,9 +55,12 @@ It creates six tables:
 | `wallets` | Money | Cash / Bank / Card, plus any you add. Seeded on first visit to the Money tab. |
 | `categories` | Money | Nine defaults (Food & Dining, Transport, Rent & Housing, Shopping, Bills & Utilities, Entertainment, Health, Groceries, Other) plus your own. Seeded on first visit. |
 | `budgets` | Money | Optional monthly cap per category. Primary key is `(user_id, category_id, month)`; `month` is always the 1st. |
+| `month_budgets` | Money | Optional overall cap for a whole month — one row per `(user_id, month)`. Set directly rather than inferred from the category rows, and it's what the month bar counts down from when present. |
 | `transactions` | Money | One row per manually entered expense or income. |
 
 **Already running an older version with just `goals` and `entries`?** The money tables are appended in a clearly marked `MONEY MODULE` section at the bottom of the file — run only that section.
+
+**Already running the money module without `month_budgets`?** Re-run the whole file; `create table if not exists` leaves your existing rows alone. Until you do, the Money tab works exactly as before — the overall-budget field just reads as empty, and trying to save one tells you to run this file.
 
 Every table has Row Level Security enabled with policies restricting all operations to `auth.uid() = user_id`. Nutrition snapshots on `entries` are deliberately denormalised: correcting the food database later must not silently rewrite what you ate last March. Same reasoning applies to `transactions`, whose `wallet_id`/`category_id` foreign keys are `on delete set null` — deleting a wallet never deletes the spending history attached to it.
 
@@ -121,11 +124,13 @@ No serverless functions, no custom server, nothing to configure beyond the above
 
 **Food.** Search 160 foods (fruit, veg, grains, proteins, dairy, Indian dishes, fast food, snacks, drinks) — type "dosa" or "dal" and pick. Selecting one pre-fills its typical serving in grams; adjust and the calories update live before you commit. The arc shows what's left of your calorie goal; the three bars are protein, carbs and fat. Arrows move between days, and you can't navigate into the future.
 
-**Money.** Tap **Add expense** for amount → category → wallet → note → date, with an expense/income toggle. The arc counts down from your total category budgets if you've set any, or from income logged that month if you haven't. Below it: a donut of where the month went, a six-month trend line, and the transaction list grouped by day — tap a row to edit, trash to delete.
+**Money.** Tap **Add expense** for amount → category → wallet → note → date, with an expense/income toggle. The month reads as a bar rather than a dial — a budget isn't a daily gauge that refills, it's drawn down across a month that's running out too, so spending fills from the left and a marker shows where today falls. Filled past the marker means you're spending faster than the month is passing. It counts down from whichever cap you've set: an overall total for the month if there is one, otherwise the sum of your category budgets, otherwise income logged that month. Below it: a donut of where the month went, a six-month trend line, and the transaction list grouped by day — tap a row to edit, trash to delete.
 
-**Goals and budgets** live behind the sliders icon at the top-right of each tab. Food goals are one set of numbers that carry forever; money budgets are per category, per month.
+**Goals and budgets** live behind the sliders icon at the top-right of each tab. Food goals are one set of numbers that carry forever. Money budgets are per month: one overall total, and — optionally — a split of it across categories. Set either, both, or neither; a total wins over the split, because it's a figure you stated rather than one the app inferred, and a half-filled breakdown shouldn't quietly lower a cap you typed by hand.
 
-Switching tabs preserves each side's state — the day you were on, the month you'd scrolled to, the data already fetched, and your scroll position.
+Both navigators have a third control people miss: the label between the arrows is a button. Tapping it opens a calendar — days on the Food tab, months on the Money tab — because arrows are right for yesterday and wrong for the 3rd of last March.
+
+Switching tabs preserves each side's state — the day you were on, the month you'd scrolled to, the data already fetched, and your scroll position. Reloading preserves the tab itself: the active one is mirrored into the URL fragment (`#money`), so a refresh mid-month doesn't drop you back on Food.
 
 ---
 
@@ -147,7 +152,7 @@ src/
 │   ├── useTransactions.js     a month's transactions + 6 months of history
 │   ├── useWallets.js          wallets, seeded on first use
 │   ├── useCategories.js       categories, seeded on first use
-│   └── useBudgets.js          per-category monthly budgets
+│   └── useBudgets.js          the month's overall cap + its per-category split
 ├── utils/
 │   ├── dateHelpers.js         local-timezone calendar days (never UTC)
 │   ├── nutritionMath.js       scaling, totals, goal status

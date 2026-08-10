@@ -166,25 +166,53 @@ export function totalBudget(budgets = {}) {
 }
 
 /**
+ * How the month's cap is made up: the overall figure the user set, what the
+ * category budgets underneath it add up to, and the gap between the two.
+ *
+ * `unallocated` is only meaningful with an overall total — without one there's
+ * nothing for the categories to be a share of, so it stays at zero rather than
+ * reporting a negative number against a cap that doesn't exist.
+ */
+export function budgetPlan(budgets = {}, monthTotal = 0) {
+  const total = Math.max(0, Number(monthTotal) || 0)
+  const allocated = totalBudget(budgets)
+  const capped = Object.values(budgets).filter((amount) => (Number(amount) || 0) > 0).length
+
+  return {
+    total,
+    allocated,
+    capped,
+    unallocated: total > 0 ? total - allocated : 0,
+    overAllocated: total > 0 && allocated > total,
+  }
+}
+
+/**
  * The single number the hero ring is built around.
  *
- * Two modes, because "what's left" means different things depending on how the
- * user has set the month up:
- *   • budgets set → cap is the sum of category budgets, spent counts expenses.
+ * Three modes, because "what's left" means different things depending on how
+ * the user has set the month up:
+ *   • total set   → cap is that one figure. It wins over the category rows:
+ *                   an overall budget is a direct statement about the month,
+ *                   while the sum of the categories is only ever an inference,
+ *                   and a half-filled breakdown shouldn't quietly lower a cap
+ *                   the user typed by hand.
+ *   • budgets set → cap is the sum of the category budgets.
  *   • no budgets  → cap is income logged this month, so the ring reads as
  *                   "how much of what came in is still here".
- * With neither, there's nothing to divide by and the ring stays empty.
+ * With none of the three, there's nothing to divide by and the ring stays empty.
  */
-export function budgetSummary(transactions, budgets) {
+export function budgetSummary(transactions, budgets, monthTotal = 0) {
   const { expense, income, net } = sumTransactions(transactions)
-  const cap = totalBudget(budgets)
-  const usingBudget = cap > 0
+  const plan = budgetPlan(budgets, monthTotal)
+  const cap = plan.total > 0 ? plan.total : plan.allocated
 
-  const limit = usingBudget ? cap : income
+  const limit = cap > 0 ? cap : income
   const remaining = limit - expense
 
   return {
-    mode: usingBudget ? 'budget' : income > 0 ? 'income' : 'none',
+    mode: plan.total > 0 ? 'total' : plan.allocated > 0 ? 'budget' : income > 0 ? 'income' : 'none',
+    plan,
     limit,
     spent: expense,
     income,
