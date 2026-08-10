@@ -4,11 +4,13 @@ import LoginForm from './components/Auth/LoginForm'
 import SignupForm from './components/Auth/SignupForm'
 import Tracker from './components/Tracker/Tracker'
 import TabBar from './components/shared/TabBar'
+import ProfilePanel from './components/Settings/ProfilePanel'
 import Icon3D from './components/shared/Icon3D'
 import NotFound from './components/Errors/NotFound'
 import Offline from './components/Errors/Offline'
 import CrashScreen from './components/Errors/CrashScreen'
-import { useAuth } from './hooks/useAuth'
+import { useAuth, displayName } from './hooks/useAuth'
+import { useGoals } from './hooks/useGoals'
 import { useOnline } from './hooks/useOnline'
 import { isSupabaseConfigured } from './lib/supabaseClient'
 
@@ -33,7 +35,20 @@ const PREVIEW =
     : new URLSearchParams(window.location.search).get('preview')
 
 export default function App() {
-  const { user, loading, pending, error, notice, signIn, signUp, signOut, clearMessages } = useAuth()
+  const {
+    user,
+    loading,
+    pending,
+    error,
+    notice,
+    rememberedByDefault,
+    profileSaving,
+    signIn,
+    signUp,
+    signOut,
+    updateName,
+    clearMessages,
+  } = useAuth()
   const [mode, setMode] = useState('login')
   const online = useOnline()
   const [ignoredOffline, setIgnoredOffline] = useState(false)
@@ -78,6 +93,7 @@ export default function App() {
             error={error}
             onSwitch={switchMode}
             onDirty={clearMessages}
+            rememberedByDefault={rememberedByDefault}
           />
         ) : (
           <SignupForm
@@ -93,7 +109,16 @@ export default function App() {
     )
   }
 
-  return <Modules user={user} onSignOut={signOut} />
+  return (
+    <Modules
+      user={user}
+      onSignOut={signOut}
+      onUpdateName={updateName}
+      profileSaving={profileSaving}
+      profileError={error}
+      onClearError={clearMessages}
+    />
+  )
 }
 
 /** Error pages on demand, for design work and for checking them after a change. */
@@ -122,10 +147,16 @@ function previewPage(name) {
  * isn't part of React state, so it's captured on the way out and restored on
  * the way back in.
  */
-function Modules({ user, onSignOut }) {
+function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, onClearError }) {
   const [tab, setTab] = useState('food')
   const [moneyVisited, setMoneyVisited] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const scrollPositions = useRef({ food: 0, money: 0 })
+
+  // One goals instance for the whole app: the tracker reads the targets, the
+  // profile edits the body stats behind them. Two hooks would drift apart the
+  // moment either saved.
+  const goalsState = useGoals(user.id)
 
   function switchTab(next) {
     if (next === tab) return
@@ -140,21 +171,50 @@ function Modules({ user, onSignOut }) {
     window.scrollTo(0, scrollPositions.current[tab] ?? 0)
   }, [tab])
 
+  function openProfile() {
+    onClearError?.()
+    setProfileOpen(true)
+  }
+
   return (
     <>
       <div style={{ display: tab === 'food' ? undefined : 'none' }}>
-        <Tracker user={user} onSignOut={onSignOut} />
+        {/* Signing out lives in the profile now, so the modules no longer need it. */}
+        <Tracker user={user} onOpenProfile={openProfile} goalsState={goalsState} />
       </div>
 
       {moneyVisited && (
         <div style={{ display: tab === 'money' ? undefined : 'none' }}>
           <Suspense fallback={<ModuleLoading />}>
-            <ExpenseTracker user={user} onSignOut={onSignOut} />
+            <ExpenseTracker user={user} onOpenProfile={openProfile} />
           </Suspense>
         </div>
       )}
 
-      <TabBar value={tab} onChange={switchTab} />
+      <TabBar
+        value={tab}
+        onChange={switchTab}
+        userName={displayName(user)}
+        userEmail={user.email}
+        onOpenProfile={openProfile}
+      />
+
+      {/* Profile belongs to the app, not to either module, so it lives here
+          alongside the tab bar that opens it. */}
+      <ProfilePanel
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        user={user}
+        onUpdateName={onUpdateName}
+        saving={profileSaving}
+        error={profileError}
+        onClearError={onClearError}
+        onSignOut={onSignOut}
+        goals={goalsState.goals}
+        onSaveGoals={goalsState.saveGoals}
+        goalsSaving={goalsState.saving}
+        goalsError={goalsState.error}
+      />
     </>
   )
 }

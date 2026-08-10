@@ -41,6 +41,38 @@ create table if not exists public.entries (
   created_at timestamptz not null default now()
 );
 
+-- ----------------------------------------------------------------------------
+-- Body stats, used to estimate a calorie target (Mifflin–St Jeor) in the goals
+-- panel. All nullable: the calculator is an optional convenience, and goals
+-- typed in by hand stay perfectly valid without any of this.
+--
+-- Added after the first release, so `add column if not exists` rather than a
+-- change to the create above — existing rows just get nulls.
+-- ----------------------------------------------------------------------------
+alter table public.goals
+  add column if not exists height_cm numeric(5, 1)
+    check (height_cm is null or height_cm between 80 and 260),
+  add column if not exists weight_kg numeric(5, 1)
+    check (weight_kg is null or weight_kg between 20 and 400),
+  add column if not exists age integer
+    check (age is null or age between 13 and 120),
+  add column if not exists sex text
+    check (sex is null or sex in ('male', 'female')),
+  add column if not exists activity text
+    check (activity is null or activity in ('sedentary', 'light', 'moderate', 'active', 'athlete')),
+  add column if not exists aim text
+    check (aim is null or aim in ('lose', 'maintain', 'gain'));
+
+-- ----------------------------------------------------------------------------
+-- Which section of the day an entry belongs to. Nullable: rows logged before
+-- this column existed fall back to their created_at time in the app, so no
+-- backfill is needed and no history lands in the wrong bucket.
+-- 'snack' is intentionally not tied to a time of day — see utils/meals.js.
+-- ----------------------------------------------------------------------------
+alter table public.entries
+  add column if not exists meal text
+    check (meal is null or meal in ('morning', 'afternoon', 'evening', 'night', 'snack'));
+
 -- The only query the app ever runs against entries: "this user, this day,
 -- oldest first". One composite index covers it.
 create index if not exists entries_user_date_idx

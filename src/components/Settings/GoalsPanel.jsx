@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Save, LogOut, AlertTriangle, Wand2 } from 'lucide-react'
+import { X, Save, AlertTriangle, Wand2, ChevronRight } from 'lucide-react'
 import Button from '../shared/Button'
 import Input from '../shared/Input'
 import Icon3D from '../shared/Icon3D'
@@ -15,13 +15,24 @@ import { MACRO_META, MACROS, round0 } from '../../utils/nutritionMath'
  * the macro grams from the calorie goal so nobody has to do 4/4/9 by hand.
  */
 
+
 const SPLIT_PRESETS = [
   { id: 'balanced', label: 'Balanced', hint: '30/40/30', split: { protein: 0.3, carbs: 0.4, fat: 0.3 } },
   { id: 'protein', label: 'High protein', hint: '40/30/30', split: { protein: 0.4, carbs: 0.3, fat: 0.3 } },
   { id: 'lowcarb', label: 'Low carb', hint: '35/20/45', split: { protein: 0.35, carbs: 0.2, fat: 0.45 } },
 ]
 
-export default function GoalsPanel({ open, onClose, goals, onSave, saving, error, email, onSignOut }) {
+export default function GoalsPanel({
+  open,
+  onClose,
+  goals,
+  onSave,
+  saving,
+  error,
+  email,
+  name,
+  onOpenProfile,
+}) {
   const [draft, setDraft] = useState(goals)
   const [dirty, setDirty] = useState(false)
 
@@ -59,12 +70,15 @@ export default function GoalsPanel({ open, onClose, goals, onSave, saving, error
   function applyPreset(preset) {
     const kcal = Number(draft.calories) || 2000
     setDirty(true)
-    setDraft({
+    // Spread, don't replace: the draft also carries the body stats, and a
+    // rebuilt object would send nulls for all of them on the next save.
+    setDraft((prev) => ({
+      ...prev,
       calories: kcal,
       protein: Math.round((kcal * preset.split.protein) / 4),
       carbs: Math.round((kcal * preset.split.carbs) / 4),
       fat: Math.round((kcal * preset.split.fat) / 9),
-    })
+    }))
   }
 
   async function handleSubmit(event) {
@@ -79,7 +93,7 @@ export default function GoalsPanel({ open, onClose, goals, onSave, saving, error
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
           <motion.button
             type="button"
             aria-label="Close settings"
@@ -108,7 +122,7 @@ export default function GoalsPanel({ open, onClose, goals, onSave, saving, error
               <Icon3D name="target" size={34} />
               <div className="min-w-0 flex-1">
                 <h2 className="font-display text-xl font-extrabold tracking-tight">Daily goals</h2>
-                <p className="truncate text-xs font-semibold text-ink-400">{email}</p>
+                <p className="truncate text-xs font-semibold text-ink-400">{name || email}</p>
               </div>
               <button
                 type="button"
@@ -122,6 +136,21 @@ export default function GoalsPanel({ open, onClose, goals, onSave, saving, error
 
             <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
               <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 pb-5">
+                {/* Body stats live in the profile, not here — they describe you,
+                    not your targets, and one home for them means no two screens
+                    can disagree about your weight. */}
+                <button
+                  type="button"
+                  onClick={onOpenProfile}
+                  className="tactile flex min-h-[56px] w-full items-center gap-3 rounded-2xl border-2 border-ink-900/15 bg-cream-50 px-3 text-left hover:border-ink-900/35"
+                >
+                  <Icon3D name="scale" size={26} />
+                  <span className="min-w-0 flex-1 text-sm font-bold text-ink-700">
+                    Work these out from your height and weight
+                  </span>
+                  <ChevronRight className="h-5 w-5 shrink-0 text-ink-400" strokeWidth={3} />
+                </button>
+
                 <Input
                   label="Calories per day"
                   type="number"
@@ -207,12 +236,6 @@ export default function GoalsPanel({ open, onClose, goals, onSave, saving, error
                   </div>
                 )}
 
-                <div className="border-t-2 border-dashed border-ink-900/10 pt-5">
-                  <p className="label-caps mb-2">Account</p>
-                  <Button variant="ghost" size="sm" icon={LogOut} fullWidth onClick={onSignOut}>
-                    Log out
-                  </Button>
-                </div>
               </div>
 
               <div className="border-t-2 border-ink-900/10 bg-cream-50 px-5 pt-4 pb-safe">

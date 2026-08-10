@@ -25,6 +25,86 @@ if (!isSupabaseConfigured && import.meta.env.DEV) {
   )
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+   "Remember me"
+
+   Supabase decides where to keep a session once, at client construction, so a
+   per-login choice has to come from a storage adapter that picks its own
+   backing store at write time:
+
+     remembered  → localStorage,   survives closing the browser
+     not         → sessionStorage, dies with the tab
+
+   Reads check sessionStorage first, so a deliberately temporary session is
+   never shadowed by a stale remembered one. Both stores throw in Safari
+   private mode and with cookies blocked, hence the probe and the in-memory
+   fallback — a login that can't be persisted should still work for the tab
+   you're in rather than crashing on the first write.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+const REMEMBER_KEY = 'zephr.remember'
+
+function usableStorage(get) {
+  try {
+    const store = get()
+    const probe = '__zephr_probe__'
+    store.setItem(probe, '1')
+    store.removeItem(probe)
+    return store
+  } catch {
+    return null
+  }
+}
+
+const localStore = usableStorage(() => window.localStorage)
+const sessionStore = usableStorage(() => window.sessionStorage)
+const memoryStore = new Map()
+
+/** Defaults to true — the friendlier answer, and what the app did before. */
+export function getRememberMe() {
+  try {
+    return localStore?.getItem(REMEMBER_KEY) !== 'false'
+  } catch {
+    return true
+  }
+}
+
+/** Call this *before* signing in; the next token write reads it. */
+export function setRememberMe(remember) {
+  try {
+    localStore?.setItem(REMEMBER_KEY, remember ? 'true' : 'false')
+  } catch {
+    /* nothing to do — the adapter below falls back to memory */
+  }
+}
+
+const authStorage = {
+  getItem(key) {
+    return sessionStore?.getItem(key) ?? localStore?.getItem(key) ?? memoryStore.get(key) ?? null
+  },
+  setItem(key, value) {
+    const remember = getRememberMe()
+    const target = remember ? localStore : sessionStore
+    const other = remember ? sessionStore : localStore
+
+    // Drop the copy in the store we're no longer using, or switching
+    // "remember me" off would leave a working token behind in localStorage.
+    try {
+      other?.removeItem(key)
+    } catch {
+      /* ignore */
+    }
+
+    if (target) target.setItem(key, value)
+    else memoryStore.set(key, value)
+  },
+  removeItem(key) {
+    localStore?.removeItem(key)
+    sessionStore?.removeItem(key)
+    memoryStore.delete(key)
+  },
+}
+
 export const supabase = isSupabaseConfigured
   ? createClient(url, anonKey, {
       auth: {
@@ -32,6 +112,7 @@ export const supabase = isSupabaseConfigured
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storageKey: 'zephr.auth',
+        storage: authStorage,
       },
     })
   : null

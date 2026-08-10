@@ -12,12 +12,29 @@ import { formatTime } from '../../utils/dateHelpers'
  * next to a 44px touch target deletes things people meant to keep, and a modal
  * for "remove one banana" is far too much ceremony.
  */
+function describeServings(grams, serving) {
+  if (!serving || !grams) return null
+
+  const count = Number(grams) / serving
+  const nearestHalf = Math.round(count * 2) / 2
+  if (nearestHalf < 0.5 || nearestHalf > 20) return null
+  if (Math.abs(count - nearestHalf) > 0.03) return null
+
+  const label = Number(nearestHalf.toFixed(1)).toString()
+  return `${label} ${nearestHalf === 1 ? 'serving' : 'servings'}`
+}
+
 export default function LogEntryRow({ entry, onDelete, index = 0 }) {
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   const food = getFoodByName(entry.name)
   const isPending = String(entry.id).startsWith('optimistic-')
+
+  // Derived, not stored: entries only keep grams, so a food whose serving size
+  // we still recognise gets its count reconstructed. Shown only when it lands
+  // on a clean half — "1.37 servings" is noise, not information.
+  const servings = describeServings(entry.grams, food?.serving)
 
   async function handleDelete() {
     setDeleting(true)
@@ -51,7 +68,10 @@ export default function LogEntryRow({ entry, onDelete, index = 0 }) {
             {entry.name}
           </p>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs font-semibold text-ink-400">
-            <span className="nums">{formatGrams(entry.grams)}</span>
+            <span className="nums">
+              {formatGrams(entry.grams)}
+              {servings && <span className="text-ink-300"> · {servings}</span>}
+            </span>
             {MACROS.map((macro) => (
               <span key={macro} className="nums inline-flex items-center gap-1">
                 <span

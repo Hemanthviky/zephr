@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion'
 import Icon3D from './Icon3D'
+import Avatar from './Avatar'
 
 /**
  * The app's two modules, in whichever navigation the screen calls for.
  *
  * Under `lg` it's a bottom bar: thumb-reachable, sitting below each module's
  * own primary action button (which is offset to clear it), so switching tabs
- * and logging something never leave the bottom third of the phone.
+ * and logging something never leave the bottom third of the phone. It holds two
+ * items and only two — profile is not a third module, and squeezing an avatar
+ * in beside the tabs made it read as one. On phones that lives in the module
+ * header instead, top-right, where an account has lived on mobile for a decade.
  *
  * From `lg` up a bottom bar is wrong — the pointer is nowhere near the bottom
  * of a 1440px window, and a full-width strip of chrome wastes the one thing a
@@ -29,7 +33,7 @@ export const TAB_BAR_HEIGHT = 64
 /** Width of the desktop rail. Modules offset their content by this at lg. */
 export const SIDEBAR_WIDTH = 248
 
-export default function TabBar({ value, onChange }) {
+export default function TabBar({ value, onChange, userName = '', userEmail = '', onOpenProfile }) {
   return (
     <>
       {/* ── Mobile: bottom bar ───────────────────────────────────────────── */}
@@ -70,6 +74,7 @@ export default function TabBar({ value, onChange }) {
               </button>
             )
           })}
+
         </div>
       </nav>
 
@@ -132,11 +137,31 @@ export default function TabBar({ value, onChange }) {
           })}
         </div>
 
-        <p className="mt-auto px-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-ink-300">
-          Typed by hand,
-          <br />
-          counted for you
-        </p>
+        {/* The rail has room a bottom bar doesn't, so desktop gets the whole
+            identity — monogram, name, email — as the way in. */}
+        {onOpenProfile ? (
+          <button
+            type="button"
+            onClick={onOpenProfile}
+            className="tactile mt-auto flex min-h-[64px] items-center gap-3 rounded-2xl border-2 border-ink-900/10 bg-cream-100 px-3 text-left transition-colors hover:border-ink-900/30"
+          >
+            <Avatar name={userName} size={40} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-display text-sm font-extrabold leading-tight">
+                {userName}
+              </span>
+              <span className="block truncate text-[0.7rem] font-semibold text-ink-400">
+                {userEmail}
+              </span>
+            </span>
+          </button>
+        ) : (
+          <p className="mt-auto px-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-ink-300">
+            Typed by hand,
+            <br />
+            counted for you
+          </p>
+        )}
       </nav>
     </>
   )

@@ -6,10 +6,11 @@ import FoodLog from './FoodLog'
 import AddFoodForm from './AddFoodForm'
 import GoalsPanel from '../Settings/GoalsPanel'
 import Icon3D from '../shared/Icon3D'
+import Avatar from '../shared/Avatar'
 import { IconButton } from '../shared/Button'
 import { useEntries } from '../../hooks/useEntries'
-import { useGoals } from '../../hooks/useGoals'
-import { todayISO } from '../../utils/dateHelpers'
+import { firstName, displayName } from '../../hooks/useAuth'
+import { todayISO, timeGreeting } from '../../utils/dateHelpers'
 
 /**
  * The signed-in app.
@@ -24,7 +25,7 @@ import { todayISO } from '../../utils/dateHelpers'
  * log gets the wider right column, and the docked button — pointless when the
  * pointer is mid-screen — becomes an ordinary button under the progress card.
  */
-export default function Tracker({ user, onSignOut }) {
+export default function Tracker({ user, onOpenProfile, goalsState }) {
   const [date, setDate] = useState(todayISO)
   const [addOpen, setAddOpen] = useState(false)
   const [goalsOpen, setGoalsOpen] = useState(false)
@@ -41,13 +42,16 @@ export default function Tracker({ user, onSignOut }) {
     dismissError,
   } = useEntries(user.id, date)
 
+  // Goals are owned by App and shared with the profile panel, which edits the
+  // body stats behind them — two useGoals instances would silently diverge the
+  // moment either one saved.
   const {
     goals,
     loading: goalsLoading,
     saving: goalsSaving,
     error: goalsError,
     saveGoals,
-  } = useGoals(user.id)
+  } = goalsState
 
   function openAdd() {
     dismissError()
@@ -71,18 +75,35 @@ export default function Tracker({ user, onSignOut }) {
           </div>
 
           <div className="hidden min-w-0 lg:block">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">Food</h1>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+              {timeGreeting()}, {firstName(user)}.
+            </h1>
             <p className="mt-0.5 text-sm font-semibold text-ink-400">
               What you ate, and what it added up to.
             </p>
           </div>
 
-          <IconButton
-            icon={SlidersHorizontal}
-            label="Daily goals and account"
-            size="sm"
-            onClick={() => setGoalsOpen(true)}
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <IconButton
+              icon={SlidersHorizontal}
+              label="Daily goals"
+              size="sm"
+              onClick={() => setGoalsOpen(true)}
+            />
+
+            {/* Phone-only: the desktop rail already carries a full profile row,
+                so showing it here too would put the same avatar on screen twice. */}
+            {onOpenProfile && (
+              <button
+                type="button"
+                onClick={onOpenProfile}
+                aria-label="Your profile"
+                className="tactile rounded-2xl lg:hidden"
+              >
+                <Avatar name={displayName(user)} size={44} />
+              </button>
+            )}
+          </div>
         </header>
 
         {/* Two columns from lg: progress sticky on the left, log on the right. */}
@@ -162,7 +183,11 @@ export default function Tracker({ user, onSignOut }) {
         saving={goalsSaving}
         error={goalsError}
         email={user.email}
-        onSignOut={onSignOut}
+        name={displayName(user)}
+        onOpenProfile={() => {
+          setGoalsOpen(false)
+          onOpenProfile?.()
+        }}
       />
     </div>
   )

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ArrowLeft, Plus, AlertTriangle } from 'lucide-react'
+import { X, ArrowLeft, Plus, Minus, AlertTriangle } from 'lucide-react'
 import FoodSearchDropdown from './FoodSearchDropdown'
 import Button from '../shared/Button'
 import Icon3D from '../shared/Icon3D'
 import { CATEGORIES } from '../../data/foodDatabase'
 import { MACRO_META, MACROS, round0, round1, scaleFood } from '../../utils/nutritionMath'
+import { MEALS, mealForTime } from '../../utils/meals'
 
 /**
  * The "log a food" bottom sheet.
@@ -17,6 +18,7 @@ import { MACRO_META, MACROS, round0, round1, scaleFood } from '../../utils/nutri
 export default function AddFoodForm({ open, onClose, onAdd, saving = false, error }) {
   const [food, setFood] = useState(null)
   const [grams, setGrams] = useState('')
+  const [meal, setMeal] = useState(() => mealForTime())
 
   const parsedGrams = Number(grams)
   const gramsValid = Number.isFinite(parsedGrams) && parsedGrams > 0 && parsedGrams <= 5000
@@ -25,7 +27,12 @@ export default function AddFoodForm({ open, onClose, onAdd, saving = false, erro
   // Reset a step behind the closing animation so the sheet doesn't visibly
   // flip back to the search step on its way out.
   useEffect(() => {
-    if (open) return
+    if (open) {
+      // Re-read the clock on every open: a sheet left mounted since breakfast
+      // shouldn't still be defaulting to Morning at dinner.
+      setMeal(mealForTime())
+      return
+    }
     const timer = setTimeout(() => {
       setFood(null)
       setGrams('')
@@ -58,6 +65,7 @@ export default function AddFoodForm({ open, onClose, onAdd, saving = false, erro
     const ok = await onAdd({
       name: food.name,
       grams: round1(parsedGrams),
+      meal,
       ...scaled,
     })
     if (ok) onClose()
@@ -66,7 +74,10 @@ export default function AddFoodForm({ open, onClose, onAdd, saving = false, erro
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+        // z sits above the TabBar (z-50). They're siblings rendered in App and
+        // the bar comes last, so at equal z it painted over this sheet's
+        // footer — which on a phone is exactly where the submit button lives.
+        <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
           <motion.button
             type="button"
             aria-label="Close"
@@ -128,6 +139,8 @@ export default function AddFoodForm({ open, onClose, onAdd, saving = false, erro
                   onGramsChange={setGrams}
                   scaled={scaled}
                   gramsValid={gramsValid}
+                  meal={meal}
+                  onMealChange={setMeal}
                 />
               ) : (
                 <FoodSearchDropdown onSelect={handleSelect} autoFocus={open} />
@@ -172,14 +185,24 @@ export default function AddFoodForm({ open, onClose, onAdd, saving = false, erro
   )
 }
 
-/** Step 2: the weight dial and a live nutrition preview. */
-function PortionStep({ food, grams, onGramsChange, scaled, gramsValid }) {
-  // Portion shortcuts beat a slider on mobile: three taps cover most meals.
-  const presets = [
-    { label: 'Half', value: Math.max(1, Math.round(food.serving / 2)) },
-    { label: '1 serving', value: food.serving },
-    { label: 'Double', value: food.serving * 2 },
-  ]
+/** 1, 1.5, 2 — never "1.0" or "1.50". */
+function formatQuantity(value, decimals = 1) {
+  return Number(value.toFixed(decimals)).toString()
+}
+
+/** Step 2: quantity, weight, and a live nutrition preview. */
+function PortionStep({ food, grams, onGramsChange, scaled, gramsValid, meal, onMealChange }) {
+  // How many servings the current gram figure works out to. People think in
+  // "two idli", not "160 grams" — but grams stay the source of truth, because
+  // that's what scales the nutrition and what the database stores.
+  const quantity = (Number(grams) || 0) / food.serving
+  const roundedQuantity = Math.round(quantity * 2) / 2 // nearest half serving
+  const isCleanQuantity = Math.abs(quantity - roundedQuantity) < 0.02
+
+  const setQuantity = (next) => {
+    const clamped = Math.min(20, Math.max(0.5, next))
+    onGramsChange(String(Math.round(clamped * food.serving)))
+  }
 
   return (
     <div className="pb-5">
@@ -199,9 +222,85 @@ function PortionStep({ food, grams, onGramsChange, scaled, gramsValid }) {
         </div>
       </div>
 
-      {/* Weight */}
+      {/* Which part of the day. Pre-set from the clock, one tap to override —
+          the common case costs nothing and the exception is always visible. */}
+      <div className="mb-5">
+        <p className="label-caps mb-2">Where does this go?</p>
+        <div className="grid grid-cols-5 gap-1.5">
+          {MEALS.map((option) => {
+            const active = meal === option.id
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => onMealChange(option.id)}
+                aria-pressed={active}
+                className={[
+                  'tactile flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-xl border-2 px-0.5 transition-colors',
+                  active
+                    ? 'border-ink-900 bg-lime-400 shadow-press-sm'
+                    : 'border-ink-900/10 bg-cream-50 hover:border-ink-900/30',
+                ].join(' ')}
+              >
+                <Icon3D name={option.icon} size={24} />
+                <span
+                  className={`w-full truncate text-center text-[0.6rem] font-extrabold leading-tight ${
+                    active ? 'text-ink-900' : 'text-ink-400'
+                  }`}
+                >
+                  {option.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Quantity — the fast path. Tap twice for two rotis and never think
+          about grams at all. */}
+      <div className="mb-5">
+        <div className="mb-2 flex items-baseline justify-between">
+          <span className="label-caps">How many</span>
+          <span className="text-xs font-bold text-ink-400">
+            1 serving = {food.serving} g
+          </span>
+        </div>
+
+        <div className="flex items-stretch gap-2">
+          <button
+            type="button"
+            onClick={() => setQuantity(roundedQuantity - 0.5)}
+            disabled={roundedQuantity <= 0.5}
+            aria-label="Less"
+            className="tactile flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border-2 border-ink-900 bg-cream-50 shadow-press-sm disabled:opacity-40 disabled:shadow-none"
+          >
+            <Minus className="h-5 w-5" strokeWidth={3.5} />
+          </button>
+
+          <div className="flex min-w-0 flex-1 flex-col items-center justify-center rounded-2xl border-2 border-ink-900/10 bg-cream-200 px-2">
+            <span className="nums font-display text-2xl font-extrabold leading-none">
+              {isCleanQuantity ? formatQuantity(roundedQuantity) : formatQuantity(quantity, 2)}
+            </span>
+            <span className="mt-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-ink-400">
+              {quantity === 1 ? 'serving' : 'servings'}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setQuantity(roundedQuantity + 0.5)}
+            disabled={roundedQuantity >= 20}
+            aria-label="More"
+            className="tactile flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border-2 border-ink-900 bg-lime-400 shadow-press-sm disabled:opacity-40 disabled:shadow-none"
+          >
+            <Plus className="h-5 w-5" strokeWidth={3.5} />
+          </button>
+        </div>
+      </div>
+
+      {/* Weight — still editable, for when you actually weighed it. */}
       <label htmlFor="grams-input" className="label-caps mb-2 block">
-        Weight
+        Or weigh it
       </label>
       <div className="relative">
         <input
@@ -229,30 +328,6 @@ function PortionStep({ food, grams, onGramsChange, scaled, gramsValid }) {
           Give me a weight between 1 and 5000 grams.
         </p>
       )}
-
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        {presets.map((preset) => {
-          const active = Number(grams) === preset.value
-          return (
-            <button
-              key={preset.label}
-              type="button"
-              onClick={() => onGramsChange(String(preset.value))}
-              className={[
-                'tactile min-h-[46px] rounded-xl border-2 px-2 text-xs font-extrabold transition-colors',
-                active
-                  ? 'border-ink-900 bg-lime-400 shadow-press-sm'
-                  : 'border-ink-900/15 bg-cream-50 text-ink-500 hover:border-ink-900/35',
-              ].join(' ')}
-            >
-              {preset.label}
-              <span className="mt-0.5 block text-[0.65rem] font-bold text-ink-400">
-                {preset.value}g
-              </span>
-            </button>
-          )
-        })}
-      </div>
 
       {/* Live preview — the payoff for typing a number. */}
       <div className="mt-5 rounded-2xl border-2 border-ink-900/10 bg-cream-200 p-4">

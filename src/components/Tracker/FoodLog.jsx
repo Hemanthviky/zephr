@@ -3,8 +3,9 @@ import { RefreshCw, AlertTriangle } from 'lucide-react'
 import LogEntryRow from './LogEntryRow'
 import Icon3D from '../shared/Icon3D'
 import Button from '../shared/Button'
-import { formatNumber } from '../../utils/nutritionMath'
+import { formatNumber, sumEntries } from '../../utils/nutritionMath'
 import { isToday } from '../../utils/dateHelpers'
+import { groupByMeal } from '../../utils/meals'
 
 /**
  * The day's food, oldest first — the order you ate it in, which is the order
@@ -43,13 +44,30 @@ export default function FoodLog({ entries, totals, loading, error, date, onDelet
       ) : entries.length === 0 && !error ? (
         <EmptyState date={date} onAdd={onAdd} />
       ) : (
-        <ul className="space-y-2.5">
-          <AnimatePresence initial={false} mode="popLayout">
-            {entries.map((entry, index) => (
-              <LogEntryRow key={entry.id} entry={entry} index={index} onDelete={onDelete} />
-            ))}
-          </AnimatePresence>
-        </ul>
+        <div className="space-y-6">
+          {groupByMeal(entries).map(({ meal, entries: mealEntries }) => (
+            <section key={meal.id} aria-label={meal.label}>
+              <header className="mb-2 flex items-center gap-2 px-1">
+                <Icon3D name={meal.icon} size={26} />
+                <h3 className="font-display text-sm font-extrabold uppercase tracking-[0.12em]">
+                  {meal.label}
+                </h3>
+                <span className="h-px flex-1 bg-ink-900/10" aria-hidden="true" />
+                <span className="nums shrink-0 text-xs font-extrabold text-ink-400">
+                  {formatNumber(sumEntries(mealEntries).calories)} kcal
+                </span>
+              </header>
+
+              <ul className="space-y-2.5">
+                <AnimatePresence initial={false} mode="popLayout">
+                  {mealEntries.map((entry, index) => (
+                    <LogEntryRow key={entry.id} entry={entry} index={index} onDelete={onDelete} />
+                  ))}
+                </AnimatePresence>
+              </ul>
+            </section>
+          ))}
+        </div>
       )}
     </section>
   )

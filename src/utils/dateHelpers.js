@@ -85,3 +85,16 @@ export function formatTime(timestamp) {
   if (Number.isNaN(d.getTime())) return ''
   return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
 }
+
+/**
+ * "Good evening" — for greeting someone by name. Boundaries are the ordinary
+ * ones people expect rather than anything clever, and the late-night branch
+ * exists because "Good morning" at 1am reads as a bug.
+ */
+export function timeGreeting(now = new Date()) {
+  const hour = now.getHours()
+  if (hour < 5) return 'Still up'
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}

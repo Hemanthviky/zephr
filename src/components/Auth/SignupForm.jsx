@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, AtSign, KeyRound, AlertTriangle, MailCheck } from 'lucide-react'
+import { ArrowRight, AtSign, KeyRound, AlertTriangle, MailCheck, Smile } from 'lucide-react'
 import Button from '../shared/Button'
 import Input from '../shared/Input'
 import Icon3D from '../shared/Icon3D'
@@ -23,21 +23,23 @@ function strengthOf(password) {
 }
 
 export default function SignupForm({ onSubmit, pending, error, notice, onSwitch, onDirty }) {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [touched, setTouched] = useState(false)
 
   const strength = strengthOf(password)
+  const nameError = touched && !name.trim() ? 'We need something to call you.' : ''
   const emailError = touched && !email.includes('@') ? 'That doesn’t look like an email.' : ''
   const passwordError =
     touched && password.length < 6 ? 'Supabase needs at least 6 characters.' : ''
-  const canSubmit = email.includes('@') && password.length >= 6
+  const canSubmit = name.trim().length > 0 && email.includes('@') && password.length >= 6
 
   function handleSubmit(event) {
     event.preventDefault()
     setTouched(true)
     if (!canSubmit || pending) return
-    onSubmit(email, password)
+    onSubmit(email, password, name)
   }
 
   const change = (setter) => (event) => {
@@ -78,6 +80,20 @@ export default function SignupForm({ onSubmit, pending, error, notice, onSwitch,
 
       <div className="space-y-4">
         <Input
+          label="What should we call you?"
+          type="text"
+          autoComplete="given-name"
+          autoCapitalize="words"
+          maxLength={60}
+          placeholder="Hemanth"
+          icon={Smile}
+          value={name}
+          onChange={change(setName)}
+          error={nameError}
+          hint={!nameError ? 'Just a first name is fine — you’ll see it around the app.' : undefined}
+        />
+
+        <Input
           label="Email"
           type="email"
           inputMode="email"
@@ -95,6 +111,7 @@ export default function SignupForm({ onSubmit, pending, error, notice, onSwitch,
           <Input
             label="Password"
             type="password"
+            revealable
             autoComplete="new-password"
             placeholder="At least 6 characters"
             icon={KeyRound}

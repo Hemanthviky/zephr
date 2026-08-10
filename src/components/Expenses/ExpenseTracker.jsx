@@ -9,11 +9,14 @@ import AddExpenseForm from './AddExpenseForm'
 import WalletPicker from './WalletPicker'
 import BudgetsPanel from './BudgetsPanel'
 import Icon3D from '../shared/Icon3D'
+import Avatar from '../shared/Avatar'
 import { IconButton } from '../shared/Button'
 import { useTransactions, TREND_MONTHS } from '../../hooks/useTransactions'
 import { useCategories } from '../../hooks/useCategories'
 import { useWallets } from '../../hooks/useWallets'
 import { useBudgets } from '../../hooks/useBudgets'
+import { firstName, displayName } from '../../hooks/useAuth'
+import { timeGreeting } from '../../utils/dateHelpers'
 import {
   currentMonth,
   lastNMonths,
@@ -30,7 +33,7 @@ import {
  * of the screen above the tab bar. Anyone who has used the Food tab already
  * knows where everything is.
  */
-export default function ExpenseTracker({ user, onSignOut }) {
+export default function ExpenseTracker({ user, onOpenProfile }) {
   const [month, setMonth] = useState(currentMonth)
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -128,18 +131,33 @@ export default function ExpenseTracker({ user, onSignOut }) {
           </div>
 
           <div className="hidden min-w-0 lg:block">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">Money</h1>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+              {timeGreeting()}, {firstName(user)}.
+            </h1>
             <p className="mt-0.5 text-sm font-semibold text-ink-400">
               What you spent, and what’s left of the month.
             </p>
           </div>
 
-          <IconButton
-            icon={SlidersHorizontal}
-            label="Budgets and account"
-            size="sm"
-            onClick={() => setBudgetsOpen(true)}
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <IconButton
+              icon={SlidersHorizontal}
+              label="Budgets"
+              size="sm"
+              onClick={() => setBudgetsOpen(true)}
+            />
+
+            {onOpenProfile && (
+              <button
+                type="button"
+                onClick={onOpenProfile}
+                aria-label="Your profile"
+                className="tactile rounded-2xl lg:hidden"
+              >
+                <Avatar name={displayName(user)} size={44} />
+              </button>
+            )}
+          </div>
         </header>
 
         {/* Same two-column split as the Food tab: the month's headline sticks
@@ -260,7 +278,7 @@ export default function ExpenseTracker({ user, onSignOut }) {
         saving={budgetsSaving}
         error={budgetsError}
         email={user.email}
-        onSignOut={onSignOut}
+        name={displayName(user)}
         onDeleteCategory={deleteCategory}
       />
     </div>

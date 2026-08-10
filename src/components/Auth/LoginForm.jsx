@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import { ArrowRight, AtSign, KeyRound, AlertTriangle } from 'lucide-react'
+import { ArrowRight, AtSign, KeyRound, AlertTriangle, Check } from 'lucide-react'
 import Button from '../shared/Button'
 import Input from '../shared/Input'
 
-export default function LoginForm({ onSubmit, pending, error, onSwitch, onDirty }) {
+export default function LoginForm({
+  onSubmit,
+  pending,
+  error,
+  onSwitch,
+  onDirty,
+  rememberedByDefault = true,
+}) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(rememberedByDefault)
   const [touched, setTouched] = useState(false)
 
   const emailError = touched && !email.includes('@') ? 'That doesn’t look like an email.' : ''
@@ -16,7 +24,7 @@ export default function LoginForm({ onSubmit, pending, error, onSwitch, onDirty 
     event.preventDefault()
     setTouched(true)
     if (!canSubmit || pending) return
-    onSubmit(email, password)
+    onSubmit(email, password, remember)
   }
 
   // Any keystroke clears the previous server error — stale red text under a
@@ -51,6 +59,7 @@ export default function LoginForm({ onSubmit, pending, error, onSwitch, onDirty 
         <Input
           label="Password"
           type="password"
+          revealable
           autoComplete="current-password"
           placeholder="••••••••"
           icon={KeyRound}
@@ -59,6 +68,8 @@ export default function LoginForm({ onSubmit, pending, error, onSwitch, onDirty 
           error={passwordError}
         />
       </div>
+
+      <RememberMe checked={remember} onChange={setRemember} />
 
       {error && (
         <div
@@ -92,5 +103,51 @@ export default function LoginForm({ onSubmit, pending, error, onSwitch, onDirty 
         </button>
       </p>
     </form>
+  )
+}
+
+/**
+ * Checkbox, built rather than styled — a native one can't carry the app's
+ * chunky border and tactile press, and `appearance: none` plus a hand-drawn
+ * tick is the usual result anyway. The real input stays in the DOM, visually
+ * hidden, so it keeps its own focus ring, label association and keyboard
+ * behaviour for free.
+ */
+function RememberMe({ checked, onChange }) {
+  return (
+    <label
+      htmlFor="remember-me"
+      className="mt-4 flex cursor-pointer select-none items-center gap-3"
+    >
+      <input
+        id="remember-me"
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="peer sr-only"
+      />
+
+      <span
+        aria-hidden="true"
+        className={[
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-150',
+          'peer-focus-visible:ring-4 peer-focus-visible:ring-lime-300 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-cream-50',
+          checked
+            ? 'border-ink-900 bg-lime-400 shadow-press-sm'
+            : 'border-ink-900/20 bg-cream-100',
+        ].join(' ')}
+      >
+        {checked && <Check className="h-4 w-4 text-ink-900" strokeWidth={4} />}
+      </span>
+
+      <span className="min-w-0">
+        <span className="block text-sm font-extrabold text-ink-700">Keep me logged in</span>
+        <span className="block text-xs font-medium text-ink-400">
+          {checked
+            ? 'You’ll stay signed in on this device.'
+            : 'You’ll be signed out when you close the tab.'}
+        </span>
+      </span>
+    </label>
   )
 }

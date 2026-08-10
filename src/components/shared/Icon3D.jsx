@@ -59,6 +59,13 @@ const ICONS = {
   plane: ['Airplane', 'airplane', '✈️'],
   phone: ['Mobile phone', 'mobile_phone', '📱'],
   chartdown: ['Chart decreasing', 'chart_decreasing', '📉'],
+
+  // Meal sections.
+  cookie: ['Cookie', 'cookie', '🍪'],
+  sunrise: ['Sunrise', 'sunrise', '🌅'],
+  sun: ['Sun', 'sun', '☀️'],
+  ruler: ['Straight ruler', 'straight_ruler', '📏'],
+  scale: ['Balance scale', 'balance_scale', '⚖️'],
 }
 
 const srcFor = (name) => {

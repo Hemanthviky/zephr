@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Save, LogOut, AlertTriangle, Trash2 } from 'lucide-react'
+import { X, Save, AlertTriangle, Trash2 } from 'lucide-react'
 import Button from '../shared/Button'
 import Icon3D from '../shared/Icon3D'
 import { CURRENCY, formatMonthLabel, formatMoney, totalBudget } from '../../utils/expenseMath'
@@ -26,7 +26,7 @@ export default function BudgetsPanel({
   saving,
   error,
   email,
-  onSignOut,
+  name,
   onDeleteCategory,
 }) {
   const [draft, setDraft] = useState({})
@@ -105,7 +105,7 @@ export default function BudgetsPanel({
               <div className="min-w-0 flex-1">
                 <h2 className="font-display text-xl font-extrabold tracking-tight">Budgets</h2>
                 <p className="truncate text-xs font-semibold text-ink-400">
-                  {formatMonthLabel(month, { short: true })} · {email}
+                  {formatMonthLabel(month, { short: true })} · {name || email}
                 </p>
               </div>
               <button
@@ -218,12 +218,6 @@ export default function BudgetsPanel({
                   </div>
                 )}
 
-                <div className="border-t-2 border-dashed border-ink-900/10 pt-4">
-                  <p className="label-caps mb-2">Account</p>
-                  <Button variant="ghost" size="sm" icon={LogOut} fullWidth onClick={onSignOut}>
-                    Log out
-                  </Button>
-                </div>
               </div>
 
               <div className="border-t-2 border-ink-900/10 bg-cream-50 px-5 pt-4 pb-safe">
