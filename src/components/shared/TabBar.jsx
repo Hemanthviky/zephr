@@ -3,16 +3,21 @@ import Icon3D from './Icon3D'
 import Avatar from './Avatar'
 
 /**
- * The app's two modules, in whichever navigation the screen calls for.
+ * The app's modules, in whichever navigation the screen calls for.
  *
  * Under `lg` it's a bottom bar: thumb-reachable, and on a phone it sits below
  * each module's own docked action button (which is offset to clear it), so
  * switching tabs and logging something never leave the bottom third of the
  * screen. From `md` the modules move that button inline and the bar is the
- * only fixed thing left down there. It holds two
- * items and only two — profile is not a third module, and squeezing an avatar
- * in beside the tabs made it read as one. On phones that lives in the module
- * header instead, top-right, where an account has lived on mobile for a decade.
+ * only fixed thing left down there. It holds the modules and nothing else —
+ * profile is not a module, and squeezing an avatar in beside the tabs made it
+ * read as one. On phones that lives in the module header instead, top-right,
+ * where an account has lived on mobile for a decade.
+ *
+ * The mobile tiles stack their icon over their label. Side by side is the
+ * better shape and it survived exactly two modules: a third leaves ~100px per
+ * tile on a 360px phone, which is not enough for an icon, a gap and the word
+ * "Hospital" on one line.
  *
  * From `lg` up a bottom bar is wrong — the pointer is nowhere near the bottom
  * of a 1440px window, and a full-width strip of chrome wastes the one thing a
@@ -27,6 +32,7 @@ import Avatar from './Avatar'
 const TABS = [
   { id: 'food', label: 'Food', icon: 'salad', blurb: 'Calories & macros' },
   { id: 'money', label: 'Money', icon: 'moneywings', blurb: 'Spending & budgets' },
+  { id: 'hospital', label: 'Hospital', icon: 'hospital', blurb: 'Fluids & medicines' },
 ]
 
 /**
@@ -48,7 +54,7 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
         aria-label="Sections"
         className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-ink-900/10 bg-cream-50/95 backdrop-blur-md pb-safe lg:hidden"
       >
-        <div className="mx-auto flex w-full max-w-[540px] items-stretch gap-2 px-page pt-2 short:pt-1">
+        <div className="mx-auto flex w-full max-w-[540px] items-stretch gap-1.5 px-page pt-2 short:pt-1">
           {TABS.map((tab) => {
             const active = value === tab.id
             return (
@@ -57,7 +63,7 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
                 type="button"
                 onClick={() => onChange(tab.id)}
                 aria-current={active ? 'page' : undefined}
-                className="relative flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-3 short:min-h-[44px]"
+                className="relative flex min-h-[48px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl px-1 short:min-h-[44px] short:flex-row short:gap-1.5"
               >
                 {active && (
                   <motion.span
@@ -67,16 +73,14 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
                   />
                 )}
 
-                <span className="relative z-10 flex items-center gap-2">
-                  <Icon3D name={tab.icon} size={active ? 24 : 21} />
-                  <span
-                    className={[
-                      'font-display text-sm font-extrabold tracking-tight transition-colors',
-                      active ? 'text-ink-900' : 'text-ink-400',
-                    ].join(' ')}
-                  >
-                    {tab.label}
-                  </span>
+                <Icon3D name={tab.icon} size={active ? 22 : 20} className="relative z-10" />
+                <span
+                  className={[
+                    'relative z-10 w-full truncate text-center font-display text-[0.68rem] font-extrabold leading-none tracking-tight transition-colors short:text-xs',
+                    active ? 'text-ink-900' : 'text-ink-400',
+                  ].join(' ')}
+                >
+                  {tab.label}
                 </span>
               </button>
             )

@@ -16,8 +16,10 @@ import { isSupabaseConfigured } from './lib/supabaseClient'
 
 // The Money tab pulls in recharts, which is heavier than everything else in the
 // app combined. Split it out so opening Zephr to log a banana never downloads
-// a charting library.
+// a charting library. Hospital is split for the same reason at a smaller scale:
+// most sessions never open it, and nothing else in the app imports its chart.
 const ExpenseTracker = lazy(() => import('./components/Expenses/ExpenseTracker'))
+const Hospital = lazy(() => import('./components/Hospital/Hospital'))
 
 // There's no router here — two tabs live behind one URL — so the entire routing
 // question is "are you at the root or somewhere that doesn't exist". Read once
@@ -42,7 +44,7 @@ const PREVIEW =
  * it can't disagree with what the address bar says. It's still not a route —
  * the pathname is what decides 404 — so nothing above needs to know about it.
  */
-const TAB_IDS = new Set(['food', 'money'])
+const TAB_IDS = new Set(['food', 'money', 'hospital'])
 
 function tabFromHash() {
   if (typeof window === 'undefined') return 'food'
@@ -157,9 +159,9 @@ function previewPage(name) {
 }
 
 /**
- * Food and Money, side by side behind a tab bar.
+ * Food, Money and Hospital, side by side behind a tab bar.
  *
- * Both modules stay mounted once visited and are hidden with `display: none`
+ * Modules stay mounted once visited and are hidden with `display: none`
  * rather than unmounted, so each keeps its own state — the day you were looking
  * at, the month you'd navigated to, the entries already fetched. Scroll offset
  * isn't part of React state, so it's captured on the way out and restored on
@@ -171,11 +173,11 @@ function previewPage(name) {
  */
 function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, onClearError }) {
   const [tab, setTab] = useState(tabFromHash)
-  // Reloading straight onto Money has to mount Money, or the lazy module would
-  // sit behind a `moneyVisited` flag that only a tab switch can ever set.
-  const [moneyVisited, setMoneyVisited] = useState(tab === 'money')
+  // Reloading straight onto a lazy module has to mount it, or it would sit
+  // behind a "visited" flag that only a tab switch can ever set.
+  const [visited, setVisited] = useState(() => new Set([tab]))
   const [profileOpen, setProfileOpen] = useState(false)
-  const scrollPositions = useRef({ food: 0, money: 0 })
+  const scrollPositions = useRef({ food: 0, money: 0, hospital: 0 })
 
   // One goals instance for the whole app: the tracker reads the targets, the
   // profile edits the body stats behind them. Two hooks would drift apart the
@@ -185,8 +187,12 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
   function switchTab(next) {
     if (next === tab) return
     scrollPositions.current[tab] = window.scrollY
-    if (next === 'money') setMoneyVisited(true)
+    markVisited(next)
     setTab(next)
+  }
+
+  function markVisited(id) {
+    setVisited((seen) => (seen.has(id) ? seen : new Set(seen).add(id)))
   }
 
   // replaceState, not a hash assignment: writing location.hash pushes a history
@@ -207,7 +213,7 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
         scrollPositions.current[current] = window.scrollY
         return next
       })
-      if (next === 'money') setMoneyVisited(true)
+      markVisited(next)
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
@@ -234,10 +240,18 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
         <Tracker user={user} onOpenProfile={openProfile} goalsState={goalsState} />
       </div>
 
-      {moneyVisited && (
+      {visited.has('money') && (
         <div style={{ display: tab === 'money' ? undefined : 'none' }}>
-          <Suspense fallback={<ModuleLoading />}>
+          <Suspense fallback={<ModuleLoading icon="moneywings" label="Money" />}>
             <ExpenseTracker user={user} onOpenProfile={openProfile} />
+          </Suspense>
+        </div>
+      )}
+
+      {visited.has('hospital') && (
+        <div style={{ display: tab === 'hospital' ? undefined : 'none' }}>
+          <Suspense fallback={<ModuleLoading icon="hospital" label="Hospital" />}>
+            <Hospital user={user} onOpenProfile={openProfile} />
           </Suspense>
         </div>
       )}
@@ -270,16 +284,16 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
   )
 }
 
-function ModuleLoading() {
+function ModuleLoading({ icon, label }) {
   return (
     <div
       className="flex min-h-[100dvh] flex-col items-center justify-center gap-4"
       role="status"
       aria-live="polite"
     >
-      <Icon3D name="moneywings" size={64} float />
+      <Icon3D name={icon} size={64} float />
       <p className="font-display text-sm font-extrabold uppercase tracking-[0.28em] text-ink-400">
-        Money
+        {label}
       </p>
     </div>
   )

@@ -1,9 +1,10 @@
 # Zephr
 
-A personal tracker with two modules behind one login:
+A personal tracker with three modules behind one login:
 
 - **Food** — log what you ate in grams, see calories and macros land against your daily goal, day by day.
 - **Money** — log expenses and income by hand, see what's left this month, where it went, and how the last six months compare.
+- **Hospital** — a ward chart: every drink in millilitres and every dose of medicine, on one timeline, with the time it happened. For looking after someone (or yourself) through an admission.
 
 No bank syncing, no barcode scanning, no AI photo estimates. You type what happened; the app does the arithmetic and remembers it. Everything is per-user and syncs across devices through Supabase.
 
@@ -46,7 +47,7 @@ Open **SQL Editor → New query** in your Supabase dashboard, paste the entire c
 
 The whole file is idempotent (`create table if not exists`, `drop policy if exists` before each `create policy`), so re-running it is safe and won't touch existing rows.
 
-It creates seven tables:
+It creates eight tables:
 
 | Table | Module | What it holds |
 | --- | --- | --- |
@@ -57,8 +58,11 @@ It creates seven tables:
 | `budgets` | Money | Optional monthly cap per category. Primary key is `(user_id, category_id, month)`; `month` is always the 1st. |
 | `month_budgets` | Money | Optional overall cap for a whole month — one row per `(user_id, month)`. Set directly rather than inferred from the category rows, and it's what the month bar counts down from when present. |
 | `transactions` | Money | One row per manually entered expense or income. |
+| `hospital_logs` | Hospital | One row per drink or per dose: what it was, how much, and the wall-clock time it happened (`at`, editable) alongside the calendar day it belongs to (`date`). |
 
 **Already running an older version with just `goals` and `entries`?** The money tables are appended in a clearly marked `MONEY MODULE` section at the bottom of the file — run only that section.
+
+**Already running everything except the Hospital tab?** Same story: the `HOSPITAL MODULE` section is marked off just before the grants at the bottom. Run that section and the grants below it. Until you do, the Hospital tab loads but every save tells you to re-run this file.
 
 **Already running the money module without `month_budgets`?** Re-run the whole file; `create table if not exists` leaves your existing rows alone. Until you do, the Money tab works exactly as before — the overall-budget field just reads as empty, and trying to save one tells you to run this file.
 
@@ -126,11 +130,15 @@ No serverless functions, no custom server, nothing to configure beyond the above
 
 **Money.** Tap **Add expense** for amount → category → wallet → note → date, with an expense/income toggle. The month reads as a bar rather than a dial — a budget isn't a daily gauge that refills, it's drawn down across a month that's running out too, so spending fills from the left and a marker shows where today falls. Filled past the marker means you're spending faster than the month is passing. It counts down from whichever cap you've set: an overall total for the month if there is one, otherwise the sum of your category budgets, otherwise income logged that month. Below it: a donut of where the month went, a six-month trend line, and the transaction list grouped by day — tap a row to edit, trash to delete.
 
+**Hospital.** Two buttons, **Drink** and **Medicine**, because both are equally common. A drink is a dropdown (water, tomato soup, chicken soup, tender coconut water, buttermilk, lassi, watermelon juice, musk melon juice, orange juice, tea, black tea, coffee, black coffee, iced tea, kanji/rice water, IV fluid, ORS, or type your own), an amount in millilitres with the ward's usual tumblers one tap away, and a time. A medicine is its name, the form it came in, a dose in whatever it's measured in (tablets, ml, mg, drops, puffs, units…), and a time. **The time defaults to the clock and stays editable** — ±5 minutes, a native time picker, or "back to now" — and so does everything else: tap any row on the chart to change what it was, how much, or when, long after it's saved.
+
+The day's fluids and medicines share one timeline, oldest first, split into Overnight / Morning / Afternoon / Evening / Night, with the clock down the left edge and each drink carrying the running total it produced. The summary is a drip bag: how much has gone in, against a daily target you set on the card itself. That target is stored per device and per user (a fluid restriction comes from a ward round, not a settings panel), so it doesn't sync — everything on the chart itself does.
+
 **Goals and budgets** live behind the sliders icon at the top-right of each tab. Food goals are one set of numbers that carry forever. Money budgets are per month: one overall total, and — optionally — a split of it across categories. Set either, both, or neither; a total wins over the split, because it's a figure you stated rather than one the app inferred, and a half-filled breakdown shouldn't quietly lower a cap you typed by hand.
 
-Both navigators have a third control people miss: the label between the arrows is a button. Tapping it opens a calendar — days on the Food tab, months on the Money tab — because arrows are right for yesterday and wrong for the 3rd of last March.
+Every navigator has a third control people miss: the label between the arrows is a button. Tapping it opens a calendar — days on the Food and Hospital tabs, months on the Money tab — because arrows are right for yesterday and wrong for the 3rd of last March.
 
-Switching tabs preserves each side's state — the day you were on, the month you'd scrolled to, the data already fetched, and your scroll position. Reloading preserves the tab itself: the active one is mirrored into the URL fragment (`#money`), so a refresh mid-month doesn't drop you back on Food.
+Switching tabs preserves each side's state — the day you were on, the month you'd scrolled to, the data already fetched, and your scroll position. Reloading preserves the tab itself: the active one is mirrored into the URL fragment (`#money`, `#hospital`), so a refresh mid-month doesn't drop you back on Food.
 
 ---
 
@@ -144,7 +152,8 @@ src/
 ├── lib/supabaseClient.js      client + human-readable error translation
 ├── data/
 │   ├── foodDatabase.js        160 foods, per-100g, with search ranking
-│   └── defaultCategories.js   seeded categories, wallets, icon/colour choices
+│   ├── defaultCategories.js   seeded categories, wallets, icon/colour choices
+│   └── hospitalItems.js       drinks, medicine forms, dose units
 ├── hooks/
 │   ├── useAuth.js             session, sign in/up/out
 │   ├── useEntries.js          a day's food log (optimistic writes)
@@ -152,15 +161,18 @@ src/
 │   ├── useTransactions.js     a month's transactions + 6 months of history
 │   ├── useWallets.js          wallets, seeded on first use
 │   ├── useCategories.js       categories, seeded on first use
-│   └── useBudgets.js          the month's overall cap + its per-category split
+│   ├── useBudgets.js          the month's overall cap + its per-category split
+│   └── useHospitalLog.js      a day's chart + 30 days of medicine suggestions
 ├── utils/
 │   ├── dateHelpers.js         local-timezone calendar days (never UTC)
 │   ├── nutritionMath.js       scaling, totals, goal status
-│   └── expenseMath.js         months, currency, category totals, budget summary
+│   ├── expenseMath.js         months, currency, category totals, budget summary
+│   └── hospitalMath.js        wall-clock times, day bands, ml totals
 └── components/
     ├── Auth/                  AuthLayout, LoginForm, SignupForm
     ├── Tracker/               the Food module
     ├── Expenses/              the Money module
+    ├── Hospital/              the ward chart — fluids and medicines
     ├── Settings/GoalsPanel    nutrition goals
     └── shared/                Button, Input, ProgressBar, Icon3D, TabBar
 ```
@@ -172,4 +184,5 @@ src/
 - **Seeding only happens on a confirmed-empty fetch**, once per mount. A failed request must never be mistaken for "new user", or the default categories would duplicate on every network hiccup.
 - **Currency is one constant.** `CURRENCY` in `utils/expenseMath.js` is set to INR/₹; change those three fields and every amount in the app follows.
 - **3D icons** come from Microsoft's Fluent Emoji set over jsDelivr, wrapped in `Icon3D`. If the CDN is blocked it falls back to the platform's own colour emoji, so nothing renders as a broken image. lucide-react is used only for small inline chrome (chevrons, trash, close).
-- **The Money module is lazy-loaded** — recharts is larger than the rest of the app combined, and opening Zephr to log a banana shouldn't download a charting library.
+- **The Money and Hospital modules are lazy-loaded** — recharts is larger than the rest of the app combined, and opening Zephr to log a banana shouldn't download a charting library or a ward chart.
+- **A chart row keeps `date` and `at` separately.** `date` is the calendar day it belongs to and the only thing queried; `at` is the wall-clock time, built from local parts in `isoAt()` and freely editable afterwards. They are not derived from each other — logging last night's 11pm dose at 8am this morning has to land on yesterday's chart at 23:00, and only two independent fields can say that.

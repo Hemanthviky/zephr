@@ -276,6 +276,55 @@ create policy "own transactions" on public.transactions
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ============================================================================
+-- HOSPITAL MODULE
+-- A ward chart: what someone drank, and what medicine they were given.
+-- Additive like the money section above — if the rest is already live, running
+-- only this block is enough.
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- hospital_logs: one row per cup of fluid or per dose of medicine.
+--
+-- One table rather than two, because the whole point of a chart is that both
+-- appear on the same timeline in the order they happened; `kind` is what the UI
+-- filters and colours by.
+--
+-- `date` and `at` are deliberately both stored. `date` is the calendar day the
+-- row belongs to (the app queries by it, exactly as the food log does), `at` is
+-- the wall-clock time it happened — which the user may edit after saving, and
+-- which is *not* the same thing as when the row was created.
+--
+-- `item` is a key from the app's catalogue ('coconut', 'tablet'); `name` is the
+-- text shown. Both are kept so renaming a catalogue entry later can never
+-- rewrite what a past row says happened. `item` is null for a typed-in one-off.
+-- ----------------------------------------------------------------------------
+create table if not exists public.hospital_logs (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid        not null references auth.users (id) on delete cascade,
+  date       date        not null,
+  kind       text        not null default 'drink' check (kind in ('drink', 'med')),
+  item       text        check (item is null or char_length(item) <= 40),
+  name       text        not null check (char_length(name) between 1 and 80),
+  amount     numeric(8, 1) not null check (amount > 0 and amount <= 10000),
+  unit       text        not null default 'ml'
+               check (unit in ('ml','tablet','capsule','mg','drop','puff','sachet','unit','tsp')),
+  note       text        check (note is null or char_length(note) <= 200),
+  at         timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+-- The only query the app runs: "this user, this window of days, in clock order".
+create index if not exists hospital_logs_user_date_idx
+  on public.hospital_logs (user_id, date, at);
+
+alter table public.hospital_logs enable row level security;
+
+drop policy if exists "own hospital logs" on public.hospital_logs;
+
+create policy "own hospital logs" on public.hospital_logs
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- ============================================================================
 -- GRANTS
 --
 -- Policies and privileges are two different gates, and PostgREST hits the
