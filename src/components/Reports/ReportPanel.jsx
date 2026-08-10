@@ -116,16 +116,22 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
     setTo(next.to)
   }
 
-  /** Editing either date drops you into a custom range, and keeps from ≤ to. */
+  /**
+   * Editing either date drops you into a custom range, and keeps from ≤ to.
+   *
+   * The ISO check is for the browsers with no native date control (Safari
+   * before 14.1, older Firefox), where the field degrades to a text box and can
+   * hand back half-typed nonsense on every keystroke.
+   */
   function editFrom(value) {
-    if (!value) return
+    if (!isISODate(value)) return
     setPreset('custom')
     setFrom(value)
     if (value > to) setTo(value)
   }
 
   function editTo(value) {
-    if (!value) return
+    if (!isISODate(value)) return
     setPreset('custom')
     setTo(value)
     if (value < from) setFrom(value)
@@ -324,6 +330,19 @@ export default function ReportPanel({ open, onClose, kind, userId, userName = ''
   )
 }
 
+/** 'YYYY-MM-DD', and a real day — '2026-13-40' matches the shape and isn't one. */
+function isISODate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? '')) return false
+  const [y, m, d] = value.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
+}
+
+/**
+ * `type="date"` degrades to a text input where it isn't supported, so the
+ * placeholder and pattern aren't decoration — they're the entire interface on
+ * Safari before 14.1. The value format is identical either way.
+ */
 function DateField({ id, label, value, min, max, onChange }) {
   return (
     <div>
@@ -336,6 +355,9 @@ function DateField({ id, label, value, min, max, onChange }) {
         value={value}
         min={min}
         max={max}
+        placeholder="YYYY-MM-DD"
+        pattern="\d{4}-\d{2}-\d{2}"
+        inputMode="numeric"
         onChange={(event) => onChange(event.target.value)}
         className="nums h-[52px] w-full rounded-2xl border-[2.5px] border-ink-900/15 bg-cream-50 px-3 font-display text-sm font-extrabold text-ink-900 shadow-inset transition-colors focus:border-lime-500"
       />

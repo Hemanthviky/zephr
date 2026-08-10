@@ -103,30 +103,61 @@ export function buildCSV(columns, rows) {
 }
 
 /**
+ * Byte-order mark, written as an escape rather than pasted in: a literal U+FEFF
+ * is invisible in the source and one save in the wrong encoding drops it
+ * without a trace.
+ */
+const BOM = '\uFEFF'
+
+/**
  * Hand the file to the browser.
  *
  * The BOM is for Excel, which otherwise reads a UTF-8 CSV as the local ANSI
  * codepage and turns every ₹ and every "–" into mojibake.
  */
 export function downloadCSV(filename, csv) {
-  triggerDownload(filename, new Blob(['﻿', csv], { type: 'text/csv;charset=utf-8;' }))
+  triggerDownload(filename, new Blob([BOM, csv], { type: 'text/csv;charset=utf-8;' }))
 }
 
 export function downloadHTML(filename, html) {
   triggerDownload(filename, new Blob([html], { type: 'text/html;charset=utf-8;' }))
 }
 
+/**
+ * Save a blob, with a route for every engine that doesn't do it the usual way.
+ *
+ *   • `<a download>` is the path everywhere current, including iOS 13+.
+ *   • Some in-app webviews (the browser inside a chat app) hand you an anchor
+ *     with no `download` support at all. There the blob is opened instead, and
+ *     the user saves it from the viewer — worse, but not nothing.
+ *   • Old Edge/IE exposed `msSaveOrOpenBlob` and nothing else. Two lines.
+ *
+ * The URL is revoked on a timer rather than immediately: several browsers,
+ * Safari included, haven't started reading the blob by the time `click()`
+ * returns, and a revoked URL downloads an empty file. Ten seconds is long
+ * enough for a slow phone and short enough not to leak.
+ */
 function triggerDownload(filename, blob) {
+  if (typeof navigator !== 'undefined' && navigator.msSaveOrOpenBlob) {
+    navigator.msSaveOrOpenBlob(blob, filename)
+    return
+  }
+
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  // Revoked on the next tick, not immediately: Safari hasn't started reading
-  // the blob by the time click() returns, and a revoked URL downloads nothing.
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
+
+  if ('download' in link) {
+    link.href = url
+    link.download = filename
+    link.rel = 'noopener'
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  } else {
+    window.open(url, '_blank')
+  }
+
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
 /** `zephr-food-2026-08-01_2026-08-10.csv` — sorts and self-describes. */
@@ -369,8 +400,8 @@ export function buildReportHTML({
   ${
     interactive
       ? `<div class="bar">
-           <button type="button" onclick="window.print()">Save as PDF</button>
-           <span>Pick “Save as PDF” as the destination in the dialog.</span>
+           <button type="button" id="zephr-print">Save as PDF</button>
+           <span id="zephr-hint">Pick “Save as PDF” as the destination in the dialog.</span>
          </div>`
       : ''
   }
@@ -409,10 +440,38 @@ export function buildReportHTML({
     interactive
       ? `
 <script>
-  // Offer the dialog straight away, once the webfonts have had a moment — the
-  // whole point of the tap was to get a PDF. If it's dismissed, or a browser
-  // declines to auto-open it, the button above is still sitting there.
-  window.addEventListener('load', function () { setTimeout(function () { window.print() }, 450) })
+  (function () {
+    var button = document.getElementById('zephr-print')
+    var hint = document.getElementById('zephr-hint')
+    var canPrint = typeof window.print === 'function'
+
+    // iOS has no "Save as PDF" destination — you print, then share the preview.
+    // Saying so beats leaving someone hunting for a button that isn't there.
+    // (iPadOS reports itself as a Mac, hence the touch-point check.)
+    var iOS = /iP(hone|ad|od)/.test(navigator.platform || '') ||
+      (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform || ''))
+
+    if (!canPrint) {
+      if (hint) hint.textContent = 'Use your browser’s Print or Share option to save this page.'
+      if (button) button.style.display = 'none'
+      return
+    }
+
+    if (iOS && hint) {
+      hint.textContent = 'In the preview, tap the share icon to save it as a PDF.'
+    }
+
+    function print() {
+      try { window.print() } catch (error) { /* nothing else to offer */ }
+    }
+
+    if (button) button.addEventListener('click', print)
+
+    // Offer the dialog straight away, once the webfonts have had a moment — the
+    // whole point of the tap was to get a PDF. If it's dismissed, or a browser
+    // declines to open it unprompted, the button above is still sitting there.
+    window.addEventListener('load', function () { setTimeout(print, 450) })
+  })()
 </script>`
       : ''
   }
@@ -430,19 +489,59 @@ export function buildReportHTML({
  * document has to be the one at the top of a window.
  *
  * So the report gets its own tab, and prints from inside itself. `window.open`
- * is called straight out of the click handler, which is what keeps it out of
- * the popup blocker. If a browser blocks it anyway, the caller is told and can
- * fall back to downloading the same page as a file.
+ * is called straight out of the click handler — synchronously, with no `await`
+ * before it, which is what iOS Safari in particular requires to treat it as
+ * user-initiated rather than a popup.
  *
- * @returns {boolean} whether the tab opened
+ * Three routes, because browsers disagree about what a new tab may contain:
+ *
+ *   1. `document.write` into the blank tab. Universal, and the only route where
+ *      the page's own script is guaranteed to run, so the print dialog can be
+ *      offered automatically.
+ *   2. If that window can't be written to — several in-app webviews hand back a
+ *      window whose document is cross-origin or null — navigate it to a blob
+ *      URL instead. A real navigation, which they do allow.
+ *   3. If no window opened at all, say so, and let the caller save the file.
+ *
+ * @returns {boolean} whether the report ended up in a window of its own
  */
 export function openReport(html) {
-  const view = window.open('', '_blank')
-  if (!view) return false
+  let view = null
+  try {
+    view = window.open('', '_blank')
+  } catch {
+    view = null
+  }
 
-  view.document.open()
-  view.document.write(html)
-  view.document.close()
-  view.focus()
-  return true
+  if (view) {
+    try {
+      view.document.open()
+      view.document.write(html)
+      view.document.close()
+      view.focus?.()
+      return true
+    } catch {
+      /* not writable — fall through to the blob route below */
+    }
+  }
+
+  try {
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }))
+    const target = view ?? window.open(url, '_blank')
+
+    if (view) view.location.href = url
+
+    if (target) {
+      // Long revoke: this URL has to stay alive while someone reads the report,
+      // not just long enough to start a download.
+      setTimeout(() => URL.revokeObjectURL(url), 120_000)
+      return true
+    }
+
+    URL.revokeObjectURL(url)
+  } catch {
+    /* blocked outright — the caller downloads instead */
+  }
+
+  return false
 }

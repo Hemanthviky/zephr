@@ -48,19 +48,34 @@ export default function TimeField({ value, onChange, id = 'chart-time', label = 
 
   const shift = (minutes) => onChange(shiftHM(value, minutes))
 
-  /** Where on the face the pointer is, as a minute. 12 o'clock is 0, clockwise. */
+  /**
+   * Where on the face the pointer is, as a minute. 12 o'clock is 0, clockwise.
+   *
+   * Reads the coordinates out of either a pointer/mouse event or the first
+   * touch, so the same maths serves both handlers below.
+   */
   function minuteAt(event) {
     const rect = dialRef.current?.getBoundingClientRect()
     if (!rect) return minute
-    const dx = event.clientX - (rect.left + rect.width / 2)
-    const dy = event.clientY - (rect.top + rect.height / 2)
+
+    const point = event.touches?.[0] ?? event.changedTouches?.[0] ?? event
+    if (typeof point.clientX !== 'number') return minute
+
+    const dx = point.clientX - (rect.left + rect.width / 2)
+    const dy = point.clientY - (rect.top + rect.height / 2)
     const degrees = ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360
     return Math.round(degrees / 6) % 60
   }
 
   function startDrag(event) {
     dragging.current = true
-    event.currentTarget.setPointerCapture?.(event.pointerId)
+    // Optional because SVG elements in some older engines don't implement it,
+    // and because a browser may refuse capture for a pointer it has released.
+    try {
+      event.currentTarget.setPointerCapture?.(event.pointerId)
+    } catch {
+      /* dragging still works; it just stops tracking outside the dial */
+    }
     setPart({ minute: minuteAt(event) })
   }
 
@@ -77,6 +92,31 @@ export default function TimeField({ value, onChange, id = 'chart-time', label = 
       /* the pointer was already gone — nothing to release */
     }
   }
+
+  /**
+   * Touch fallback for engines without Pointer Events (iOS Safari before 13,
+   * and a few Android webviews). Bound only when they're missing, so nothing
+   * handles the same drag twice on a browser that has both.
+   */
+  const hasPointerEvents = typeof window !== 'undefined' && 'PointerEvent' in window
+
+  const touchHandlers = hasPointerEvents
+    ? null
+    : {
+        onTouchStart: (event) => {
+          dragging.current = true
+          setPart({ minute: minuteAt(event) })
+        },
+        onTouchMove: (event) => {
+          if (!dragging.current) return
+          // The dial owns this gesture; without this the page scrolls under it.
+          event.preventDefault()
+          setPart({ minute: minuteAt(event) })
+        },
+        onTouchEnd: () => {
+          dragging.current = false
+        },
+      }
 
   function onDialKey(event) {
     const step = event.key === 'ArrowUp' || event.key === 'ArrowRight' ? 1
@@ -115,11 +155,16 @@ export default function TimeField({ value, onChange, id = 'chart-time', label = 
           aria-valuemax={59}
           aria-valuenow={minute}
           aria-valuetext={formatHM12(value)}
-          onPointerDown={startDrag}
-          onPointerMove={onDrag}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
+          onPointerDown={hasPointerEvents ? startDrag : undefined}
+          onPointerMove={hasPointerEvents ? onDrag : undefined}
+          onPointerUp={hasPointerEvents ? endDrag : undefined}
+          onPointerCancel={hasPointerEvents ? endDrag : undefined}
+          {...(touchHandlers ?? {})}
           onKeyDown={onDialKey}
+          // touch-action inline as well as in the class: Safari has historically
+          // ignored the property on SVG elements when it arrives via a
+          // stylesheet, and without it the drag scrolls the sheet instead.
+          style={{ touchAction: 'none' }}
           className="h-[88px] w-[88px] shrink-0 cursor-grab touch-none select-none rounded-full active:cursor-grabbing"
         >
           <circle cx="50" cy="50" r="46" fill="#FDF7EA" stroke="#1B1915" strokeWidth="3" />
