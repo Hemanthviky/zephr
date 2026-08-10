@@ -38,8 +38,8 @@ export default function CategoryPicker({ categories, value, onChange, onCreate, 
 
   if (loading) {
     return (
-      <div className="grid grid-cols-4 gap-2">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+        {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="skeleton h-[86px] rounded-2xl" />
         ))}
       </div>
@@ -48,7 +48,7 @@ export default function CategoryPicker({ categories, value, onChange, onCreate, 
 
   return (
     <div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
         {categories.map((category) => {
           const active = value === category.id
           return (

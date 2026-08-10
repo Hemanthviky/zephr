@@ -94,7 +94,7 @@ export default function BudgetsPanel({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-            className="relative flex max-h-[92dvh] w-full max-w-[520px] flex-col rounded-t-[2rem] border-x-2 border-t-2 border-ink-900 bg-cream-100 shadow-lift sm:rounded-[2rem] sm:border-2"
+            className="sheet max-w-[520px] md:max-w-[560px]"
           >
             <div className="flex justify-center pt-3 sm:hidden">
               <span className="h-1.5 w-11 rounded-pill bg-ink-900/15" />

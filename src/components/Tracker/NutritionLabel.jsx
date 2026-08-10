@@ -45,9 +45,13 @@ export default function NutritionLabel({ totals, goals, loading = false, entryCo
       aria-label={`Progress for the day: ${round0(totals.calories)} of ${goals.calories} calories`}
     >
       <div className="card overflow-hidden p-5 pb-4">
-        {/* ── Arc ─────────────────────────────────────────────────────── */}
-        <div className="relative mx-auto w-[212px]">
-          <svg viewBox="0 0 200 200" className="h-[212px] w-[212px] -rotate-[135deg]">
+        {/* ── Arc ───────────────────────────────────────────────────────
+            Sized in percentages off a square box rather than pinned at 212px:
+            a 280px-wide foldable has less room inside the card padding than
+            that, and a fixed ring would have been clipped by the card's own
+            overflow-hidden. It gains a little back on a desktop column. */}
+        <div className="relative mx-auto w-full max-w-[212px] lg:max-w-[236px]">
+          <svg viewBox="0 0 200 200" className="aspect-square w-full -rotate-[135deg]">
             <circle
               cx="100"
               cy="100"
@@ -213,7 +217,7 @@ function ProgressCardSkeleton() {
   return (
     <section className="card-stacked" aria-busy="true" aria-label="Loading today’s progress">
       <div className="card p-5">
-        <div className="skeleton mx-auto h-[212px] w-[212px] rounded-full" />
+        <div className="skeleton mx-auto aspect-square w-full max-w-[212px] rounded-full lg:max-w-[236px]" />
         <div className="mt-6 space-y-4">
           {[0, 1, 2].map((i) => (
             <div key={i} className="space-y-2">

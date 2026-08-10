@@ -8,8 +8,27 @@
 //   • coral / tangerine / avocado = protein / carbs / fat, consistently, forever.
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  future: {
+    // A tablet or a phone reports `hover` on tap and then keeps the hover style
+    // stuck on the last thing touched. Gate every hover: utility behind an
+    // actual pointer so touch devices only ever see the :active press.
+    hoverOnlyWhenSupported: true,
+  },
   theme: {
     extend: {
+      // Height matters as much as width once a phone is turned sideways: a
+      // landscape handset is ~390px tall, which is shorter than the progress
+      // card alone. `short` trims the fixed chrome there; `tall` gates the
+      // decoration that's only affordable on a real portrait screen.
+      // `short` carries the orientation clause so it matches the media query
+      // the layout variables in index.css use. Without it the two disagree the
+      // moment an Android keyboard shrinks a portrait viewport past 600px:
+      // the bar would restyle itself while the offset holding the dock above
+      // it would not, and a sliver of page would show through the gap.
+      screens: {
+        short: { raw: '(max-height: 600px) and (orientation: landscape)' },
+        tall: { raw: '(min-height: 760px)' },
+      },
       colors: {
         cream: {
           50: '#FFFDF7',
@@ -59,8 +78,23 @@ export default {
         sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
-        // One giant number is the whole point of the home screen.
-        hero: ['4.25rem', { lineHeight: '0.86', letterSpacing: '-0.04em', fontWeight: '800' }],
+        // One giant number is the whole point of the home screen. It sits
+        // inside a fixed-width ring, so it scales with the viewport rather
+        // than overflowing its own circle on a 320px phone.
+        hero: [
+          'clamp(3.4rem, 15vw, 4.25rem)',
+          { lineHeight: '0.86', letterSpacing: '-0.04em', fontWeight: '800' },
+        ],
+        // The money counterpart: same job, but a rupee figure runs longer than
+        // a calorie one, so it tops out a little smaller.
+        money: [
+          'clamp(2.4rem, 11vw, 3.1rem)',
+          { lineHeight: '0.86', letterSpacing: '-0.04em', fontWeight: '800' },
+        ],
+        'money-long': [
+          'clamp(2rem, 9vw, 2.6rem)',
+          { lineHeight: '0.9', letterSpacing: '-0.04em', fontWeight: '800' },
+        ],
       },
       borderRadius: {
         card: '1.75rem',

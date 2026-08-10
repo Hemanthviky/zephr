@@ -166,9 +166,12 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
   }
 
   // Layout effect, not a plain effect: restore before paint so the page never
-  // flashes at the top before jumping back down.
+  // flashes at the top before jumping back down. `behavior: 'instant'` because
+  // the page sets scroll-behavior: smooth globally, which would otherwise
+  // animate the restore — turning "you're back where you were" into a visible
+  // scroll the user didn't ask for.
   useLayoutEffect(() => {
-    window.scrollTo(0, scrollPositions.current[tab] ?? 0)
+    window.scrollTo({ top: scrollPositions.current[tab] ?? 0, behavior: 'instant' })
   }, [tab])
 
   function openProfile() {
@@ -253,8 +256,8 @@ function BootScreen() {
 
 function SetupScreen() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center px-5">
-      <div className="card w-full max-w-[440px] p-6">
+    <div className="flex min-h-[100dvh] items-center justify-center px-page py-10">
+      <div className="card w-full max-w-[440px] p-5 sm:p-6">
         <Icon3D name="gear" size={64} className="mb-4" />
         <h1 className="font-display text-2xl font-extrabold tracking-tight">
           One step left: connect Supabase

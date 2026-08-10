@@ -10,9 +10,55 @@
 @layer base {
   :root {
     color-scheme: light;
-    /* Home-indicator + notch padding, with a sane fallback on desktop. */
+    /* Home-indicator + notch padding, with a sane fallback on desktop. The
+       left/right pair only ever matters on a notched phone held sideways,
+       where the cutout eats into the page gutter. */
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-top: env(safe-area-inset-top, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+
+    /* Height of the fixed mobile tab bar, excluding the safe-area inset:
+       pt-2 (8px) + a 48px target + .pb-safe's own 16px. Everything that has to
+       clear the bar reads this instead of hard-coding a number that drifts. */
+    --tabbar-h: 72px;
+
+    /* What a module reserves at the bottom of its scroll: the docked action
+       button and the tab bar underneath it. Shrinks as those two retire. */
+    --dock-reserve: calc(6.5rem + var(--tabbar-h) + var(--safe-bottom));
+  }
+
+  /* From md the docked button is gone — the modules put it inline beside the
+     progress card — so only the tab bar is left to clear. */
+  @media (min-width: 768px) {
+    :root {
+      --dock-reserve: calc(2rem + var(--tabbar-h) + var(--safe-bottom));
+    }
+  }
+
+  /* From lg the tab bar becomes a side rail and nothing overlaps the page. */
+  @media (min-width: 1024px) {
+    :root {
+      --dock-reserve: 3.5rem;
+    }
+  }
+
+  /* A phone on its side has ~390px of height to spend. Fixed chrome that costs
+     16px in portrait costs a tenth of the screen here, so the bar comes in.
+     Width-independent: the bar is the same bar at every size it exists at. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    :root {
+      --tabbar-h: 58px;
+    }
+  }
+
+  /* The docked button only exists below md, so only that range needs its
+     reservation trimmed — a short *desktop* window has no dock to clear and
+     would just get 130px of dead space at the end of the page. */
+  @media (orientation: landscape) and (max-height: 600px) and (max-width: 767px) {
+    :root {
+      --dock-reserve: calc(4.5rem + var(--tabbar-h) + var(--safe-bottom));
+    }
   }
 
   html {
@@ -82,6 +128,24 @@
     z-index: -1;
   }
 
+  /* The shell every panel in the app is built from: full-bleed and hinged to
+     the bottom edge on a phone, a centred card from sm up. Width is left to
+     the caller — a goals form and a profile card don't want the same one.
+
+     It's a class rather than five copies of the same className because the
+     five sheets have to agree about height on a sideways phone, and they
+     stopped agreeing the first time one of them was edited alone. */
+  .sheet {
+    @apply relative flex max-h-[92dvh] w-full flex-col rounded-t-[2rem] border-x-2 border-t-2 border-ink-900 bg-cream-100 shadow-lift;
+    @apply sm:rounded-[2rem] sm:border-2;
+  }
+  /* Sideways, 8% of the screen is worth more than the glimpse of page behind. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    .sheet {
+      max-height: 96dvh;
+    }
+  }
+
   /* Tactile press: the button physically drops onto the page. */
   .tactile {
     @apply transition-[transform,box-shadow] duration-100 ease-out;
@@ -139,16 +203,35 @@
   .pt-safe {
     padding-top: calc(0.5rem + var(--safe-top));
   }
-  /* Clears both fixed bottom layers: the module's action button (~7.5rem)
-     and the shared TabBar (64px) underneath it. From lg both move — the button
-     into the left column, the tabs into the sidebar — so the reservation goes
-     with them and the page just ends where the content does. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    .pb-safe {
+      padding-bottom: calc(0.5rem + var(--safe-bottom));
+    }
+  }
+
+  /* Clears whatever fixed chrome is currently at the bottom of the screen —
+     see --dock-reserve, which each breakpoint redefines. */
   .pb-dock {
-    padding-bottom: calc(7.5rem + 64px + var(--safe-bottom));
+    padding-bottom: var(--dock-reserve);
+  }
+
+  /* The page gutter, in one place and notch-aware.
+     16px on a phone, 24px once there's room, 40px beside the desktop rail —
+     plus whatever a sideways notch is covering on the left or right. */
+  .px-page {
+    padding-left: calc(1rem + var(--safe-left));
+    padding-right: calc(1rem + var(--safe-right));
+  }
+  @media (min-width: 640px) {
+    .px-page {
+      padding-left: calc(1.5rem + var(--safe-left));
+      padding-right: calc(1.5rem + var(--safe-right));
+    }
   }
   @media (min-width: 1024px) {
-    .pb-dock {
-      padding-bottom: 3.5rem;
+    .px-page {
+      padding-left: calc(2.5rem + var(--safe-left));
+      padding-right: calc(2.5rem + var(--safe-right));
     }
   }
   .no-scrollbar::-webkit-scrollbar {

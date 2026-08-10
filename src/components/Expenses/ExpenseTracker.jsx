@@ -119,9 +119,9 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
 
   return (
     <div className="min-h-[100dvh] lg:pl-[248px]">
-      <div className="mx-auto w-full max-w-[520px] px-4 pb-dock pt-safe lg:max-w-[1120px] lg:px-10">
-        <header className="flex items-center justify-between gap-3 py-4 lg:py-7">
-          <div className="flex items-center gap-2 lg:hidden">
+      <div className="mx-auto w-full max-w-[540px] px-page pb-dock pt-safe md:max-w-[900px] lg:max-w-[1120px] xl:max-w-[1320px] 2xl:max-w-[1500px]">
+        <header className="flex items-center justify-between gap-3 py-4 md:py-5 lg:py-7">
+          <div className="flex items-center gap-2 md:hidden">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
               <Icon3D name="moneywings" size={19} />
             </span>
@@ -130,11 +130,11 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
             </span>
           </div>
 
-          <div className="hidden min-w-0 lg:block">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          <div className="hidden min-w-0 md:block">
+            <h1 className="truncate font-display text-2xl font-extrabold tracking-tight lg:text-3xl">
               {timeGreeting()}, {firstName(user)}.
             </h1>
-            <p className="mt-0.5 text-sm font-semibold text-ink-400">
+            <p className="mt-0.5 truncate text-sm font-semibold text-ink-400">
               What you spent, and what’s left of the month.
             </p>
           </div>
@@ -162,13 +162,13 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
 
         {/* Same two-column split as the Food tab: the month's headline sticks
             on the left, the charts and ledger take the wider right column. */}
-        <div className="lg:grid lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-9">
-          <div className="lg:sticky lg:top-7">
+        <div className="md:grid md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:gap-9 xl:gap-12">
+          <div className="md:sticky md:top-4 lg:top-7">
             <div className="mb-5">
               <MonthNav month={month} onChange={setMonth} transactionCount={transactions.length} />
             </div>
 
-            <div className="mb-9 lg:mb-5">
+            <div className="mb-9 md:mb-5">
               <BudgetSummary
                 transactions={transactions}
                 budgets={budgets}
@@ -182,7 +182,7 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
             <button
               type="button"
               onClick={openAdd}
-              className="tactile hidden min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 lg:flex"
+              className="tactile hidden min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 md:flex"
             >
               <Plus className="h-6 w-6" strokeWidth={3.25} aria-hidden="true" />
               Add expense
@@ -190,9 +190,11 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
             </button>
           </div>
 
-          <div>
-            {/* Charts stack on a phone and pair up once there's width for two. */}
-            <div className="mb-9 grid gap-5 xl:grid-cols-2">
+          <div className="min-w-0">
+            {/* Charts stack until the right column can give each of them a real
+                width. That's later than it looks: the left column and the rail
+                have already taken ~630px off the window by then. */}
+            <div className="mb-9 grid gap-5 2xl:grid-cols-2">
               <SpendingChart
                 categoryTotals={categoryTotals}
                 total={monthTotals.expense}
@@ -230,16 +232,16 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
         </div>
       </div>
 
-      {/* Primary action, docked above the tab bar. Mobile only — at lg the same
-          button sits under the summary card. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+var(--safe-bottom))] z-40 lg:hidden">
-        <div className="h-16 bg-gradient-to-t from-cream-100 via-cream-100/90 to-transparent" />
-        <div className="bg-cream-100 pb-3">
-          <div className="mx-auto w-full max-w-[520px] px-4">
+      {/* Primary action, docked above the tab bar. Phones only — from md the
+          same button sits under the summary card. */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--tabbar-h)+var(--safe-bottom))] z-40 md:hidden">
+        <div className="h-16 bg-gradient-to-t from-cream-100 via-cream-100/90 to-transparent short:h-8" />
+        <div className="bg-cream-100 pb-3 short:pb-2">
+          <div className="mx-auto w-full max-w-[540px] px-page">
             <button
               type="button"
               onClick={openAdd}
-              className="tactile pointer-events-auto flex min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300"
+              className="tactile pointer-events-auto flex min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 short:min-h-[52px] short:text-base"
             >
               <Plus className="h-6 w-6" strokeWidth={3.25} aria-hidden="true" />
               Add expense

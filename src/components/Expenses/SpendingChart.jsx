@@ -15,7 +15,7 @@ export default function SpendingChart({ categoryTotals, total, loading = false }
   if (loading) {
     return (
       <div className="card p-5">
-        <div className="skeleton mx-auto h-[190px] w-[190px] rounded-full" />
+        <div className="skeleton mx-auto aspect-square w-full max-w-[190px] rounded-full sm:max-w-[220px]" />
         <div className="mt-4 space-y-2">
           {[0, 1, 2].map((i) => (
             <div key={i} className="skeleton h-4 w-full" />
@@ -66,7 +66,7 @@ export default function SpendingChart({ categoryTotals, total, loading = false }
         Spending by category, this month
       </p>
 
-      <div className="relative mx-auto h-[210px] w-full max-w-[300px]">
+      <div className="relative mx-auto h-[200px] w-full max-w-[290px] sm:h-[240px] sm:max-w-[340px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -105,7 +105,9 @@ export default function SpendingChart({ categoryTotals, total, loading = false }
         </div>
       </div>
 
-      <ul className="mt-4 space-y-1.5">
+      {/* Two columns while the card is stacked full-width, back to one once the
+          charts sit side by side and each has only half the row. */}
+      <ul className="mt-4 grid gap-1.5 sm:grid-cols-2 sm:gap-x-6 2xl:grid-cols-1">
         {categoryTotals.map((category) => (
           <li key={category.id} className="flex items-center gap-2.5">
             <span

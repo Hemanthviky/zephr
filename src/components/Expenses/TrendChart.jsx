@@ -24,7 +24,7 @@ export default function TrendChart({ series, loading = false }) {
     return (
       <div className="card p-5">
         <div className="skeleton h-4 w-32" />
-        <div className="skeleton mt-4 h-[180px] w-full rounded-2xl" />
+        <div className="skeleton mt-4 h-[180px] w-full rounded-2xl sm:h-[210px]" />
       </div>
     )
   }
@@ -62,7 +62,7 @@ export default function TrendChart({ series, loading = false }) {
         Total spent per month · avg {formatMoney(average, { compact: true })}
       </p>
 
-      <div className="-ml-2 h-[190px] w-full">
+      <div className="-ml-2 h-[190px] w-full sm:h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={series} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
             <CartesianGrid

@@ -96,7 +96,7 @@ export default function AddFoodForm({ open, onClose, onAdd, saving = false, erro
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-            className="relative flex max-h-[92dvh] w-full max-w-[520px] flex-col rounded-t-[2rem] border-x-2 border-t-2 border-ink-900 bg-cream-100 shadow-lift sm:rounded-[2rem] sm:border-2"
+            className="sheet max-w-[520px] md:max-w-[560px]"
           >
             {/* Grab handle — signals "this is draggable-ish / dismissible". */}
             <div className="flex justify-center pt-3 sm:hidden">
@@ -226,7 +226,10 @@ function PortionStep({ food, grams, onGramsChange, scaled, gramsValid, meal, onM
           the common case costs nothing and the exception is always visible. */}
       <div className="mb-5">
         <p className="label-caps mb-2">Where does this go?</p>
-        <div className="grid grid-cols-5 gap-1.5">
+        {/* Five across at every width — they're a row of five things and
+            wrapping them into 3+2 would make the day look like it has an
+            odd shape. The tiles just get shorter when the screen is. */}
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
           {MEALS.map((option) => {
             const active = meal === option.id
             return (
@@ -236,7 +239,7 @@ function PortionStep({ food, grams, onGramsChange, scaled, gramsValid, meal, onM
                 onClick={() => onMealChange(option.id)}
                 aria-pressed={active}
                 className={[
-                  'tactile flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-xl border-2 px-0.5 transition-colors',
+                  'tactile flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-xl border-2 px-0.5 transition-colors short:min-h-[58px]',
                   active
                     ? 'border-ink-900 bg-lime-400 shadow-press-sm'
                     : 'border-ink-900/10 bg-cream-50 hover:border-ink-900/30',
@@ -244,9 +247,8 @@ function PortionStep({ food, grams, onGramsChange, scaled, gramsValid, meal, onM
               >
                 <Icon3D name={option.icon} size={24} />
                 <span
-                  className={`w-full truncate text-center text-[0.6rem] font-extrabold leading-tight ${
-                    active ? 'text-ink-900' : 'text-ink-400'
-                  }`}
+                  className={`w-full truncate text-center text-[0.6rem] font-extrabold leading-tight ${active ? 'text-ink-900' : 'text-ink-400'
+                    }`}
                 >
                   {option.label}
                 </span>

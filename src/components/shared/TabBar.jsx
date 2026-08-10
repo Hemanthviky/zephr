@@ -5,9 +5,11 @@ import Avatar from './Avatar'
 /**
  * The app's two modules, in whichever navigation the screen calls for.
  *
- * Under `lg` it's a bottom bar: thumb-reachable, sitting below each module's
- * own primary action button (which is offset to clear it), so switching tabs
- * and logging something never leave the bottom third of the phone. It holds two
+ * Under `lg` it's a bottom bar: thumb-reachable, and on a phone it sits below
+ * each module's own docked action button (which is offset to clear it), so
+ * switching tabs and logging something never leave the bottom third of the
+ * screen. From `md` the modules move that button inline and the bar is the
+ * only fixed thing left down there. It holds two
  * items and only two — profile is not a third module, and squeezing an avatar
  * in beside the tabs made it read as one. On phones that lives in the module
  * header instead, top-right, where an account has lived on mobile for a decade.
@@ -27,8 +29,13 @@ const TABS = [
   { id: 'money', label: 'Money', icon: 'moneywings', blurb: 'Spending & budgets' },
 ]
 
-/** Height of the mobile bar, excluding the safe-area inset. Synced with .pb-dock. */
-export const TAB_BAR_HEIGHT = 64
+/**
+ * Height of the mobile bar, excluding the safe-area inset: pt-2 + a 48px
+ * target + .pb-safe's 16px. The layout reads this from `--tabbar-h` in
+ * index.css, which is the value that has to stay in step with the markup
+ * below — this constant is here for anything that needs the number in JS.
+ */
+export const TAB_BAR_HEIGHT = 72
 
 /** Width of the desktop rail. Modules offset their content by this at lg. */
 export const SIDEBAR_WIDTH = 248
@@ -41,7 +48,7 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
         aria-label="Sections"
         className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-ink-900/10 bg-cream-50/95 backdrop-blur-md pb-safe lg:hidden"
       >
-        <div className="mx-auto flex w-full max-w-[520px] items-stretch gap-2 px-4 pt-2">
+        <div className="mx-auto flex w-full max-w-[540px] items-stretch gap-2 px-page pt-2 short:pt-1">
           {TABS.map((tab) => {
             const active = value === tab.id
             return (
@@ -50,7 +57,7 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
                 type="button"
                 onClick={() => onChange(tab.id)}
                 aria-current={active ? 'page' : undefined}
-                className="relative flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-3"
+                className="relative flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-3 short:min-h-[44px]"
               >
                 {active && (
                   <motion.span
@@ -78,10 +85,12 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
         </div>
       </nav>
 
-      {/* ── Desktop: left rail ───────────────────────────────────────────── */}
+      {/* ── Desktop: left rail ─────────────────────────────────────────────
+          It scrolls: a laptop in a short window (or a browser wearing three
+          toolbars) can leave less height than the rail's own content. */}
       <nav
         aria-label="Sections"
-        className="fixed inset-y-0 left-0 z-50 hidden w-[248px] flex-col border-r-2 border-ink-900/10 bg-cream-50 px-4 py-7 lg:flex"
+        className="no-scrollbar fixed inset-y-0 left-0 z-50 hidden w-[248px] flex-col overflow-y-auto border-r-2 border-ink-900/10 bg-cream-50 px-4 py-7 lg:flex"
       >
         <div className="mb-8 flex items-center gap-2.5 px-2">
           <span className="flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">

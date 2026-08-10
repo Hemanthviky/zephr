@@ -59,8 +59,11 @@ export default function BudgetSummary({
       aria-label={`Money for the month: ${formatMoney(summary.spent)} spent`}
     >
       <div className="card overflow-hidden p-5 pb-4">
-        <div className="relative mx-auto w-[212px]">
-          <svg viewBox="0 0 200 200" className="h-[212px] w-[212px] -rotate-[135deg]">
+        {/* Percentage-sized, for the same reason as the food tracker's ring:
+            it has to survive a 280px screen and it may as well use a desktop
+            column when there is one. */}
+        <div className="relative mx-auto w-full max-w-[212px] lg:max-w-[236px]">
+          <svg viewBox="0 0 200 200" className="aspect-square w-full -rotate-[135deg]">
             <circle
               cx="100"
               cy="100"
@@ -106,10 +109,13 @@ export default function BudgetSummary({
 
           <div className="absolute inset-0 flex flex-col items-center justify-center pb-2 text-center">
             <span className="label-caps">{caption}</span>
+            {/* text-money / -long carry their own leading, tracking and weight,
+                and both clamp against the viewport so a six-figure total
+                doesn't run out of ring on a small phone. */}
             <span
-              className={`nums font-display leading-[0.86] tracking-tighter ${
-                over ? 'text-coral-500' : 'text-ink-900'
-              } ${headline >= 100000 ? 'text-[2.6rem]' : 'text-[3.1rem]'} font-extrabold`}
+              className={`nums font-display ${over ? 'text-coral-500' : 'text-ink-900'} ${
+                headline >= 100000 ? 'text-money-long' : 'text-money'
+              }`}
             >
               {formatMoney(headline)}
             </span>
@@ -241,7 +247,7 @@ function BudgetSummarySkeleton() {
   return (
     <section className="card-stacked" aria-busy="true" aria-label="Loading this month">
       <div className="card p-5">
-        <div className="skeleton mx-auto h-[212px] w-[212px] rounded-full" />
+        <div className="skeleton mx-auto aspect-square w-full max-w-[212px] rounded-full lg:max-w-[236px]" />
         <div className="mt-6 space-y-4">
           {[0, 1, 2].map((i) => (
             <div key={i} className="space-y-2">

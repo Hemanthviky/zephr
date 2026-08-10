@@ -111,7 +111,11 @@ export default function FoodSearchDropdown({ onSelect, autoFocus = false }) {
         role="listbox"
         aria-label="Food results"
         ref={listRef}
-        className="no-scrollbar mt-2 max-h-[46vh] space-y-1.5 overflow-y-auto overscroll-contain pb-1"
+        // dvh, not vh: on mobile Safari `vh` is the height with the URL bar
+        // collapsed, so a vh-sized list is taller than the screen right up
+        // until you scroll. The list keeps its own scroll so the search field
+        // stays put above it however many results there are.
+        className="no-scrollbar mt-2 max-h-[46dvh] space-y-1.5 overflow-y-auto overscroll-contain pb-1 md:max-h-[52dvh]"
       >
         <AnimatePresence initial={false} mode="popLayout">
           {results.map((food, index) => (

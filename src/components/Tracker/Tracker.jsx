@@ -19,11 +19,15 @@ import { todayISO, timeGreeting } from '../../utils/dateHelpers'
  * read, and the one action you take twenty times a day — logging food — docked
  * to the bottom of the screen where a thumb rests.
  *
- * From `lg` up that inverts. A phone column stretched across a desktop window
- * is a waste of the screen, so the single scroll splits into two: today's
- * progress parks in a sticky left column that never scrolls out of view, the
- * log gets the wider right column, and the docked button — pointless when the
- * pointer is mid-screen — becomes an ordinary button under the progress card.
+ * From `md` — a tablet, or a phone turned sideways — that inverts. A 520px
+ * column marooned in the middle of a 1024px window is the clearest sign nobody
+ * looked at the screen, so the single scroll splits in two: today's progress
+ * parks in a sticky left column that never scrolls out of view, the log gets
+ * the wider right column, and the docked button — pointless once there's room
+ * for it beside the card — becomes an ordinary button under the progress card.
+ *
+ * `lg` keeps that split and adds the side rail; `xl` and up just let the two
+ * columns breathe rather than stranding the whole app on the left of a 27".
  */
 export default function Tracker({ user, onOpenProfile, goalsState }) {
   const [date, setDate] = useState(todayISO)
@@ -60,12 +64,14 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
 
   return (
     <div className="min-h-[100dvh] lg:pl-[248px]">
-      <div className="mx-auto w-full max-w-[520px] px-4 pb-dock pt-safe lg:max-w-[1120px] lg:px-10">
+      <div className="mx-auto w-full max-w-[540px] px-page pb-dock pt-safe md:max-w-[900px] lg:max-w-[1120px] xl:max-w-[1320px] 2xl:max-w-[1500px]">
         {/* ── Header ──────────────────────────────────────────────────────
-            The brand mark lives in the sidebar on desktop, so here it only
-            shows below lg — otherwise it'd be on screen twice. */}
-        <header className="flex items-center justify-between gap-3 py-4 lg:py-7">
-          <div className="flex items-center gap-2 lg:hidden">
+            A phone gets the brand mark; anything wider gets the greeting
+            instead, which is the better use of a row that has room to spare.
+            The avatar stays until lg, where the side rail takes over the
+            profile — showing both would put the same face on screen twice. */}
+        <header className="flex items-center justify-between gap-3 py-4 md:py-5 lg:py-7">
+          <div className="flex items-center gap-2 md:hidden">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
               <Icon3D name="salad" size={19} />
             </span>
@@ -74,11 +80,11 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
             </span>
           </div>
 
-          <div className="hidden min-w-0 lg:block">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          <div className="hidden min-w-0 md:block">
+            <h1 className="truncate font-display text-2xl font-extrabold tracking-tight lg:text-3xl">
               {timeGreeting()}, {firstName(user)}.
             </h1>
-            <p className="mt-0.5 text-sm font-semibold text-ink-400">
+            <p className="mt-0.5 truncate text-sm font-semibold text-ink-400">
               What you ate, and what it added up to.
             </p>
           </div>
@@ -106,14 +112,14 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
           </div>
         </header>
 
-        {/* Two columns from lg: progress sticky on the left, log on the right. */}
-        <div className="lg:grid lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-9">
-          <div className="lg:sticky lg:top-7">
+        {/* Two columns from md: progress sticky on the left, log on the right. */}
+        <div className="md:grid md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:gap-9 xl:gap-12">
+          <div className="md:sticky md:top-4 lg:top-7">
             <div className="mb-5">
               <DateNav date={date} onChange={setDate} entryCount={entries.length} />
             </div>
 
-            <div className="mb-9 lg:mb-5">
+            <div className="mb-9 md:mb-5">
               <NutritionLabel
                 totals={totals}
                 goals={goals}
@@ -122,11 +128,12 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
               />
             </div>
 
-            {/* Desktop's primary action. The fixed dock below covers mobile. */}
+            {/* The primary action, once the layout is wide enough to hold it
+                beside the card. The fixed dock below covers everything narrower. */}
             <button
               type="button"
               onClick={openAdd}
-              className="tactile hidden min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 lg:flex"
+              className="tactile hidden min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 md:flex"
             >
               <Plus className="h-6 w-6" strokeWidth={3.25} aria-hidden="true" />
               Log food
@@ -149,15 +156,17 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
 
       {/* ── Bottom dock: the primary action, always within thumb reach ───
           Offset by the height of the shared TabBar so the two never overlap.
-          Retired at lg, where the same button sits under the progress card. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+var(--safe-bottom))] z-40 lg:hidden">
-        <div className="h-16 bg-gradient-to-t from-cream-100 via-cream-100/90 to-transparent" />
-        <div className="bg-cream-100 pb-3">
-          <div className="mx-auto w-full max-w-[520px] px-4">
+          Retired at md, where the same button sits under the progress card.
+          On a sideways phone the gradient and the button both come in — that
+          strip is a tenth of the screen there. */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--tabbar-h)+var(--safe-bottom))] z-40 md:hidden">
+        <div className="h-16 bg-gradient-to-t from-cream-100 via-cream-100/90 to-transparent short:h-8" />
+        <div className="bg-cream-100 pb-3 short:pb-2">
+          <div className="mx-auto w-full max-w-[540px] px-page">
             <button
               type="button"
               onClick={openAdd}
-              className="tactile pointer-events-auto flex min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300"
+              className="tactile pointer-events-auto flex min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 short:min-h-[52px] short:text-base"
             >
               <Plus className="h-6 w-6" strokeWidth={3.25} aria-hidden="true" />
               Log food
