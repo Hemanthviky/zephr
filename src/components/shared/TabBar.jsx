@@ -2,64 +2,142 @@ import { motion } from 'framer-motion'
 import Icon3D from './Icon3D'
 
 /**
- * The app's two modules, docked to the bottom of the screen.
+ * The app's two modules, in whichever navigation the screen calls for.
  *
- * Sits below each module's own primary action button (which is offset to clear
- * it), so the thumb never has to leave the bottom third of the phone: switch
- * tabs on the very bottom row, log something on the row above.
+ * Under `lg` it's a bottom bar: thumb-reachable, sitting below each module's
+ * own primary action button (which is offset to clear it), so switching tabs
+ * and logging something never leave the bottom third of the phone.
  *
- * The active pill is a shared layout animation, so switching slides rather than
- * cuts — the two tabs read as one control, not two buttons.
+ * From `lg` up a bottom bar is wrong — the pointer is nowhere near the bottom
+ * of a 1440px window, and a full-width strip of chrome wastes the one thing a
+ * desktop has spare, which is horizontal room. So it becomes a fixed left rail
+ * instead, and the modules lay themselves out in the space beside it.
+ *
+ * Both render into the DOM at once (visibility is a media query, not a branch),
+ * so the two active pills need distinct layoutIds — sharing one would make
+ * framer-motion animate the pill between a hidden element and a visible one.
  */
 
 const TABS = [
-  { id: 'food', label: 'Food', icon: 'salad' },
-  { id: 'money', label: 'Money', icon: 'moneywings' },
+  { id: 'food', label: 'Food', icon: 'salad', blurb: 'Calories & macros' },
+  { id: 'money', label: 'Money', icon: 'moneywings', blurb: 'Spending & budgets' },
 ]
 
-/** Height of the bar, excluding the safe-area inset. Kept in sync with .pb-dock. */
+/** Height of the mobile bar, excluding the safe-area inset. Synced with .pb-dock. */
 export const TAB_BAR_HEIGHT = 64
+
+/** Width of the desktop rail. Modules offset their content by this at lg. */
+export const SIDEBAR_WIDTH = 248
 
 export default function TabBar({ value, onChange }) {
   return (
-    <nav
-      aria-label="Sections"
-      className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-ink-900/10 bg-cream-50/95 backdrop-blur-md pb-safe"
-    >
-      <div className="mx-auto flex w-full max-w-[520px] items-stretch gap-2 px-4 pt-2">
-        {TABS.map((tab) => {
-          const active = value === tab.id
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => onChange(tab.id)}
-              aria-current={active ? 'page' : undefined}
-              className="relative flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-3"
-            >
-              {active && (
-                <motion.span
-                  layoutId="tab-pill"
-                  transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                  className="absolute inset-0 rounded-2xl border-2 border-ink-900 bg-lime-400 shadow-press-sm"
-                />
-              )}
+    <>
+      {/* ── Mobile: bottom bar ───────────────────────────────────────────── */}
+      <nav
+        aria-label="Sections"
+        className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-ink-900/10 bg-cream-50/95 backdrop-blur-md pb-safe lg:hidden"
+      >
+        <div className="mx-auto flex w-full max-w-[520px] items-stretch gap-2 px-4 pt-2">
+          {TABS.map((tab) => {
+            const active = value === tab.id
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onChange(tab.id)}
+                aria-current={active ? 'page' : undefined}
+                className="relative flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-3"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="tab-pill-mobile"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    className="absolute inset-0 rounded-2xl border-2 border-ink-900 bg-lime-400 shadow-press-sm"
+                  />
+                )}
 
-              <span className="relative z-10 flex items-center gap-2">
-                <Icon3D name={tab.icon} size={active ? 24 : 21} />
-                <span
-                  className={[
-                    'font-display text-sm font-extrabold tracking-tight transition-colors',
-                    active ? 'text-ink-900' : 'text-ink-400',
-                  ].join(' ')}
-                >
-                  {tab.label}
+                <span className="relative z-10 flex items-center gap-2">
+                  <Icon3D name={tab.icon} size={active ? 24 : 21} />
+                  <span
+                    className={[
+                      'font-display text-sm font-extrabold tracking-tight transition-colors',
+                      active ? 'text-ink-900' : 'text-ink-400',
+                    ].join(' ')}
+                  >
+                    {tab.label}
+                  </span>
                 </span>
-              </span>
-            </button>
-          )
-        })}
-      </div>
-    </nav>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
+
+      {/* ── Desktop: left rail ───────────────────────────────────────────── */}
+      <nav
+        aria-label="Sections"
+        className="fixed inset-y-0 left-0 z-50 hidden w-[248px] flex-col border-r-2 border-ink-900/10 bg-cream-50 px-4 py-7 lg:flex"
+      >
+        <div className="mb-8 flex items-center gap-2.5 px-2">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
+            <Icon3D name="salad" size={23} />
+          </span>
+          <span className="font-display text-lg font-extrabold uppercase tracking-[0.18em]">
+            Zephr
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {TABS.map((tab) => {
+            const active = value === tab.id
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onChange(tab.id)}
+                aria-current={active ? 'page' : undefined}
+                className="relative flex min-h-[60px] items-center gap-3 rounded-2xl px-3 text-left transition-colors hover:bg-cream-100"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="tab-pill-desktop"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    className="absolute inset-0 rounded-2xl border-2 border-ink-900 bg-lime-400 shadow-press-sm"
+                  />
+                )}
+
+                <span className="relative z-10 flex min-w-0 items-center gap-3">
+                  <Icon3D name={tab.icon} size={30} />
+                  <span className="min-w-0">
+                    <span
+                      className={[
+                        'block font-display text-base font-extrabold leading-tight tracking-tight transition-colors',
+                        active ? 'text-ink-900' : 'text-ink-500',
+                      ].join(' ')}
+                    >
+                      {tab.label}
+                    </span>
+                    <span
+                      className={[
+                        'block truncate text-[0.7rem] font-bold transition-colors',
+                        active ? 'text-ink-700' : 'text-ink-300',
+                      ].join(' ')}
+                    >
+                      {tab.blurb}
+                    </span>
+                  </span>
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        <p className="mt-auto px-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-ink-300">
+          Typed by hand,
+          <br />
+          counted for you
+        </p>
+      </nav>
+    </>
   )
 }

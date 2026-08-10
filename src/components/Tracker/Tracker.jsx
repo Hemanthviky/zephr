@@ -14,9 +14,15 @@ import { todayISO } from '../../utils/dateHelpers'
 /**
  * The signed-in app.
  *
- * Layout is mobile-first and thumb-first: the header and date nav sit at the
- * top where they're read, and the one action you take twenty times a day —
- * logging food — is docked to the bottom of the screen where a thumb rests.
+ * Mobile-first and thumb-first: header and date nav at the top where they're
+ * read, and the one action you take twenty times a day — logging food — docked
+ * to the bottom of the screen where a thumb rests.
+ *
+ * From `lg` up that inverts. A phone column stretched across a desktop window
+ * is a waste of the screen, so the single scroll splits into two: today's
+ * progress parks in a sticky left column that never scrolls out of view, the
+ * log gets the wider right column, and the docked button — pointless when the
+ * pointer is mid-screen — becomes an ordinary button under the progress card.
  */
 export default function Tracker({ user, onSignOut }) {
   const [date, setDate] = useState(todayISO)
@@ -49,17 +55,26 @@ export default function Tracker({ user, onSignOut }) {
   }
 
   return (
-    <div className="min-h-[100dvh]">
-      <div className="mx-auto w-full max-w-[520px] px-4 pb-dock pt-safe">
-        {/* ── Header ──────────────────────────────────────────────────── */}
-        <header className="flex items-center justify-between gap-3 py-4">
-          <div className="flex items-center gap-2">
+    <div className="min-h-[100dvh] lg:pl-[248px]">
+      <div className="mx-auto w-full max-w-[520px] px-4 pb-dock pt-safe lg:max-w-[1120px] lg:px-10">
+        {/* ── Header ──────────────────────────────────────────────────────
+            The brand mark lives in the sidebar on desktop, so here it only
+            shows below lg — otherwise it'd be on screen twice. */}
+        <header className="flex items-center justify-between gap-3 py-4 lg:py-7">
+          <div className="flex items-center gap-2 lg:hidden">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
               <Icon3D name="salad" size={19} />
             </span>
             <span className="font-display text-base font-extrabold uppercase tracking-[0.18em]">
               Zephr
             </span>
+          </div>
+
+          <div className="hidden min-w-0 lg:block">
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">Food</h1>
+            <p className="mt-0.5 text-sm font-semibold text-ink-400">
+              What you ate, and what it added up to.
+            </p>
           </div>
 
           <IconButton
@@ -70,34 +85,51 @@ export default function Tracker({ user, onSignOut }) {
           />
         </header>
 
-        <div className="mb-5">
-          <DateNav date={date} onChange={setDate} entryCount={entries.length} />
-        </div>
+        {/* Two columns from lg: progress sticky on the left, log on the right. */}
+        <div className="lg:grid lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-9">
+          <div className="lg:sticky lg:top-7">
+            <div className="mb-5">
+              <DateNav date={date} onChange={setDate} entryCount={entries.length} />
+            </div>
 
-        <div className="mb-9">
-          <NutritionLabel
+            <div className="mb-9 lg:mb-5">
+              <NutritionLabel
+                totals={totals}
+                goals={goals}
+                loading={entriesLoading || goalsLoading}
+                entryCount={entries.length}
+              />
+            </div>
+
+            {/* Desktop's primary action. The fixed dock below covers mobile. */}
+            <button
+              type="button"
+              onClick={openAdd}
+              className="tactile hidden min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 lg:flex"
+            >
+              <Plus className="h-6 w-6" strokeWidth={3.25} aria-hidden="true" />
+              Log food
+              <Icon3D name="plate" size={26} />
+            </button>
+          </div>
+
+          <FoodLog
+            entries={entries}
             totals={totals}
-            goals={goals}
-            loading={entriesLoading || goalsLoading}
-            entryCount={entries.length}
+            loading={entriesLoading}
+            error={entriesError}
+            date={date}
+            onDelete={deleteEntry}
+            onRetry={refresh}
+            onAdd={openAdd}
           />
         </div>
-
-        <FoodLog
-          entries={entries}
-          totals={totals}
-          loading={entriesLoading}
-          error={entriesError}
-          date={date}
-          onDelete={deleteEntry}
-          onRetry={refresh}
-          onAdd={openAdd}
-        />
       </div>
 
       {/* ── Bottom dock: the primary action, always within thumb reach ───
-          Offset by the height of the shared TabBar so the two never overlap. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+var(--safe-bottom))] z-40">
+          Offset by the height of the shared TabBar so the two never overlap.
+          Retired at lg, where the same button sits under the progress card. */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+var(--safe-bottom))] z-40 lg:hidden">
         <div className="h-16 bg-gradient-to-t from-cream-100 via-cream-100/90 to-transparent" />
         <div className="bg-cream-100 pb-3">
           <div className="mx-auto w-full max-w-[520px] px-4">

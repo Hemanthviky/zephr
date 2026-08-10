@@ -115,16 +115,23 @@ export default function ExpenseTracker({ user, onSignOut }) {
   }
 
   return (
-    <div className="min-h-[100dvh]">
-      <div className="mx-auto w-full max-w-[520px] px-4 pb-dock pt-safe">
-        <header className="flex items-center justify-between gap-3 py-4">
-          <div className="flex items-center gap-2">
+    <div className="min-h-[100dvh] lg:pl-[248px]">
+      <div className="mx-auto w-full max-w-[520px] px-4 pb-dock pt-safe lg:max-w-[1120px] lg:px-10">
+        <header className="flex items-center justify-between gap-3 py-4 lg:py-7">
+          <div className="flex items-center gap-2 lg:hidden">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
               <Icon3D name="moneywings" size={19} />
             </span>
             <span className="font-display text-base font-extrabold uppercase tracking-[0.18em]">
               Money
             </span>
+          </div>
+
+          <div className="hidden min-w-0 lg:block">
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">Money</h1>
+            <p className="mt-0.5 text-sm font-semibold text-ink-400">
+              What you spent, and what’s left of the month.
+            </p>
           </div>
 
           <IconButton
@@ -135,62 +142,79 @@ export default function ExpenseTracker({ user, onSignOut }) {
           />
         </header>
 
-        <div className="mb-5">
-          <MonthNav month={month} onChange={setMonth} transactionCount={transactions.length} />
-        </div>
+        {/* Same two-column split as the Food tab: the month's headline sticks
+            on the left, the charts and ledger take the wider right column. */}
+        <div className="lg:grid lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-9">
+          <div className="lg:sticky lg:top-7">
+            <div className="mb-5">
+              <MonthNav month={month} onChange={setMonth} transactionCount={transactions.length} />
+            </div>
 
-        <div className="mb-9">
-          <BudgetSummary
-            transactions={transactions}
-            budgets={budgets}
-            categories={categories}
-            categoryTotals={categoryTotals}
-            month={month}
-            loading={loadingShell}
-          />
-        </div>
+            <div className="mb-9 lg:mb-5">
+              <BudgetSummary
+                transactions={transactions}
+                budgets={budgets}
+                categories={categories}
+                categoryTotals={categoryTotals}
+                month={month}
+                loading={loadingShell}
+              />
+            </div>
 
-        <div className="mb-5">
-          <SpendingChart
-            categoryTotals={categoryTotals}
-            total={monthTotals.expense}
-            loading={loadingShell}
-          />
-        </div>
+            <button
+              type="button"
+              onClick={openAdd}
+              className="tactile hidden min-h-[62px] w-full items-center justify-center gap-3 rounded-[1.25rem] border-[3px] border-ink-900 bg-lime-400 font-display text-lg font-extrabold shadow-press hover:bg-lime-300 lg:flex"
+            >
+              <Plus className="h-6 w-6" strokeWidth={3.25} aria-hidden="true" />
+              Add expense
+              <Icon3D name="receipt" size={26} />
+            </button>
+          </div>
 
-        <div className="mb-9">
-          <TrendChart series={trendSeries} loading={txLoading} />
-        </div>
+          <div>
+            {/* Charts stack on a phone and pair up once there's width for two. */}
+            <div className="mb-9 grid gap-5 xl:grid-cols-2">
+              <SpendingChart
+                categoryTotals={categoryTotals}
+                total={monthTotals.expense}
+                loading={loadingShell}
+              />
+              <TrendChart series={trendSeries} loading={txLoading} />
+            </div>
 
-        {wallets.length > 1 && (
-          <div className="mb-4">
-            <p className="label-caps mb-2 px-1">Wallet · filters the list below</p>
-            <WalletPicker
+            {wallets.length > 1 && (
+              <div className="mb-4">
+                <p className="label-caps mb-2 px-1">Wallet · filters the list below</p>
+                <WalletPicker
+                  wallets={wallets}
+                  value={walletFilter}
+                  onChange={setWalletFilter}
+                  includeAll
+                  loading={walletsLoading}
+                />
+              </div>
+            )}
+
+            <ExpenseLog
+              transactions={visibleTransactions}
+              categories={categories}
               wallets={wallets}
-              value={walletFilter}
-              onChange={setWalletFilter}
-              includeAll
-              loading={walletsLoading}
+              loading={txLoading}
+              error={txError || categoriesError}
+              month={month}
+              onEdit={openEdit}
+              onDelete={deleteTransaction}
+              onRetry={refresh}
+              onAdd={openAdd}
             />
           </div>
-        )}
-
-        <ExpenseLog
-          transactions={visibleTransactions}
-          categories={categories}
-          wallets={wallets}
-          loading={txLoading}
-          error={txError || categoriesError}
-          month={month}
-          onEdit={openEdit}
-          onDelete={deleteTransaction}
-          onRetry={refresh}
-          onAdd={openAdd}
-        />
+        </div>
       </div>
 
-      {/* Primary action, docked above the tab bar. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+var(--safe-bottom))] z-40">
+      {/* Primary action, docked above the tab bar. Mobile only — at lg the same
+          button sits under the summary card. */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+var(--safe-bottom))] z-40 lg:hidden">
         <div className="h-16 bg-gradient-to-t from-cream-100 via-cream-100/90 to-transparent" />
         <div className="bg-cream-100 pb-3">
           <div className="mx-auto w-full max-w-[520px] px-4">

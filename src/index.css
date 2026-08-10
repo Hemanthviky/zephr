@@ -140,9 +140,16 @@
     padding-top: calc(0.5rem + var(--safe-top));
   }
   /* Clears both fixed bottom layers: the module's action button (~7.5rem)
-     and the shared TabBar (64px) underneath it. */
+     and the shared TabBar (64px) underneath it. From lg both move — the button
+     into the left column, the tabs into the sidebar — so the reservation goes
+     with them and the page just ends where the content does. */
   .pb-dock {
     padding-bottom: calc(7.5rem + 64px + var(--safe-bottom));
+  }
+  @media (min-width: 1024px) {
+    .pb-dock {
+      padding-bottom: 3.5rem;
+    }
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;

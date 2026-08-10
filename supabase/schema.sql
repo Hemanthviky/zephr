@@ -217,3 +217,27 @@ create policy "own budgets" on public.budgets
 
 create policy "own transactions" on public.transactions
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- ============================================================================
+-- GRANTS
+--
+-- Policies and privileges are two different gates, and PostgREST hits the
+-- privilege one first. Without these grants every request 403s with
+-- "permission denied for table …" before RLS is ever consulted — which looks
+-- exactly like a policy problem and isn't one.
+--
+-- Granting to `anon` is not a hole: RLS still applies on top, and an
+-- unauthenticated request has a null auth.uid(), so every policy above
+-- evaluates false and no rows come back. Grants say "you may query this
+-- table"; policies say "and only these rows".
+-- ============================================================================
+grant usage on schema public to anon, authenticated;
+
+grant select, insert, update, delete
+  on all tables in schema public
+  to anon, authenticated;
+
+-- Same treatment for anything added to this schema later, so a new table never
+-- silently starts life unreachable.
+alter default privileges in schema public
+  grant select, insert, update, delete on tables to anon, authenticated;
