@@ -325,6 +325,110 @@ create policy "own hospital logs" on public.hospital_logs
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ============================================================================
+-- NOTES MODULE
+-- A pinboard of paper notes, and a locked drawer in the same board for
+-- passwords. Additive like the sections above.
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- vault: the one per-user record the password half of Notes needs.
+--
+-- What this table deliberately does *not* hold is the master passphrase, or
+-- anything derived from it that could stand in for it. `salt` is public by
+-- design — it exists to make a precomputed table useless, not to be secret —
+-- and `verifier` is a known token encrypted under the derived key, so the app
+-- can tell "wrong passphrase" from "corrupt data" without ever comparing the
+-- passphrase itself to anything.
+--
+-- The consequence is the important part: a passphrase that is forgotten cannot
+-- be reset, because nothing on this server can decrypt what it locked. `hint`
+-- is the only mitigation offered, and it's plaintext, so the UI is explicit
+-- that it must not be the passphrase.
+--
+-- `iterations` is stored rather than hard-coded so the cost can be raised for
+-- new vaults later without stranding the ones written today.
+-- ----------------------------------------------------------------------------
+create table if not exists public.vault (
+  user_id    uuid primary key references auth.users (id) on delete cascade,
+  salt       text        not null check (char_length(salt) between 8 and 128),
+  verifier   text        not null check (char_length(verifier) between 8 and 512),
+  iterations integer     not null default 310000 check (iterations between 100000 and 2000000),
+  hint       text        check (hint is null or char_length(hint) <= 120),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- ----------------------------------------------------------------------------
+-- notes: one row per note *or* per saved login. One table, because they share
+-- a board, a search box and a pin — `kind` is what the UI branches on, exactly
+-- as hospital_logs does for drinks and doses.
+--
+-- The split between `body` and `secret` is the whole security model:
+--
+--   body   — plaintext. What a paper note says. Readable by anything holding a
+--            valid session for this user, which is the point of a note.
+--   secret — ciphertext, and only ever ciphertext. AES-GCM over a JSON payload
+--            {username, password, url, note}, base64'd with its IV in front,
+--            encrypted in the browser under the key derived from the master
+--            passphrase. This server never sees the plaintext and cannot
+--            produce it. Nothing sensitive belongs anywhere else on the row.
+--
+-- `title` stays plaintext for both kinds, because a board you cannot read the
+-- labels on is not a board. Name a login "Bank" rather than "Bank — hemanth@…".
+-- ----------------------------------------------------------------------------
+create table if not exists public.notes (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid        not null references auth.users (id) on delete cascade,
+  kind       text        not null default 'note' check (kind in ('note', 'secret')),
+  title      text        not null default '' check (char_length(title) <= 120),
+  body       text        check (body is null or char_length(body) <= 20000),
+  secret     text        check (secret is null or char_length(secret) <= 20000),
+  color      text        not null default 'cream'
+               check (color in ('cream', 'sand', 'lime', 'tangerine', 'coral', 'avocado')),
+  pinned     boolean     not null default false,
+  tags       text[]      not null default '{}' check (array_length(tags, 1) is null or array_length(tags, 1) <= 8),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Belt and braces on the model above: a plaintext body on a `secret` row would
+-- be a password written on the outside of the envelope, so the database refuses
+-- it rather than trusting every future edit to the form to remember.
+alter table public.notes
+  drop constraint if exists notes_secret_has_no_plaintext_body;
+alter table public.notes
+  add constraint notes_secret_has_no_plaintext_body
+  check (kind <> 'secret' or body is null);
+
+-- The board's only query: "this user's notes, pinned first, freshest first".
+create index if not exists notes_user_board_idx
+  on public.notes (user_id, pinned desc, updated_at desc);
+
+alter table public.vault enable row level security;
+alter table public.notes enable row level security;
+
+drop policy if exists "own vault" on public.vault;
+drop policy if exists "own notes" on public.notes;
+
+create policy "own vault" on public.vault
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own notes" on public.notes
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- `updated_at` is what the board sorts by, so it must not depend on the client
+-- remembering to send it.
+drop trigger if exists notes_touch_updated_at on public.notes;
+create trigger notes_touch_updated_at
+  before update on public.notes
+  for each row execute function public.touch_updated_at();
+
+drop trigger if exists vault_touch_updated_at on public.vault;
+create trigger vault_touch_updated_at
+  before update on public.vault
+  for each row execute function public.touch_updated_at();
+
+-- ============================================================================
 -- GRANTS
 --
 -- Policies and privileges are two different gates, and PostgREST hits the

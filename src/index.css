@@ -185,6 +185,37 @@
     transform-origin: top center;
   }
 
+  /* Guilloche — the crosshatch printed inside a bank envelope so you can't read
+     the cheque through it. It's the redaction bar on a vault card: two fine
+     diagonal rulings crossing at 90°, which reads as "deliberately obscured"
+     rather than as an empty grey field the way a row of dots does.
+
+     Both rulings are ink at low alpha over cream, so it stays in the palette,
+     and the 5px pitch is chosen to sit just above a phone's pixel grid — finer
+     than that and it moirés as you scroll. */
+  .guilloche {
+    background-color: theme('colors.cream.200');
+    background-image:
+      repeating-linear-gradient(45deg, rgba(27, 25, 21, 0.16) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(-45deg, rgba(27, 25, 21, 0.11) 0 1px, transparent 1px 5px);
+  }
+
+  /* The foil edge down the side of a vault card. A flat lime stripe would just
+     look like a coloured border; the light band through the middle is what
+     makes it read as pressed foil and marks the card as a different material
+     to the paper around it. */
+  .foil {
+    background-image: linear-gradient(
+      160deg,
+      #aedc0b 0%,
+      #d8fc5e 22%,
+      #f2ffc7 40%,
+      #aedc0b 58%,
+      #d8fc5e 80%,
+      #8cb300 100%
+    );
+  }
+
   /* Skeletons — a warm shimmer, not a gray placeholder box. */
   .skeleton {
     @apply relative overflow-hidden rounded-2xl bg-cream-200;

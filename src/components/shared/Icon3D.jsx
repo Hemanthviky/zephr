@@ -86,6 +86,16 @@ const ICONS = {
   clipboard: ['Clipboard', 'clipboard', '📋'],
   alarm: ['Alarm clock', 'alarm_clock', '⏰'],
 
+  // Notes module — the pinboard and the vault in it.
+  memo: ['Memo', 'memo', '📝'],
+  pushpin: ['Pushpin', 'pushpin', '📌'],
+  notepad: ['Spiral notepad', 'spiral_notepad', '🗒️'],
+  key: ['Key', 'key', '🔑'],
+  lockkey: ['Locked with key', 'locked_with_key', '🔐'],
+  unlocked: ['Unlocked', 'unlocked', '🔓'],
+  label: ['Label', 'label', '🏷️'],
+  paperclip: ['Paperclip', 'paperclip', '📎'],
+
   // Meal sections.
   cookie: ['Cookie', 'cookie', '🍪'],
   sunrise: ['Sunrise', 'sunrise', '🌅'],

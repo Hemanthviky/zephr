@@ -18,8 +18,11 @@ import { isSupabaseConfigured } from './lib/supabaseClient'
 // app combined. Split it out so opening Zephr to log a banana never downloads
 // a charting library. Hospital is split for the same reason at a smaller scale:
 // most sessions never open it, and nothing else in the app imports its chart.
+// Notes joins them: it carries the vault's crypto and its own board, and a
+// session spent logging food should never pay for either.
 const ExpenseTracker = lazy(() => import('./components/Expenses/ExpenseTracker'))
 const Hospital = lazy(() => import('./components/Hospital/Hospital'))
+const Notes = lazy(() => import('./components/Notes/Notes'))
 
 // There's no router here — two tabs live behind one URL — so the entire routing
 // question is "are you at the root or somewhere that doesn't exist". Read once
@@ -44,7 +47,7 @@ const PREVIEW =
  * it can't disagree with what the address bar says. It's still not a route —
  * the pathname is what decides 404 — so nothing above needs to know about it.
  */
-const TAB_IDS = new Set(['food', 'money', 'hospital'])
+const TAB_IDS = new Set(['food', 'money', 'hospital', 'notes'])
 
 function tabFromHash() {
   if (typeof window === 'undefined') return 'food'
@@ -159,7 +162,7 @@ function previewPage(name) {
 }
 
 /**
- * Food, Money and Hospital, side by side behind a tab bar.
+ * Food, Money, Hospital and Notes, side by side behind a tab bar.
  *
  * Modules stay mounted once visited and are hidden with `display: none`
  * rather than unmounted, so each keeps its own state — the day you were looking
@@ -177,7 +180,7 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
   // behind a "visited" flag that only a tab switch can ever set.
   const [visited, setVisited] = useState(() => new Set([tab]))
   const [profileOpen, setProfileOpen] = useState(false)
-  const scrollPositions = useRef({ food: 0, money: 0, hospital: 0 })
+  const scrollPositions = useRef({ food: 0, money: 0, hospital: 0, notes: 0 })
 
   // One goals instance for the whole app: the tracker reads the targets, the
   // profile edits the body stats behind them. Two hooks would drift apart the
@@ -252,6 +255,18 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
         <div style={{ display: tab === 'hospital' ? undefined : 'none' }}>
           <Suspense fallback={<ModuleLoading icon="hospital" label="Hospital" />}>
             <Hospital user={user} onOpenProfile={openProfile} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Staying mounted matters more here than anywhere else in the app: the
+          vault's master key lives in memory inside this subtree, so unmounting
+          Notes on a tab switch would re-prompt for the passphrase every time
+          you glanced at the food log. */}
+      {visited.has('notes') && (
+        <div style={{ display: tab === 'notes' ? undefined : 'none' }}>
+          <Suspense fallback={<ModuleLoading icon="pushpin" label="Notes" />}>
+            <Notes user={user} onOpenProfile={openProfile} />
           </Suspense>
         </div>
       )}
