@@ -367,11 +367,24 @@ create table if not exists public.vault (
 --
 --   body   — plaintext. What a paper note says. Readable by anything holding a
 --            valid session for this user, which is the point of a note.
---   secret — ciphertext, and only ever ciphertext. AES-GCM over a JSON payload
---            {username, password, url, note}, base64'd with its IV in front,
---            encrypted in the browser under the key derived from the master
---            passphrase. This server never sees the plaintext and cannot
---            produce it. Nothing sensitive belongs anywhere else on the row.
+--   secret — the login's whole payload, {username, password, url, note, fields},
+--            in one of two envelopes the client can always tell apart:
+--
+--              base64      — AES-GCM ciphertext with its IV in front, encrypted
+--                            in the browser under the key derived from the
+--                            master passphrase. This server never sees the
+--                            plaintext and cannot produce it.
+--              'plain.v1:…' — the same payload as JSON, in the clear, for a
+--                            login the user explicitly saved with the lock off.
+--                            base64 cannot contain ':' so the two never collide.
+--
+--            The prefix is there so nothing has to guess: a row is encrypted if
+--            and only if it does not carry it. Anything in a plain.v1 row is
+--            readable by whatever can read this table, which is why the app
+--            marks those cards as unlocked on their face.
+--
+--            Either way it stays out of `body` — that column is what search
+--            reads, and the constraint below keeps it null on a login.
 --
 -- `title` stays plaintext for both kinds, because a board you cannot read the
 -- labels on is not a board. Name a login "Bank" rather than "Bank — hemanth@…".

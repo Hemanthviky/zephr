@@ -1,10 +1,31 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertTriangle, Check, Globe, Pin, Plus, Trash2, User, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  Check,
+  Eye,
+  EyeOff,
+  Globe,
+  Lock,
+  Pin,
+  Plus,
+  Trash2,
+  Unlock,
+  User,
+  X,
+} from 'lucide-react'
 import Button from '../shared/Button'
 import Icon3D from '../shared/Icon3D'
 import PasswordField from './PasswordField'
-import { NOTE_COLORS, getColor, parseTags } from '../../utils/noteHelpers'
+import {
+  MAX_SECRET_FIELDS,
+  NOTE_COLORS,
+  SECRET_FIELD_LABEL_MAX,
+  SECRET_FIELD_VALUE_MAX,
+  getColor,
+  normalizeSecretFields,
+  parseTags,
+} from '../../utils/noteHelpers'
 
 /**
  * The editor, for a paper note and for a saved login alike.
@@ -22,17 +43,34 @@ import { NOTE_COLORS, getColor, parseTags } from '../../utils/noteHelpers'
  * No plaintext password ever reaches this component's props or its caller's
  * database row: it hands back a `secretPayload` and the module encrypts it.
  */
+
+/**
+ * Row identity for the custom fields.
+ *
+ * They need a key that survives a reorder or a delete, and the label can't be
+ * it — two blank rows would collide the moment you add a second one, and React
+ * would carry the wrong text into the wrong input. A counter is enough: these
+ * ids never leave the component and are never saved.
+ */
+let fieldSeq = 0
+const nextFieldId = () => `field-${(fieldSeq += 1)}`
 export default function NoteSheet({
   open,
   onClose,
   editing = null,
   initialKind = 'note',
   initialSecret = null,
+  initialEncrypted = true,
   initialDraft = null,
   onSubmit,
   onDelete,
   saving = false,
   error,
+  vaultReady = false,
+  vaultExists = false,
+  vaultSupported = true,
+  onRequestVault,
+  deferEscape = false,
 }) {
   const [kind, setKind] = useState(initialKind)
   const [title, setTitle] = useState('')
@@ -45,9 +83,26 @@ export default function NoteSheet({
   const [password, setPassword] = useState('')
   const [url, setUrl] = useState('')
   const [secretNote, setSecretNote] = useState('')
+  const [fields, setFields] = useState([])
+  // Whether this login gets the vault. Optional, per login — see the switch.
+  const [encrypt, setEncrypt] = useState(false)
+  // Which custom row to put the cursor in — set only by "Add a field", so a
+  // re-render for any other reason doesn't yank focus out of what you're typing.
+  const [focusField, setFocusField] = useState(null)
 
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const bodyRef = useRef(null)
+
+  /**
+   * The vault's state, readable without depending on it.
+   *
+   * The fill-and-wipe effect below must run when the sheet opens and at no other
+   * time. Taking `vaultExists` as a dependency would make turning the lock on
+   * with no vault — which creates one, which flips that flag — re-run the reset
+   * and wipe the login being typed. So the default reads through a ref.
+   */
+  const vaultRef = useRef({ vaultSupported, vaultExists })
+  vaultRef.current = { vaultSupported, vaultExists }
 
   const isEdit = Boolean(editing)
   const isSecret = kind === 'secret'
@@ -62,6 +117,8 @@ export default function NoteSheet({
       setUsername('')
       setUrl('')
       setSecretNote('')
+      setFields([])
+      setFocusField(null)
       setConfirmingDelete(false)
       return
     }
@@ -77,6 +134,17 @@ export default function NoteSheet({
       setPassword(initialSecret?.password ?? '')
       setUrl(initialSecret?.url ?? '')
       setSecretNote(initialSecret?.note ?? '')
+      setFields(
+        normalizeSecretFields(initialSecret?.fields).map((field) => ({
+          ...field,
+          id: nextFieldId(),
+        }))
+      )
+      setFocusField(null)
+      // Whatever it was saved as, which is not necessarily what the default
+      // would be — an unencrypted login must not silently become encrypted (or
+      // the reverse) just because it was opened.
+      setEncrypt(Boolean(initialEncrypted))
       return
     }
 
@@ -93,11 +161,19 @@ export default function NoteSheet({
     setPassword('')
     setUrl('')
     setSecretNote('')
-  }, [open, editing, initialKind, initialSecret, initialDraft])
+    setFields([])
+    setFocusField(null)
+    // On by default for anyone who already has a vault — they've said what they
+    // want. Off for someone who never set one up, because the alternative is
+    // demanding a master passphrase from someone who only wanted to write the
+    // Wi-Fi key down. Either way the switch is right there.
+    setEncrypt(vaultRef.current.vaultSupported && vaultRef.current.vaultExists)
+  }, [open, editing, initialKind, initialSecret, initialEncrypted, initialDraft])
 
   useEffect(() => {
     if (!open) return undefined
-    const onKey = (event) => event.key === 'Escape' && onClose()
+    // While the passphrase gate is stacked on top, Escape belongs to it.
+    const onKey = (event) => event.key === 'Escape' && !deferEscape && onClose()
     document.addEventListener('keydown', onKey)
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -105,7 +181,7 @@ export default function NoteSheet({
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = previousOverflow
     }
-  }, [open, onClose])
+  }, [open, onClose, deferEscape])
 
   // The body grows with what's in it — a note is however long it is, and a
   // fixed six-line box that scrolls internally inside a sheet that also scrolls
@@ -119,10 +195,47 @@ export default function NoteSheet({
   }, [body, open, isSecret])
 
   const tags = parseTags(tagText)
+  // The saved shape, which is also what decides whether there's anything here:
+  // a login that is nothing but a Wi-Fi key under a field called "Network key"
+  // is a real login, so the empty rows have to be dropped before we ask.
+  const secretFields = normalizeSecretFields(fields)
   const hasContent = isSecret
-    ? Boolean(password.trim() || username.trim())
+    ? Boolean(password.trim() || username.trim() || secretFields.length > 0)
     : Boolean(title.trim() || body.trim())
   const canSave = hasContent && !saving
+
+  /**
+   * The lock, on or off.
+   *
+   * Turning it *on* asks for the passphrase now rather than at the save. The
+   * gate stacks over this sheet, so nothing typed is disturbed, and it's the
+   * honest moment to ask: the switch claims the login will be encrypted, and
+   * without a key in memory that claim isn't true yet.
+   */
+  function toggleEncrypt() {
+    if (encrypt) {
+      setEncrypt(false)
+      return
+    }
+    if (!vaultSupported) return
+    setEncrypt(true)
+    if (!vaultReady) onRequestVault?.()
+  }
+
+  function addField() {
+    if (fields.length >= MAX_SECRET_FIELDS) return
+    const id = nextFieldId()
+    setFields((prev) => [...prev, { id, label: '', value: '', hidden: false }])
+    setFocusField(id)
+  }
+
+  function patchField(id, patch) {
+    setFields((prev) => prev.map((field) => (field.id === id ? { ...field, ...patch } : field)))
+  }
+
+  function removeField(id) {
+    setFields((prev) => prev.filter((field) => field.id !== id))
+  }
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -141,8 +254,10 @@ export default function NoteSheet({
             password,
             url: url.trim(),
             note: secretNote.trim(),
+            fields: secretFields,
           }
         : null,
+      encrypted: isSecret && encrypt,
     })
 
     if (ok) onClose()
@@ -198,7 +313,11 @@ export default function NoteSheet({
                   {isEdit ? (isSecret ? 'Edit this login' : 'Edit this note') : isSecret ? 'New login' : 'New note'}
                 </h2>
                 <p className="truncate text-xs font-bold text-ink-400">
-                  {isSecret ? 'Encrypted here, before it’s saved' : 'Plain text, on your board'}
+                  {isSecret
+                    ? encrypt
+                      ? 'Encrypted here, before it’s saved'
+                      : 'Saved without the lock'
+                    : 'Plain text, on your board'}
                 </p>
               </div>
 
@@ -279,7 +398,7 @@ export default function NoteSheet({
                   autoComplete="off"
                   className="min-h-[56px] w-full rounded-2xl border-[2.5px] border-ink-900/15 bg-cream-50 px-4 font-display text-base font-extrabold text-ink-900 shadow-inset transition-colors placeholder:font-medium placeholder:text-ink-300 focus:border-lime-500"
                 />
-                {isSecret && (
+                {isSecret && encrypt && (
                   <p className="mt-1.5 text-[0.7rem] font-semibold text-ink-400">
                     The title is the one thing not encrypted — it’s the label on the outside.
                   </p>
@@ -288,6 +407,94 @@ export default function NoteSheet({
 
               {isSecret ? (
                 <>
+                  {/* ── The lock ──────────────────────────────────────────
+                      Optional, per login, and it has to be legible either way.
+                      On, this is the vault: encrypted on this device, unreadable
+                      to the server, unrecoverable if the passphrase goes. Off,
+                      it's a labelled form with copy buttons and nothing more —
+                      still useful, still worth having, but plain text on the
+                      server, which the switch says in as many words rather than
+                      leaving it to be inferred from a missing icon. */}
+                  <div
+                    className={[
+                      'mb-4 rounded-2xl border-2 p-3 transition-colors',
+                      encrypt ? 'border-ink-900/10 bg-cream-200' : 'border-tangerine-500 bg-tangerine-100',
+                    ].join(' ')}
+                  >
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={encrypt}
+                      onClick={toggleEncrypt}
+                      disabled={!vaultSupported && !encrypt}
+                      className="flex w-full items-center gap-3 text-left disabled:opacity-60"
+                    >
+                      <span
+                        className={[
+                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-ink-900',
+                          encrypt ? 'bg-lime-400' : 'bg-cream-50',
+                        ].join(' ')}
+                        aria-hidden="true"
+                      >
+                        {encrypt ? (
+                          <Lock className="h-4 w-4" strokeWidth={3} />
+                        ) : (
+                          <Unlock className="h-4 w-4 text-ink-500" strokeWidth={3} />
+                        )}
+                      </span>
+
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-display text-sm font-extrabold leading-tight">
+                          {encrypt ? 'Lock this one' : 'Not locked'}
+                        </span>
+                        <span
+                          className={[
+                            'mt-0.5 block text-[0.7rem] font-semibold leading-snug',
+                            encrypt ? 'text-ink-400' : 'text-tangerine-600',
+                          ].join(' ')}
+                        >
+                          {encrypt
+                            ? vaultReady
+                              ? 'Encrypted on this device before it’s saved.'
+                              : vaultExists
+                                ? 'Your passphrase is needed before this can save.'
+                                : 'You’ll set a master passphrase for this.'
+                            : 'Stored as plain text. Anyone signed into your account can read it.'}
+                        </span>
+                      </span>
+
+                      <span
+                        className={[
+                          'relative h-7 w-12 shrink-0 rounded-pill border-2 border-ink-900 transition-colors',
+                          encrypt ? 'bg-lime-400' : 'bg-cream-400',
+                        ].join(' ')}
+                        aria-hidden="true"
+                      >
+                        <span
+                          className={[
+                            'absolute top-[2px] h-[18px] w-[18px] rounded-full border-2 border-ink-900 bg-cream-50 transition-all',
+                            encrypt ? 'left-[22px]' : 'left-[2px]',
+                          ].join(' ')}
+                        />
+                      </span>
+                    </button>
+
+                    {!vaultSupported && !encrypt && (
+                      <p className="mt-2 text-[0.7rem] font-semibold leading-snug text-tangerine-600">
+                        This browser won’t encrypt on an insecure page, so the lock isn’t available
+                        here. Open Zephr over https (or on localhost) to use it.
+                      </p>
+                    )}
+
+                    {isEdit && encrypt !== Boolean(initialEncrypted) && (
+                      <p className="mt-2 text-[0.7rem] font-semibold leading-snug text-ink-500">
+                        {encrypt
+                          ? 'Saving will encrypt this login for the first time.'
+                          : 'Saving will store this login in plain text from now on.'}
+                      </p>
+                    )}
+                  </div>
+
                   <div className="mb-4">
                     <label htmlFor="note-username" className="label-caps mb-2 block">
                       Username or email
@@ -346,10 +553,140 @@ export default function NoteSheet({
                     </div>
                   </div>
 
+                  {/* ── Fields you name yourself ─────────────────────────
+                      Username, password and website are the three every login
+                      has; they are not the three every login *only* has. A PIN,
+                      an account number, a security answer, the recovery email —
+                      those went in the free-text box below and came back out as
+                      something you had to read and retype. Named, they get the
+                      same labelled, copyable line the username gets, and the
+                      ones that need it get the password's redaction bar too.
+
+                      They ride inside the same encrypted blob, so a new field
+                      costs nothing on the server and nothing at rest. */}
+                  <div className="mb-4">
+                    <div className="mb-2 flex items-baseline justify-between gap-2">
+                      <p className="label-caps">
+                        Your own fields{' '}
+                        {encrypt && (
+                          <span className="normal-case tracking-normal text-ink-300">
+                            · encrypted too
+                          </span>
+                        )}
+                      </p>
+                      {fields.length > 0 && (
+                        <span className="nums text-[0.7rem] font-extrabold text-ink-300">
+                          {fields.length} / {MAX_SECRET_FIELDS}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <AnimatePresence initial={false}>
+                        {fields.map((field) => (
+                          <motion.div
+                            key={field.id}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                            className="overflow-hidden"
+                          >
+                            <div className="rounded-2xl border-2 border-ink-900/10 bg-cream-200 p-2">
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  value={field.label}
+                                  onChange={(event) =>
+                                    patchField(field.id, { label: event.target.value })
+                                  }
+                                  maxLength={SECRET_FIELD_LABEL_MAX}
+                                  autoFocus={focusField === field.id}
+                                  placeholder="Field name — PIN, account no…"
+                                  aria-label="Field name"
+                                  autoComplete="off"
+                                  autoCorrect="off"
+                                  spellCheck={false}
+                                  className="min-h-[44px] min-w-0 flex-1 rounded-xl border-2 border-ink-900/15 bg-cream-50 px-3 font-display text-sm font-extrabold text-ink-900 transition-colors placeholder:font-medium placeholder:text-ink-300 focus:border-lime-500"
+                                />
+
+                                {/* Hidden is about the *card*, not this input —
+                                    you can always read what you're typing here. */}
+                                <button
+                                  type="button"
+                                  onClick={() => patchField(field.id, { hidden: !field.hidden })}
+                                  aria-pressed={field.hidden}
+                                  aria-label="Keep this one covered on the card"
+                                  title="Keep this one covered on the card"
+                                  className={[
+                                    'tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 transition-colors',
+                                    field.hidden
+                                      ? 'border-ink-900 bg-lime-400 shadow-press-sm'
+                                      : 'border-ink-900/15 bg-cream-50 text-ink-400',
+                                  ].join(' ')}
+                                >
+                                  {field.hidden ? (
+                                    <EyeOff className="h-4 w-4" strokeWidth={2.75} />
+                                  ) : (
+                                    <Eye className="h-4 w-4" strokeWidth={2.75} />
+                                  )}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => removeField(field.id)}
+                                  aria-label={`Remove ${field.label.trim() || 'this field'}`}
+                                  title="Remove this field"
+                                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-300 transition-colors hover:bg-coral-100 hover:text-coral-600"
+                                >
+                                  <X className="h-4 w-4" strokeWidth={3} />
+                                </button>
+                              </div>
+
+                              <input
+                                type="text"
+                                value={field.value}
+                                onChange={(event) =>
+                                  patchField(field.id, { value: event.target.value })
+                                }
+                                maxLength={SECRET_FIELD_VALUE_MAX}
+                                placeholder="What it says"
+                                aria-label={`${field.label.trim() || 'Field'} value`}
+                                autoComplete="off"
+                                autoCorrect="off"
+                                autoCapitalize="off"
+                                spellCheck={false}
+                                className="nums mt-1.5 min-h-[48px] w-full rounded-xl border-2 border-ink-900/15 bg-cream-50 px-3 text-[0.95rem] font-bold text-ink-900 shadow-inset transition-colors placeholder:font-medium placeholder:tracking-normal placeholder:text-ink-300 focus:border-lime-500"
+                              />
+                            </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+
+                    {fields.length < MAX_SECRET_FIELDS && (
+                      <button
+                        type="button"
+                        onClick={addField}
+                        className={[
+                          'tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-pill border-2 border-dashed border-ink-900/25 bg-cream-50 px-4 text-xs font-extrabold text-ink-500 transition-colors hover:border-ink-900 hover:text-ink-900',
+                          fields.length > 0 ? 'mt-2' : '',
+                        ].join(' ')}
+                      >
+                        <Plus className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+                        Add a field
+                      </button>
+                    )}
+                  </div>
+
                   <div className="mb-5">
                     <label htmlFor="note-secretnote" className="label-caps mb-2 block">
                       Anything else{' '}
-                      <span className="normal-case tracking-normal text-ink-300">· encrypted too</span>
+                      {encrypt && (
+                        <span className="normal-case tracking-normal text-ink-300">
+                          · encrypted too
+                        </span>
+                      )}
                     </label>
                     <textarea
                       id="note-secretnote"
@@ -514,7 +851,7 @@ export default function NoteSheet({
                     className="flex-1"
                   >
                     {saving
-                      ? isSecret
+                      ? isSecret && encrypt
                         ? 'Encrypting…'
                         : 'Saving…'
                       : !hasContent
@@ -524,7 +861,9 @@ export default function NoteSheet({
                         : isEdit
                           ? 'Save changes'
                           : isSecret
-                            ? 'Lock it away'
+                            ? encrypt
+                              ? 'Lock it away'
+                              : 'Save it'
                             : 'Pin it up'}
                   </Button>
                 )}

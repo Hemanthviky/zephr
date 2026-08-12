@@ -11,7 +11,7 @@ import { useNotes } from '../../hooks/useNotes'
 import { useVault } from '../../hooks/useVault'
 import { displayName, firstName } from '../../hooks/useAuth'
 import { collectTags, matchesQuery, sortNotes } from '../../utils/noteHelpers'
-import { encryptJSON } from '../../utils/vaultCrypto'
+import { encryptJSON, isPlainSecret, packPlainSecret } from '../../utils/vaultCrypto'
 
 /**
  * The Notes module — a pinboard, with a locked drawer in it.
@@ -77,6 +77,9 @@ export default function Notes({ user, onOpenProfile }) {
   const [sheetKind, setSheetKind] = useState('note')
   const [editing, setEditing] = useState(null)
   const [editingSecret, setEditingSecret] = useState(null)
+  // Whether the login being edited was encrypted, so the sheet's lock switch
+  // opens in the position that login is actually in rather than a default.
+  const [editingEncrypted, setEditingEncrypted] = useState(true)
   const [draft, setDraft] = useState(null)
 
   const [gateOpen, setGateOpen] = useState(false)
@@ -87,6 +90,14 @@ export default function Notes({ user, onOpenProfile }) {
   const [problem, setProblem] = useState(null)
 
   const unlocked = vaultStatus === 'unlocked'
+
+  const closeSheet = useCallback(() => {
+    setSheetOpen(false)
+    setEditing(null)
+    setEditingSecret(null)
+    setEditingEncrypted(true)
+    setDraft(null)
+  }, [])
 
   const openGate = useCallback(
     (mode = 'auto') => {
@@ -135,7 +146,10 @@ export default function Notes({ user, onOpenProfile }) {
       setProblem(null)
 
       if (note.kind === 'secret') {
-        if (!requireVault({ type: 'edit', note })) return
+        // An unencrypted one needs no key, so it must not be gated on one.
+        const encrypted = !isPlainSecret(note.secret)
+        if (encrypted && !requireVault({ type: 'edit', note })) return
+
         const payload = await readSecret(getKey(), note)
         if (!payload) {
           // Opening the editor on a blob we couldn't read would show empty
@@ -144,6 +158,7 @@ export default function Notes({ user, onOpenProfile }) {
           return
         }
         setEditingSecret(payload)
+        setEditingEncrypted(encrypted)
       } else {
         setEditingSecret(null)
       }
@@ -157,27 +172,39 @@ export default function Notes({ user, onOpenProfile }) {
     [requireVault, readSecret, getKey, dismissError]
   )
 
+  /**
+   * The sheet, for a new note or a new login.
+   *
+   * A new login no longer waits on the vault. The lock is a switch inside the
+   * sheet now, so the passphrase is asked for when it's turned on — or at the
+   * save, if the vault idle-locked while the sheet was open — and never just for
+   * opening the form.
+   */
   const openCreate = useCallback(
     (kind = 'note', prefill = null) => {
-      if (kind === 'secret' && !requireVault({ type: 'create' })) return
       dismissError()
       setProblem(null)
       setEditing(null)
       setEditingSecret(null)
+      setEditingEncrypted(true)
       setDraft(prefill)
       setSheetKind(kind)
       setSheetOpen(true)
     },
-    [requireVault, dismissError]
+    [dismissError]
   )
 
-  // Replay whatever was blocked, once the key exists.
+  // Replay whatever was blocked, once the key exists. `save` carries the sheet's
+  // own payload, so a vault that locked itself mid-edit costs a second tap on
+  // Save rather than everything that was typed.
+  const submitRef = useRef(null)
   useEffect(() => {
     if (vaultStatus !== 'unlocked' || !pending) return
     const action = pending
     setPending(null)
     if (action.type === 'create') openCreate('secret')
     else if (action.type === 'edit') openEdit(action.note)
+    else if (action.type === 'save') submitRef.current?.(action.payload)
   }, [vaultStatus, pending, openCreate, openEdit])
 
   /* ── Writes ─────────────────────────────────────────────────────────────── */
@@ -188,33 +215,48 @@ export default function Notes({ user, onOpenProfile }) {
    * The encryption happens here and nowhere else. A secret row leaves with
    * `body: null` and a ciphertext `secret` — the database also refuses the
    * other combination, but it should never have to.
+   *
+   * `encrypted: false` is the lock switched off in the sheet: the same payload
+   * goes into the same column in a marked plaintext envelope. It stays out of
+   * `body` deliberately — that column is what search reads, and it's the one
+   * the schema guarantees is null on a login.
    */
-  async function buildRow({ kind, title, body, color, pinned, tags: noteTags, secretPayload }) {
+  async function buildRow(payload) {
+    const { kind, title, body, color, pinned, tags: noteTags, secretPayload, encrypted } = payload
+
     if (kind !== 'secret') {
       return { kind, title, body, secret: null, color, pinned, tags: noteTags }
     }
 
+    const shell = { kind, title, body: null, color, pinned, tags: noteTags }
+
+    if (!encrypted) {
+      return { ...shell, secret: packPlainSecret(secretPayload ?? {}) }
+    }
+
     const key = getKey()
     if (!key) {
-      requireVault({ type: 'create' })
+      // Locked between opening the sheet and saving it. Ask for the passphrase
+      // and come back to this exact payload — the sheet stays open behind the
+      // gate, so nothing typed is lost either way.
+      setPending({ type: 'save', payload })
+      openGate('auto')
       return null
     }
 
-    return {
-      kind,
-      title,
-      body: null,
-      secret: await encryptJSON(key, secretPayload ?? {}),
-      color,
-      pinned,
-      tags: noteTags,
-    }
+    return { ...shell, secret: await encryptJSON(key, secretPayload ?? {}) }
   }
 
   async function handleSubmit(payload) {
     const row = await buildRow(payload)
     if (!row) return false
     return editing ? updateNote(editing.id, row) : addNote(row)
+  }
+
+  // The replay isn't the sheet calling, so the sheet won't close itself on the
+  // way out — it's still sitting open behind the gate that just closed.
+  submitRef.current = async (payload) => {
+    if (await handleSubmit(payload)) closeSheet()
   }
 
   const quickSave = useCallback(
@@ -461,20 +503,24 @@ export default function Notes({ user, onOpenProfile }) {
 
       <NoteSheet
         open={sheetOpen}
-        onClose={() => {
-          setSheetOpen(false)
-          setEditing(null)
-          setEditingSecret(null)
-          setDraft(null)
-        }}
+        onClose={closeSheet}
         editing={editing}
         initialKind={sheetKind}
         initialSecret={editingSecret}
+        initialEncrypted={editingEncrypted}
         initialDraft={draft}
         onSubmit={handleSubmit}
         onDelete={deleteNote}
         saving={saving}
         error={sheetOpen ? error : null}
+        vaultReady={unlocked}
+        vaultExists={vaultStatus !== 'absent'}
+        vaultSupported={vaultSupported}
+        onRequestVault={() => openGate('auto')}
+        // The gate opens *over* the sheet, and one Escape must close the top
+        // one only — otherwise dismissing the passphrase prompt also throws
+        // away the login behind it.
+        deferEscape={gateOpen}
       />
 
       <VaultGate

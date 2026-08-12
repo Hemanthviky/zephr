@@ -61,6 +61,41 @@ export function parseTags(input) {
   return [...seen].slice(0, 8)
 }
 
+/**
+ * The extra fields a login carries beyond username and password.
+ *
+ * A saved login is a JSON payload encrypted as one blob, which is what makes
+ * this possible at all: an arbitrary named field costs no column, no migration
+ * and no second round trip — the shape lives entirely inside the ciphertext.
+ * Older logins simply have no `fields` key, and read back as none.
+ *
+ * `hidden` is the field's own choice about the board: a PIN or a security answer
+ * wants the same redaction bar the password gets, an account number usually
+ * doesn't. Normalising here rather than in the sheet means the card can trust
+ * what it renders even if the blob was written by an older build.
+ */
+export const MAX_SECRET_FIELDS = 8
+export const SECRET_FIELD_LABEL_MAX = 32
+export const SECRET_FIELD_VALUE_MAX = 500
+
+export function normalizeSecretFields(fields) {
+  if (!Array.isArray(fields)) return []
+
+  const out = []
+  for (const entry of fields) {
+    if (!entry || typeof entry !== 'object') continue
+
+    const label = String(entry.label ?? '').trim().slice(0, SECRET_FIELD_LABEL_MAX)
+    const value = String(entry.value ?? '').slice(0, SECRET_FIELD_VALUE_MAX)
+    // A row the user added and never filled in is not a field.
+    if (!label && !value.trim()) continue
+
+    out.push({ label: label || 'Field', value, hidden: Boolean(entry.hidden) })
+    if (out.length >= MAX_SECRET_FIELDS) break
+  }
+  return out
+}
+
 /** Every tag on the board, most-used first — the filter row is built from this. */
 export function collectTags(notes) {
   const counts = new Map()

@@ -12,8 +12,14 @@ import {
   Unlock,
   X,
 } from 'lucide-react'
-import { copyToClipboard, hostOf, hrefOf, shortAgo } from '../../utils/noteHelpers'
-import { scorePassword } from '../../utils/vaultCrypto'
+import {
+  copyToClipboard,
+  hostOf,
+  hrefOf,
+  normalizeSecretFields,
+  shortAgo,
+} from '../../utils/noteHelpers'
+import { isPlainSecret, scorePassword } from '../../utils/vaultCrypto'
 
 /**
  * A saved login, on the same board as the paper.
@@ -28,13 +34,17 @@ import { scorePassword } from '../../utils/vaultCrypto'
  * Across the board it reads as "that one's a card, not paper" before you've
  * read a word of it.
  *
- * Three states, and the middle one is the point:
+ * Four states, and the middle two are the point:
  *
  *   vault locked   — title and website only, because that's genuinely all the
  *                    browser has. There is no key in memory, so there is
  *                    nothing to show and no way to fake it.
  *   vault open     — fields decrypt on demand, and the password is still
  *                    redacted until asked for, then re-hides itself.
+ *   never locked   — saved with the lock switched off, so there is nothing to
+ *                    unlock and the vault's state doesn't apply. Says so, and
+ *                    gives up the foil edge to prove it isn't claiming to be
+ *                    one of the encrypted ones.
  *   won't decrypt  — said plainly rather than rendered as an empty field.
  *
  * The auto-hide is 20 seconds, drawn as a bar that drains, because a password
@@ -65,6 +75,19 @@ export default function VaultCard({
   const hideTimer = useRef(null)
   const isPending = String(note.id).startsWith('optimistic-')
 
+  /**
+   * A login saved with the lock off, and what follows from it.
+   *
+   * `open` is the question every branch below actually asks: can this card show
+   * its contents? For an encrypted login that's the vault; for this one there is
+   * nothing to unlock, so it's always yes and the vault's state is irrelevant.
+   *
+   * The password stays redacted behind the reveal either way. That bar was never
+   * about the encryption — it's about the person standing next to you.
+   */
+  const plain = isPlainSecret(note.secret)
+  const open = unlocked || plain
+
   const forget = useCallback(() => {
     clearTimeout(hideTimer.current)
     setRevealed(false)
@@ -85,7 +108,7 @@ export default function VaultCard({
    * this component's state and still on the screen.
    */
   useEffect(() => {
-    if (!unlocked) {
+    if (!open) {
       forget()
       return
     }
@@ -105,7 +128,7 @@ export default function VaultCard({
     // note.secret rather than note: a pin or a colour change must not re-run
     // the decryption, but a re-encrypted blob must.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unlocked, note.secret, forget])
+  }, [open, note.secret, forget])
 
   // Leaving the board (a tab switch unmounts nothing here, but a delete or a
   // filter does) must not leave a timer holding a decrypted payload alive.
@@ -138,7 +161,7 @@ export default function VaultCard({
       return
     }
 
-    if (!unlocked) {
+    if (!open) {
       onRequestUnlock()
       return
     }
@@ -150,14 +173,23 @@ export default function VaultCard({
     hideTimer.current = setTimeout(() => setRevealed(false), REVEAL_MS)
   }
 
-  async function copyField(field) {
-    if (!unlocked) {
+  /**
+   * Copy one field to the clipboard.
+   *
+   * `pick` exists for the fields the user named themselves: they live in an
+   * array inside the payload, so there's no property name to look up, and the
+   * copy has to read them out of the freshly-loaded payload rather than out of
+   * the `extras` this render happened to close over.
+   */
+  async function copyField(field, pick) {
+    if (!open) {
       onRequestUnlock()
       return
     }
     const result = await load()
     if (!result) return
-    if (await copyToClipboard(result[field] ?? '')) setCopied(field)
+    const text = pick ? pick(result) : (result[field] ?? '')
+    if (await copyToClipboard(text)) setCopied(field)
   }
 
   async function handleDelete() {
@@ -171,6 +203,9 @@ export default function VaultCard({
 
   const host = hostOf(payload?.url ?? '')
   const href = hrefOf(payload?.url ?? '')
+  // Nothing when locked, and that's the honest answer: the field *names* are
+  // inside the ciphertext too, so a locked card doesn't know they exist.
+  const extras = open ? normalizeSecretFields(payload?.fields) : []
   const strength = payload?.password ? scorePassword(payload.password) : null
 
   return (
@@ -188,8 +223,16 @@ export default function VaultCard({
         className="relative overflow-hidden rounded-[1.4rem] border-2 border-ink-900 bg-cream-50 shadow-card transition-shadow hover:shadow-lift"
       >
         {/* The foil edge. Two of these side by side on the board are what make
-            the vault read as a set rather than as six unrelated cards. */}
-        <span className="foil absolute inset-y-0 left-0 w-[7px]" aria-hidden="true" />
+            the vault read as a set rather than as six unrelated cards — which is
+            exactly why an unencrypted login doesn't get one. Security print on a
+            document that isn't secure is the one thing this card must not do. */}
+        <span
+          className={[
+            'absolute inset-y-0 left-0 w-[7px]',
+            plain ? 'bg-cream-400' : 'foil',
+          ].join(' ')}
+          aria-hidden="true"
+        />
 
         {note.pinned && (
           <span
@@ -203,20 +246,26 @@ export default function VaultCard({
         <div className="pl-[7px]">
           <button
             type="button"
-            onClick={() => (unlocked ? onOpen(note) : onRequestUnlock())}
+            onClick={() => (open ? onOpen(note) : onRequestUnlock())}
             disabled={isPending}
             aria-label={`Edit ${note.title || 'this login'}`}
             className="flex w-full items-center gap-2.5 px-3.5 pb-2 pt-3.5 text-left disabled:opacity-60"
           >
+            {/* Three states, three fills, and the middle one matters: lime is
+                "encrypted, and you hold the key", cream-with-an-open-padlock is
+                "there was never a key". They must not look the same. */}
             <span
               className={[
                 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-2 border-ink-900',
-                unlocked ? 'bg-lime-400' : 'bg-cream-200',
+                unlocked ? 'bg-lime-400' : plain ? 'bg-cream-300' : 'bg-cream-200',
               ].join(' ')}
               aria-hidden="true"
             >
-              {unlocked ? (
-                <Unlock className="h-4 w-4" strokeWidth={3} />
+              {open ? (
+                <Unlock
+                  className={['h-4 w-4', plain && !unlocked ? 'text-ink-500' : ''].join(' ')}
+                  strokeWidth={3}
+                />
               ) : (
                 <Lock className="h-4 w-4 text-ink-500" strokeWidth={3} />
               )}
@@ -227,7 +276,7 @@ export default function VaultCard({
                 {note.title?.trim() || 'Untitled login'}
               </span>
               <span className="block truncate text-[0.68rem] font-extrabold uppercase tracking-[0.1em] text-ink-400">
-                {unlocked ? (host || 'Saved login') : 'Locked'}
+                {open ? host || (plain ? 'Not encrypted' : 'Saved login') : 'Locked'}
               </span>
             </span>
           </button>
@@ -245,7 +294,7 @@ export default function VaultCard({
                 <Field
                   label="User"
                   value={payload?.username || ''}
-                  masked={!unlocked}
+                  masked={!open}
                   placeholder={busy ? '…' : '—'}
                   copied={copied === 'username'}
                   onCopy={() => copyField('username')}
@@ -327,6 +376,31 @@ export default function VaultCard({
                   )}
                 </div>
 
+                {/* The fields this login was given names for. A copyable line
+                    each, exactly like the username above — and the ones marked
+                    hidden share the password's reveal, so one tap uncovers
+                    everything on the card that's covered and the same countdown
+                    puts it all back. */}
+                {extras.map((field, index) => (
+                  <Field
+                    key={`${index}-${field.label}`}
+                    label={field.label}
+                    value={field.value}
+                    masked={field.hidden && !revealed}
+                    placeholder="—"
+                    stacked
+                    copied={copied === `field:${index}`}
+                    onCopy={() =>
+                      copyField(
+                        `field:${index}`,
+                        (result) => normalizeSecretFields(result.fields)[index]?.value ?? ''
+                      )
+                    }
+                    onReveal={field.hidden ? toggleReveal : null}
+                    revealed={revealed}
+                  />
+                ))}
+
                 {/* The website isn't the secret — once the vault is open it's
                     a link, and needing to reveal the password to click through
                     to the site would be backwards. The free-text note *is*
@@ -351,7 +425,7 @@ export default function VaultCard({
               </>
             )}
 
-            {!unlocked && (
+            {!open && (
               <button
                 type="button"
                 onClick={onRequestUnlock}
@@ -377,8 +451,19 @@ export default function VaultCard({
           )}
 
           <footer className="flex items-center gap-1 px-2 pb-2 pt-1">
-            <span className="nums flex-1 truncate pl-2 text-[0.65rem] font-extrabold uppercase tracking-[0.08em] text-ink-400">
-              {shortAgo(note.updated_at)}
+            <span className="flex min-w-0 flex-1 items-center gap-1.5 pl-2">
+              {/* Said on the card, not only in the editor. Six of these on a
+                  board and you can see at a glance which ones are actually
+                  locked. */}
+              {plain && (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-pill border border-tangerine-500 bg-tangerine-100 px-1.5 py-0.5 text-[0.58rem] font-extrabold uppercase tracking-[0.08em] text-tangerine-600">
+                  <Unlock className="h-2.5 w-2.5" strokeWidth={3} aria-hidden="true" />
+                  Not locked
+                </span>
+              )}
+              <span className="nums truncate text-[0.65rem] font-extrabold uppercase tracking-[0.08em] text-ink-400">
+                {shortAgo(note.updated_at)}
+              </span>
             </span>
 
             <button
@@ -451,36 +536,90 @@ export default function VaultCard({
   )
 }
 
-/** One labelled, copyable line. Currently the username; kept generic so the
- *  next field the vault grows doesn't arrive as a fourth copy of this markup. */
-function Field({ label, value, masked, placeholder, copied, onCopy }) {
+/**
+ * One labelled, copyable line — the username, and every field the user named.
+ *
+ * Two label positions, and the reason is length. "User" and "Pass" sit *inside*
+ * the box because they're short enough to leave the value room, and that layout
+ * is what makes the vault card look like a form rather than a list. A label the
+ * user typed can be "Recovery email", which inline would either be clipped or
+ * push the value off the end — so `stacked` puts it above instead. Same line,
+ * same copy button, same redaction bar; only the caption moves.
+ */
+function Field({
+  label,
+  value,
+  masked,
+  placeholder,
+  copied,
+  onCopy,
+  stacked = false,
+  onReveal = null,
+  revealed = false,
+}) {
   return (
-    <div className="flex items-stretch gap-1.5">
-      <div className="relative min-w-0 flex-1 overflow-hidden rounded-xl border-2 border-ink-900/12">
-        <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.58rem] font-extrabold uppercase tracking-[0.1em] text-ink-300">
+    <div>
+      {stacked && (
+        <span className="mb-0.5 block truncate pl-0.5 text-[0.58rem] font-extrabold uppercase tracking-[0.1em] text-ink-300">
           {label}
         </span>
-        {masked ? (
-          <span className="guilloche block min-h-[38px]" role="img" aria-label={`${label} hidden`} />
-        ) : (
-          <span className="block min-h-[38px] truncate bg-cream-100 py-2 pl-[3.1rem] pr-2 text-[0.8rem] font-bold leading-tight">
-            {value || placeholder}
-          </span>
-        )}
-      </div>
+      )}
 
-      <button
-        type="button"
-        onClick={onCopy}
-        aria-label={`Copy ${label.toLowerCase()}`}
-        className="tactile flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border-2 border-ink-900 bg-cream-50 shadow-press-sm"
-      >
-        {copied ? (
-          <Check className="h-4 w-4 text-avocado-600" strokeWidth={3} />
-        ) : (
-          <Copy className="h-4 w-4" strokeWidth={2.75} />
+      <div className="flex items-stretch gap-1.5">
+        <div className="relative min-w-0 flex-1 overflow-hidden rounded-xl border-2 border-ink-900/12">
+          {!stacked && (
+            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.58rem] font-extrabold uppercase tracking-[0.1em] text-ink-300">
+              {label}
+            </span>
+          )}
+
+          {masked ? (
+            <span
+              className="guilloche block min-h-[38px]"
+              role="img"
+              aria-label={`${label} hidden`}
+            />
+          ) : (
+            <span
+              className={[
+                'block min-h-[38px] truncate bg-cream-100 py-2 pr-2 text-[0.8rem] font-bold leading-tight',
+                stacked ? 'pl-2.5' : 'pl-[3.1rem]',
+              ].join(' ')}
+            >
+              {value || placeholder}
+            </span>
+          )}
+        </div>
+
+        {onReveal && (
+          <button
+            type="button"
+            onClick={onReveal}
+            aria-label={revealed ? `Hide ${label.toLowerCase()}` : `Reveal ${label.toLowerCase()}`}
+            aria-pressed={revealed}
+            className="tactile flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border-2 border-ink-900 bg-cream-50 shadow-press-sm"
+          >
+            {revealed ? (
+              <EyeOff className="h-4 w-4" strokeWidth={2.75} />
+            ) : (
+              <Eye className="h-4 w-4" strokeWidth={2.75} />
+            )}
+          </button>
         )}
-      </button>
+
+        <button
+          type="button"
+          onClick={onCopy}
+          aria-label={`Copy ${label.toLowerCase()}`}
+          className="tactile flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border-2 border-ink-900 bg-cream-50 shadow-press-sm"
+        >
+          {copied ? (
+            <Check className="h-4 w-4 text-avocado-600" strokeWidth={3} />
+          ) : (
+            <Copy className="h-4 w-4" strokeWidth={2.75} />
+          )}
+        </button>
+      </div>
     </div>
   )
 }

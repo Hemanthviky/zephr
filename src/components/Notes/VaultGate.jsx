@@ -109,8 +109,10 @@ export default function VaultGate({
 
   return (
     <AnimatePresence>
+      {/* z-[70], above the note sheet's z-[60]: turning the lock on mid-edit
+          opens this over that, and the passphrase prompt has to be on top. */}
       {open && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
+        <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center">
           <motion.button
             type="button"
             aria-label="Close"

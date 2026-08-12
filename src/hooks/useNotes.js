@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase, isSupabaseConfigured, friendlyError } from '../lib/supabaseClient'
-import { decryptJSON, encryptJSON } from '../utils/vaultCrypto'
+import { decryptJSON, encryptJSON, isPlainSecret, unpackPlainSecret } from '../utils/vaultCrypto'
 import { sortNotes } from '../utils/noteHelpers'
 
 /**
@@ -178,13 +178,26 @@ export function useNotes(userId) {
   /**
    * Open one secret, with a key supplied by the caller.
    *
+   * A login saved with the lock off needs no key and gets none — that branch is
+   * first so a locked vault doesn't hide rows that were never encrypted.
+   *
    * Returns null rather than throwing on a blob this key can't open. That
    * happens in exactly one situation worth handling — a note encrypted under a
    * previous passphrase that a failed re-encryption left behind — and the card
    * shows "can't open this one" instead of taking the board down.
    */
   const readSecret = useCallback(async (key, note) => {
-    if (!key || !note?.secret) return null
+    if (!note?.secret) return null
+
+    if (isPlainSecret(note.secret)) {
+      try {
+        return unpackPlainSecret(note.secret)
+      } catch {
+        return null
+      }
+    }
+
+    if (!key) return null
     try {
       return await decryptJSON(key, note.secret)
     } catch {
@@ -210,8 +223,15 @@ export function useNotes(userId) {
     async (oldKey, newKey) => {
       if (!userId || !isSupabaseConfigured) return false
 
+      // Unencrypted logins are skipped, not rewritten: they were never under
+      // the old key, and handing one to decryptJSON would throw and abort a
+      // passphrase change that has nothing wrong with it.
       const secrets = notesRef.current.filter(
-        (note) => note.kind === 'secret' && note.secret && !String(note.id).startsWith('optimistic-')
+        (note) =>
+          note.kind === 'secret' &&
+          note.secret &&
+          !isPlainSecret(note.secret) &&
+          !String(note.id).startsWith('optimistic-')
       )
       if (secrets.length === 0) return true
 

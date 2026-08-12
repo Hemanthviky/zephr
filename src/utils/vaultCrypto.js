@@ -171,6 +171,39 @@ export async function unlockVault(passphrase, vault) {
   }
 }
 
+/* ── Logins saved with the lock off ────────────────────────────────────────
+   The vault is opt-out, per login. Someone saving the Wi-Fi key or a shared
+   Netflix account reasonably doesn't want a passphrase prompt in front of it,
+   and refusing to store it at all just sends it to a paper note where it's
+   plaintext anyway — with none of the labelled fields, and no way to ever
+   promote it. Made explicit here instead: same payload shape, same column, an
+   envelope that says out loud that it isn't encrypted.
+
+   The prefix is what makes the two safely distinguishable. `encryptText` returns
+   base64, whose alphabet is A–Z a–z 0–9 + / = — it can never contain a '.' or a
+   ':', so a blob starting with this marker cannot be ciphertext, and ciphertext
+   can never be mistaken for one of these. Versioned because the day this needs
+   a second shape, the rows already written have to keep working.
+
+   What this is *not* is a security feature, and nothing here should read as one.
+   A packed payload is plaintext on the server, readable by anything holding a
+   session for that user. The UI's job is to never let that be a surprise. */
+
+const PLAIN_PREFIX = 'plain.v1:'
+
+export function packPlainSecret(payload) {
+  return PLAIN_PREFIX + JSON.stringify(payload ?? {})
+}
+
+export function isPlainSecret(blob) {
+  return typeof blob === 'string' && blob.startsWith(PLAIN_PREFIX)
+}
+
+/** Throws on a malformed envelope, like `decryptJSON` does — callers catch. */
+export function unpackPlainSecret(blob) {
+  return JSON.parse(blob.slice(PLAIN_PREFIX.length))
+}
+
 /* ── Password generation ───────────────────────────────────────────────── */
 
 const SETS = {
