@@ -1,15 +1,14 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { FileDown, Plus, SlidersHorizontal } from 'lucide-react'
 import MonthNav from './MonthNav'
 import BudgetSummary from './BudgetSummary'
-import SpendingChart from './SpendingChart'
-import TrendChart from './TrendChart'
 import ExpenseLog from './ExpenseLog'
 import AddExpenseForm from './AddExpenseForm'
 import WalletPicker from './WalletPicker'
 import BudgetsPanel from './BudgetsPanel'
 import ReportPanel from '../Reports/ReportPanel'
 import Icon3D from '../shared/Icon3D'
+import Logo from '../shared/Logo'
 import Avatar from '../shared/Avatar'
 import { IconButton } from '../shared/Button'
 import { useTransactions, TREND_MONTHS } from '../../hooks/useTransactions'
@@ -25,6 +24,40 @@ import {
   sumTransactions,
   totalsByCategory,
 } from '../../utils/expenseMath'
+
+// recharts is ~400KB, and it's the only thing in this tab that big. Splitting
+// the two charts out of the tab's own chunk means opening Money paints the
+// month's numbers — which is what you came for — without waiting on a charting
+// library first. The charts arrive a beat later, into space already reserved
+// for them.
+const SpendingChart = lazy(() => import('./SpendingChart'))
+const TrendChart = lazy(() => import('./TrendChart'))
+
+/**
+ * What sits in the charts' place while their chunk is in flight.
+ *
+ * These are the same skeletons the two components render for `loading`, on
+ * purpose: the shapes have to match or the grid resizes twice — once when the
+ * chunk lands, again when the data does.
+ */
+function ChartsFallback() {
+  return (
+    <>
+      <div className="card p-5">
+        <div className="skeleton mx-auto aspect-square w-full max-w-[190px] rounded-full sm:max-w-[220px]" />
+        <div className="mt-4 space-y-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="skeleton h-4 w-full" />
+          ))}
+        </div>
+      </div>
+      <div className="card p-5">
+        <div className="skeleton h-4 w-32" />
+        <div className="skeleton mt-4 h-[180px] w-full rounded-2xl sm:h-[210px]" />
+      </div>
+    </>
+  )
+}
 
 /**
  * The Money module.
@@ -124,14 +157,7 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
     <div className="min-h-[100dvh] lg:pl-[248px]">
       <div className="mx-auto w-full max-w-[540px] px-page pb-dock pt-safe md:max-w-[900px] lg:max-w-[1120px] xl:max-w-[1320px] 2xl:max-w-[1500px]">
         <header className="flex items-center justify-between gap-3 py-4 md:py-5 lg:py-7">
-          <div className="flex items-center gap-2 md:hidden">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
-              <Icon3D name="moneywings" size={19} />
-            </span>
-            <span className="font-display text-base font-extrabold uppercase tracking-[0.18em]">
-              Money
-            </span>
-          </div>
+          <Logo size={34} className="md:hidden" />
 
           <div className="hidden min-w-0 md:block">
             <h1 className="truncate font-display text-2xl font-extrabold tracking-tight lg:text-3xl">
@@ -205,12 +231,17 @@ export default function ExpenseTracker({ user, onOpenProfile }) {
                 width. That's later than it looks: the left column and the rail
                 have already taken ~630px off the window by then. */}
             <div className="mb-9 grid gap-5 2xl:grid-cols-2">
-              <SpendingChart
-                categoryTotals={categoryTotals}
-                total={monthTotals.expense}
-                loading={loadingShell}
-              />
-              <TrendChart series={trendSeries} loading={txLoading} />
+              {/* One boundary, not two: both charts come out of the same
+                  recharts chunk, so splitting them would only stagger the two
+                  halves of a grid that should land together. */}
+              <Suspense fallback={<ChartsFallback />}>
+                <SpendingChart
+                  categoryTotals={categoryTotals}
+                  total={monthTotals.expense}
+                  loading={loadingShell}
+                />
+                <TrendChart series={trendSeries} loading={txLoading} />
+              </Suspense>
             </div>
 
             {wallets.length > 1 && (

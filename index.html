@@ -2,7 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- The mark is raster artwork, so the tab icon ships at the two sizes a
+         browser actually asks for rather than as one scalable file. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
+    <!-- Opaque cream, because iOS composites a home-screen icon onto black
+         and would otherwise ring the disc in it. -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
     <meta name="theme-color" content="#FDF7EA" />
     <meta name="description" content="Zephr — log what you eat and what you spend, by hand. Calories and macros for 160 everyday foods, expenses and budgets for every month." />
@@ -13,11 +19,48 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Link previews. The image is the lockup on the app's own cream, at the
+         1200×630 both Open Graph and Twitter read without re-cropping. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Zephr" />
+    <meta property="og:title" content="Zephr — what you ate, what you spent" />
+    <meta
+      property="og:description"
+      content="Log what you eat and what you spend, by hand. Calories and macros for 160 everyday foods, expenses and budgets for every month."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <!-- The first thing the app does after boot is ask Supabase for a session,
+         which means a DNS lookup and a TLS handshake to an origin the browser
+         has never seen. Starting that here overlaps it with the JS download.
+         Vite substitutes the env value at build time. -->
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
+
+    <!-- The two faces every first paint needs, fetched from our own origin and
+         started here rather than after the CSS parses. `crossorigin` isn't
+         optional even same-origin: fonts are fetched in anonymous mode, and a
+         preload without it downloads the file a second time.
+
+         The latin-ext companions are deliberately not preloaded — their
+         @font-face unicode-ranges keep them off the wire until something
+         renders an accented character or a rupee sign. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,600;12..96,75..100,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/bricolage-grotesque-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/plus-jakarta-sans-latin.woff2"
+      crossorigin
     />
 
     <title>Zephr — what you ate, what you spent</title>

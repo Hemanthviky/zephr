@@ -1,4 +1,5 @@
 import Icon3D from '../shared/Icon3D'
+import Logo from '../shared/Logo'
 import { FOOD_COUNT } from '../../data/foodDatabase'
 
 /**
@@ -57,12 +58,9 @@ export default function AuthLayout({ mode, onSwitch, children }) {
       <div className="mx-auto flex min-h-[100dvh] w-full max-w-[1120px] flex-col lg:grid lg:grid-cols-2 lg:items-center lg:gap-16">
         {/* ── Pitch ──────────────────────────────────────────────────────── */}
         <header className="mx-auto w-full max-w-[420px] pt-10 text-center md:max-w-[560px] lg:mx-0 lg:max-w-none lg:pt-0 lg:text-left">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-pill border-2 border-ink-900 bg-lime-400 px-4 py-2 shadow-press-lime">
-            <Icon3D name="salad" size={22} />
-            <span className="font-display text-sm font-extrabold uppercase tracking-[0.2em]">
-              Zephr
-            </span>
-          </div>
+          {/* No pill behind the lockup: the wordmark is lime with a black
+              outline, and on a lime chip only the outline would read. */}
+          <Logo size={46} className="mb-5" />
 
           <h1 className="font-display text-[2.6rem] font-extrabold leading-[0.92] tracking-tighter md:text-[3.4rem] lg:text-[4rem]">
             Eat it. Spend it.

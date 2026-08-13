@@ -25,6 +25,10 @@ export default defineConfig({
         manualChunks: {
           supabase: ['@supabase/supabase-js'],
           motion: ['framer-motion'],
+          // Its own chunk so the two lazy charts in the Money tab share one
+          // download, and so a deploy that only touches app code doesn't
+          // invalidate 400KB of charting library in everyone's cache.
+          recharts: ['recharts'],
         },
       },
     },

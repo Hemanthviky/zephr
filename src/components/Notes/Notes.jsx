@@ -7,6 +7,7 @@ import QuickCapture from './QuickCapture'
 import VaultGate from './VaultGate'
 import Avatar from '../shared/Avatar'
 import Icon3D from '../shared/Icon3D'
+import Logo from '../shared/Logo'
 import { useNotes } from '../../hooks/useNotes'
 import { useVault } from '../../hooks/useVault'
 import { displayName, firstName } from '../../hooks/useAuth'
@@ -298,14 +299,7 @@ export default function Notes({ user, onOpenProfile }) {
     <div className="min-h-[100dvh] lg:pl-[248px]">
       <div className="mx-auto w-full max-w-[540px] px-page pb-dock pt-safe md:max-w-[900px] lg:max-w-[1120px] xl:max-w-[1320px] 2xl:max-w-[1500px]">
         <header className="flex items-center justify-between gap-3 py-4 md:py-5 lg:py-7">
-          <div className="flex items-center gap-2 md:hidden">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
-              <Icon3D name="pushpin" size={19} />
-            </span>
-            <span className="font-display text-base font-extrabold uppercase tracking-[0.18em]">
-              Board
-            </span>
-          </div>
+          <Logo size={34} className="md:hidden" />
 
           <div className="hidden min-w-0 md:block">
             <h1 className="truncate font-display text-2xl font-extrabold tracking-tight lg:text-3xl">

@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="16" fill="#1B1915"/>
-  <!-- a bitten disc: the "zephr" mark -->
-  <path d="M32 10c12.2 0 22 9.8 22 22s-9.8 22-22 22-22-9.8-22-22S19.8 10 32 10Z" fill="#C6F32B"/>
-  <circle cx="47" cy="20" r="11" fill="#1B1915"/>
-  <circle cx="26" cy="30" r="4.2" fill="#1B1915"/>
-  <circle cx="38" cy="40" r="3.2" fill="#1B1915"/>
-  <path d="M22 42c4.5 4.2 12 4.6 17-.6" stroke="#1B1915" stroke-width="4" stroke-linecap="round" fill="none"/>
-</svg>

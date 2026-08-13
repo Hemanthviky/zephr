@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import Icon3D from './Icon3D'
+import Logo from './Logo'
 import Avatar from './Avatar'
 
 /**
@@ -100,14 +101,7 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
         aria-label="Sections"
         className="no-scrollbar fixed inset-y-0 left-0 z-50 hidden w-[248px] flex-col overflow-y-auto border-r-2 border-ink-900/10 bg-cream-50 px-4 py-7 lg:flex"
       >
-        <div className="mb-8 flex items-center gap-2.5 px-2">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
-            <Icon3D name="salad" size={23} />
-          </span>
-          <span className="font-display text-lg font-extrabold uppercase tracking-[0.18em]">
-            Zephr
-          </span>
-        </div>
+        <Logo size={42} className="mb-8 px-2" />
 
         <div className="flex flex-col gap-2">
           {TABS.map((tab) => {

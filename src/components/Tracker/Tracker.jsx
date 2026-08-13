@@ -7,6 +7,7 @@ import AddFoodForm from './AddFoodForm'
 import GoalsPanel from '../Settings/GoalsPanel'
 import ReportPanel from '../Reports/ReportPanel'
 import Icon3D from '../shared/Icon3D'
+import Logo from '../shared/Logo'
 import Avatar from '../shared/Avatar'
 import { IconButton } from '../shared/Button'
 import { useEntries } from '../../hooks/useEntries'
@@ -73,14 +74,7 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
             The avatar stays until lg, where the side rail takes over the
             profile — showing both would put the same face on screen twice. */}
         <header className="flex items-center justify-between gap-3 py-4 md:py-5 lg:py-7">
-          <div className="flex items-center gap-2 md:hidden">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink-900 bg-lime-400 shadow-press-sm">
-              <Icon3D name="salad" size={19} />
-            </span>
-            <span className="font-display text-base font-extrabold uppercase tracking-[0.18em]">
-              Zephr
-            </span>
-          </div>
+          <Logo size={34} className="md:hidden" />
 
           <div className="hidden min-w-0 md:block">
             <h1 className="truncate font-display text-2xl font-extrabold tracking-tight lg:text-3xl">

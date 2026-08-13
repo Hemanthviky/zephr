@@ -6,6 +6,7 @@ import Tracker from './components/Tracker/Tracker'
 import TabBar from './components/shared/TabBar'
 import ProfilePanel from './components/Settings/ProfilePanel'
 import Icon3D from './components/shared/Icon3D'
+import { LogoMark, Wordmark } from './components/shared/Logo'
 import { AvatarPrefProvider, avatarIdOf } from './components/shared/Avatar'
 import NotFound from './components/Errors/NotFound'
 import Offline from './components/Errors/Offline'
@@ -337,10 +338,8 @@ function BootScreen() {
       role="status"
       aria-live="polite"
     >
-      <Icon3D name="salad" size={76} float />
-      <p className="font-display text-sm font-extrabold uppercase tracking-[0.28em] text-ink-400">
-        Zephr
-      </p>
+      <LogoMark size={76} float />
+      <Wordmark height={20} />
       <span className="sr-only">Checking your session…</span>
     </div>
   )
