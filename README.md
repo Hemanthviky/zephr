@@ -1,10 +1,11 @@
 # Zephr
 
-A personal tracker with three modules behind one login:
+The day-to-day tracker: four modules behind one login, covering the things worth writing down on an ordinary day.
 
 - **Food** — log what you ate in grams, see calories and macros land against your daily goal, day by day.
 - **Money** — log expenses and income by hand, see what's left this month, where it went, and how the last six months compare.
 - **Hospital** — a ward chart: every drink in millilitres and every dose of medicine, on one timeline, with the time it happened. For looking after someone (or yourself) through an admission.
+- **Notes** — a pinboard for the loose ends, with a passphrase-locked vault for logins that are encrypted in your browser before they're stored.
 
 No bank syncing, no barcode scanning, no AI photo estimates. You type what happened; the app does the arithmetic and remembers it. Everything is per-user and syncs across devices through Supabase.
 

@@ -269,7 +269,10 @@ export default function VaultGate({
                 {choosing && passphrase && (
                   <p
                     className="mt-2 text-xs font-bold"
-                    style={{ color: strength.level > 1 ? '#6E6659' : '#E33E1C' }}
+                    style={{
+                      color:
+                        strength.level > 1 ? 'rgb(var(--c-ink-500))' : 'rgb(var(--c-coral-600))',
+                    }}
                   >
                     {longEnough
                       ? `${strength.label} · ${strength.bits} bits — ${strength.hint}`

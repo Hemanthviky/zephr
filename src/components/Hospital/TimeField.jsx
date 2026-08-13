@@ -167,8 +167,15 @@ export default function TimeField({ value, onChange, id = 'chart-time', label = 
           style={{ touchAction: 'none' }}
           className="h-[88px] w-[88px] shrink-0 cursor-grab touch-none select-none rounded-full active:cursor-grabbing"
         >
-          <circle cx="50" cy="50" r="46" fill="#FDF7EA" stroke="#1B1915" strokeWidth="3" />
-          <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(27,25,21,0.08)" strokeWidth="1.5" />
+          <circle
+            cx="50"
+            cy="50"
+            r="46"
+            fill="rgb(var(--c-cream-100))"
+            stroke="rgb(var(--c-ink-900))"
+            strokeWidth="3"
+          />
+          <circle cx="50" cy="50" r="38" fill="none" stroke="rgb(var(--c-ink-900) / 0.08)" strokeWidth="1.5" />
 
           {TICKS.map((angle, index) => (
             <line
@@ -177,7 +184,7 @@ export default function TimeField({ value, onChange, id = 'chart-time', label = 
               y1={index % 3 === 0 ? 9 : 11}
               x2="50"
               y2={index % 3 === 0 ? 17 : 15}
-              stroke="#1B1915"
+              stroke="rgb(var(--c-ink-900))"
               strokeOpacity={index % 3 === 0 ? 0.75 : 0.28}
               strokeWidth={index % 3 === 0 ? 3.5 : 2}
               strokeLinecap="round"
@@ -201,14 +208,14 @@ export default function TimeField({ value, onChange, id = 'chart-time', label = 
             y1="50"
             x2="50"
             y2="31"
-            stroke="#1B1915"
+            stroke="rgb(var(--c-ink-900))"
             strokeWidth="5.5"
             strokeLinecap="round"
             transform={`rotate(${hourAngle} 50 50)`}
           />
 
-          <circle cx="50" cy="50" r="4" fill="#1B1915" />
-          <circle cx="50" cy="50" r="1.6" fill="#FDF7EA" />
+          <circle cx="50" cy="50" r="4" fill="rgb(var(--c-ink-900))" />
+          <circle cx="50" cy="50" r="1.6" fill="rgb(var(--c-cream-100))" />
 
           <text
             x="50"
@@ -217,7 +224,7 @@ export default function TimeField({ value, onChange, id = 'chart-time', label = 
             fontSize="9"
             fontWeight="800"
             letterSpacing="1"
-            fill="#948B7B"
+            fill="rgb(var(--c-ink-400))"
           >
             {meridiem}
           </text>

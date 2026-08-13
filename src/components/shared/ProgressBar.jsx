@@ -12,8 +12,10 @@ export default function ProgressBar({
   label,
   value = 0,
   goal = 0,
-  color = '#FF5A38',
-  track = '#FFE4DC',
+  color = 'rgb(var(--c-coral-500))',
+  // coral-100 — a pale blush in daylight, a deep stain of the same hue after
+  // dark. Both read as "the empty part of the bar", which is the job.
+  track = 'rgb(var(--c-coral-100))',
   unit = 'g',
   celebrate = false,
 }) {

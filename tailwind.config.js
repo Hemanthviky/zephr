@@ -2,12 +2,31 @@
 
 // Zephr's design tokens live here, not scattered through className strings.
 // Rules of the house:
-//   • cream = every background. Never a dark surface, never pure white.
-//   • ink   = every piece of text. Never #000.
+//   • cream = every background. Never pure white, and in the dark theme the
+//             same ramp runs the other way — cream-100 is the page, cream-50 the
+//             card sitting on it, cream-200 the inset below it.
+//   • ink   = every piece of text. Never #000, and never #FFF in the dark.
 //   • lime  = the one thing on screen asking to be tapped.
 //   • coral / tangerine / avocado = protein / carbs / fat, consistently, forever.
+//
+// Every colour below resolves through a CSS variable declared in index.css, in
+// channel form (`27 25 21`) so Tailwind can still slot its own alpha into
+// `border-ink-900/10`. That indirection is the whole dark theme: `.dark` on the
+// html element redefines the variables and ~1,200 existing utility classes in
+// this codebase change meaning without one of them being edited.
+const channel = (name) => ({ opacityValue }) =>
+  opacityValue === undefined
+    ? `rgb(var(${name}))`
+    : `rgb(var(${name}) / ${opacityValue})`
+
+const ramp = (prefix, stops) =>
+  Object.fromEntries(stops.map((stop) => [stop, channel(`--c-${prefix}-${stop}`)]))
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  // Class, not media: the theme is a choice the user makes and we keep, and the
+  // system preference is only ever the first guess. See hooks/useTheme.
+  darkMode: 'class',
   future: {
     // A tablet or a phone reports `hover` on tap and then keeps the hover style
     // stuck on the last thing touched. Gate every hover: utility behind an
@@ -34,55 +53,25 @@ export default {
         // (bg-muted, ring-background, bg-primary…). They point at the palette
         // below rather than introducing a second, grayer set of colours — a
         // dropped-in component should come out looking like the rest of Zephr.
-        background: '#FFFDF7', // cream-50
-        foreground: '#1B1915', // ink-900
-        border: '#1B1915',
-        muted: '#F7EDD8', // cream-200
-        'muted-foreground': '#403A31', // ink-700
-        primary: '#AEDC0B', // lime-500
-        'primary-foreground': '#1B1915',
-        cream: {
-          50: '#FFFDF7',
-          100: '#FDF7EA',
-          200: '#F7EDD8',
-          300: '#EFE0C2',
-          400: '#E2CDA4',
-        },
+        background: channel('--c-cream-50'),
+        foreground: channel('--c-ink-900'),
+        border: channel('--c-ink-900'),
+        muted: channel('--c-cream-200'),
+        'muted-foreground': channel('--c-ink-700'),
+        primary: channel('--c-lime-500'),
+        'primary-foreground': channel('--c-ink-on-accent'),
+        cream: ramp('cream', [50, 100, 200, 300, 400]),
         ink: {
-          DEFAULT: '#1B1915',
-          900: '#1B1915',
-          700: '#403A31',
-          500: '#6E6659',
-          400: '#948B7B',
-          300: '#BDB4A2',
+          DEFAULT: channel('--c-ink-900'),
+          ...ramp('ink', [900, 700, 500, 400, 300]),
+          // Text that sits *on* a saturated fill — a lime button, a coral chip.
+          // It stays dark in both themes, because lime-400 stays lime-400.
+          'on-accent': channel('--c-ink-on-accent'),
         },
-        lime: {
-          100: '#F2FFC7',
-          200: '#E6FF94',
-          300: '#D8FC5E',
-          400: '#C6F32B',
-          500: '#AEDC0B', // primary accent
-          600: '#8CB300',
-          700: '#657F04',
-        },
-        coral: {
-          100: '#FFE4DC',
-          300: '#FF9E85',
-          500: '#FF5A38', // over budget / protein
-          600: '#E33E1C',
-        },
-        tangerine: {
-          100: '#FFEFCE',
-          300: '#FFCB6B',
-          500: '#FFA51F', // carbs
-          600: '#E08600',
-        },
-        avocado: {
-          100: '#D6F5EC',
-          300: '#6FD9C2',
-          500: '#12B39A', // fat
-          600: '#0C8F7B',
-        },
+        lime: ramp('lime', [100, 200, 300, 400, 500, 600, 700]),
+        coral: ramp('coral', [100, 300, 500, 600]),
+        tangerine: ramp('tangerine', [100, 300, 500, 600]),
+        avocado: ramp('avocado', [100, 300, 500, 600]),
       },
       fontFamily: {
         display: ['"Bricolage Grotesque"', 'ui-rounded', 'Georgia', 'sans-serif'],
@@ -114,16 +103,19 @@ export default {
         pill: '999px',
       },
       boxShadow: {
-        // Tinted, never gray — the shadow should look like warm light, not soot.
-        card: '0 1px 0 0 rgba(27,25,21,0.06), 0 14px 28px -18px rgba(122,84,25,0.55)',
-        stack: '0 18px 34px -20px rgba(122,84,25,0.65)',
-        lift: '0 26px 50px -24px rgba(122,84,25,0.7)',
+        // Tinted, never gray — in the light theme the shadow should look like
+        // warm light rather than soot; in the dark one it goes to actual black,
+        // because a brown glow under a card on a near-black page reads as a
+        // smudge. Both live behind the same variables (index.css).
+        card: '0 1px 0 0 var(--shadow-hairline), 0 14px 28px -18px var(--shadow-soft)',
+        stack: '0 18px 34px -20px var(--shadow-soft-strong)',
+        lift: '0 26px 50px -24px var(--shadow-soft-strong)',
         // Tactile buttons: a hard bottom edge that visibly compresses on press.
-        press: '0 4px 0 0 #1B1915',
-        'press-sm': '0 3px 0 0 #1B1915',
-        'press-lime': '0 4px 0 0 #657F04',
-        'press-coral': '0 4px 0 0 #B32E13',
-        inset: 'inset 0 2px 6px 0 rgba(27,25,21,0.08)',
+        press: '0 4px 0 0 var(--shadow-hard)',
+        'press-sm': '0 3px 0 0 var(--shadow-hard)',
+        'press-lime': '0 4px 0 0 var(--shadow-hard-lime)',
+        'press-coral': '0 4px 0 0 var(--shadow-hard-coral)',
+        inset: 'inset 0 2px 6px 0 var(--shadow-inset)',
       },
       keyframes: {
         'pop-in': {

@@ -93,7 +93,9 @@ export default function PasswordField({ value, onChange, autoFocus = false }) {
         {value && (
           <span
             className="nums text-[0.7rem] font-extrabold"
-            style={{ color: strength.level > 1 ? '#403A31' : '#E33E1C' }}
+            style={{
+              color: strength.level > 1 ? 'rgb(var(--c-ink-700))' : 'rgb(var(--c-coral-600))',
+            }}
           >
             {strength.label} · {strength.bits} bits
           </span>
@@ -170,7 +172,7 @@ export default function PasswordField({ value, onChange, autoFocus = false }) {
                 key={slot}
                 className="h-1.5 flex-1 rounded-pill transition-colors"
                 style={{
-                  background: slot < level.track ? level.fill : 'rgba(27,25,21,0.1)',
+                  background: slot < level.track ? level.fill : 'rgb(var(--c-ink-900) / 0.12)',
                 }}
               />
             ))}

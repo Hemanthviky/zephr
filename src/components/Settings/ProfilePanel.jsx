@@ -9,6 +9,7 @@ import Icon3D from '../shared/Icon3D'
 import Avatar, { useAvatarPref } from '../shared/Avatar'
 import { AVATARS, INITIALS_ID, defaultAvatarId } from '../shared/avatarArt'
 import Input from '../shared/Input'
+import { ThemeToggleRow } from '../shared/ThemeToggle'
 import { displayName } from '../../hooks/useAuth'
 import {
   ACTIVITY_LEVELS, AIMS, SEXES, bmiOf, canCalculate, calculateTargets,
@@ -445,6 +446,14 @@ function CardSlide({
         </span>
         <ChevronRight className="h-5 w-5 shrink-0 text-ink-400" strokeWidth={3} />
       </button>
+
+      {/* Appearance sits with the card rather than with the body stats: it's a
+          preference about this device, not a fact about you, and this is the
+          only screen in the app that holds either. */}
+      <div className="mt-5">
+        <p className="label-caps mb-2">Appearance</p>
+        <ThemeToggleRow />
+      </div>
 
       <div className="mt-5 border-t-2 border-dashed border-ink-900/10 pt-5">
         <Button variant="secondary" size="md" icon={LogOut} fullWidth onClick={onSignOut}>

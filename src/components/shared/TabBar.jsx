@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import Icon3D from './Icon3D'
 import Logo from './Logo'
 import Avatar from './Avatar'
+import ThemeToggle from './ThemeToggle'
 
 /**
  * The app's modules, in whichever navigation the screen calls for.
@@ -148,13 +149,25 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
           })}
         </div>
 
+        {/* Day/night sits at the foot of the rail rather than only inside the
+            profile sheet: it's the one setting people flip on a whim, and two
+            taps through a dialog to do it is one and a half too many. The
+            profile keeps its copy — that's where you go looking for a setting
+            when you don't already know where it lives. */}
+        <div className="mt-auto flex items-center gap-2 px-1 pb-3">
+          <span className="min-w-0 flex-1 text-[0.65rem] font-extrabold uppercase tracking-[0.16em] text-ink-300">
+            Appearance
+          </span>
+          <ThemeToggle />
+        </div>
+
         {/* The rail has room a bottom bar doesn't, so desktop gets the whole
             identity — monogram, name, email — as the way in. */}
         {onOpenProfile ? (
           <button
             type="button"
             onClick={onOpenProfile}
-            className="tactile mt-auto flex min-h-[64px] items-center gap-3 rounded-2xl border-2 border-ink-900/10 bg-cream-100 px-3 text-left transition-colors hover:border-ink-900/30"
+            className="tactile flex min-h-[64px] items-center gap-3 rounded-2xl border-2 border-ink-900/10 bg-cream-100 px-3 text-left transition-colors hover:border-ink-900/30"
           >
             <Avatar name={userName} size={40} />
             <span className="min-w-0 flex-1">
@@ -167,7 +180,7 @@ export default function TabBar({ value, onChange, userName = '', userEmail = '',
             </span>
           </button>
         ) : (
-          <p className="mt-auto px-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-ink-300">
+          <p className="px-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-ink-300">
             Typed by hand,
             <br />
             counted for you

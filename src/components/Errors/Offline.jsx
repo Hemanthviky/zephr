@@ -43,7 +43,7 @@ export default function Offline({ onRetry, onDismiss }) {
         >
           <path
             d="M36 52 Q100 -4 164 52"
-            stroke="#BDB4A2"
+            stroke="rgb(var(--c-ink-300))"
             strokeWidth="3.5"
             strokeLinecap="round"
           />

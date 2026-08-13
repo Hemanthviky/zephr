@@ -59,7 +59,7 @@ export default function CrashScreen({ error, onRetry, canRetry = true }) {
           torn edge, and a mask clips box-shadow along with everything else. */}
       <div
         className="w-full max-w-[330px] animate-rise"
-        style={{ filter: 'drop-shadow(0 20px 34px rgba(122,84,25,0.45))' }}
+        style={{ filter: 'drop-shadow(0 20px 34px var(--shadow-soft))' }}
       >
         <article className="receipt bg-cream-50 px-6 pb-9 pt-10 font-mono text-[0.72rem] font-medium leading-relaxed text-ink-700">
           <p className="text-center font-display text-sm font-extrabold uppercase tracking-[0.34em] text-ink-900">

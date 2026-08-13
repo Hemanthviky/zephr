@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Zephr — log what you eat and what you spend, see both land against the day.",
+  "description": "Zephr — the day-to-day tracker: food, money, hospital charts and notes, behind one login.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

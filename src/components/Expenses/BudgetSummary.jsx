@@ -170,7 +170,7 @@ export default function BudgetSummary({
                   // scale, so the bars still compare against each other.
                   goal={category.budget || categoryTotals[0].total}
                   color={category.color}
-                  track="#F7EDD8"
+                  track="rgb(var(--c-cream-200))"
                   unit=""
                 />
               </div>

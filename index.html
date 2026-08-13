@@ -10,8 +10,36 @@
          and would otherwise ring the disc in it. -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
+    <!-- Overwritten by the boot script below, and again by the theme toggle. -->
     <meta name="theme-color" content="#FDF7EA" />
-    <meta name="description" content="Zephr — log what you eat and what you spend, by hand. Calories and macros for 160 everyday foods, expenses and budgets for every month." />
+
+    <!-- Dark mode, before the first paint.
+         This has to be inline and it has to be here, above the stylesheet: the
+         app's own theme code doesn't run until the JS bundle has downloaded and
+         React has mounted, by which point a dark-mode user has already been
+         shown a full screen of cream. Reading one localStorage key costs well
+         under a millisecond and is the difference between a themed app and a
+         flashbang. Kept deliberately in step with src/hooks/useTheme.js. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('zephr:theme')
+          var dark =
+            stored === 'dark' ||
+            (stored !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+          if (dark) {
+            document.documentElement.classList.add('dark')
+            document
+              .querySelector('meta[name="theme-color"]')
+              .setAttribute('content', '#15130F')
+          }
+        } catch (e) {
+          // Storage blocked, or no matchMedia. Light is the fallback, which is
+          // what the document already says.
+        }
+      })()
+    </script>
+    <meta name="description" content="Zephr — the day-to-day tracker. Food and macros, money and budgets, a hospital fluid and medicine chart, and notes with an encrypted vault. Four trackers, one login, typed by hand." />
     <!-- The standard name first; the apple- prefixed one stays for iOS versions
          that still only understand that spelling. Chrome warns if it sees the
          apple one without this. -->
@@ -23,10 +51,10 @@
          1200×630 both Open Graph and Twitter read without re-cropping. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Zephr" />
-    <meta property="og:title" content="Zephr — what you ate, what you spent" />
+    <meta property="og:title" content="Zephr — your day, tracked by hand" />
     <meta
       property="og:description"
-      content="Log what you eat and what you spend, by hand. Calories and macros for 160 everyday foods, expenses and budgets for every month."
+      content="Food and macros, money and budgets, a hospital fluid and medicine chart, and notes with an encrypted vault. Four trackers, one login."
     />
     <meta property="og:image" content="/og-image.png" />
     <meta property="og:image:width" content="1200" />
@@ -63,7 +91,7 @@
       crossorigin
     />
 
-    <title>Zephr — what you ate, what you spent</title>
+    <title>Zephr — your day, tracked by hand</title>
   </head>
   <body>
     <div id="root"></div>

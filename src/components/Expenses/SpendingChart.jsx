@@ -48,7 +48,7 @@ export default function SpendingChart({ categoryTotals, total, loading = false }
         {
           id: '__rest',
           name: `${minor.length} smaller`,
-          color: '#BDB4A2',
+          color: 'rgb(var(--c-ink-300))',
           icon: 'receipt',
           total: minor.reduce((sum, c) => sum + c.total, 0),
           share: minor.reduce((sum, c) => sum + c.share, 0),
@@ -79,7 +79,7 @@ export default function SpendingChart({ categoryTotals, total, loading = false }
               cornerRadius={7}
               startAngle={90}
               endAngle={-270}
-              stroke="#1B1915"
+              stroke="rgb(var(--c-ink-900))"
               strokeWidth={2}
               isAnimationActive
               animationDuration={550}

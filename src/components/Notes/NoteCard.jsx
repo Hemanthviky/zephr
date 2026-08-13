@@ -53,7 +53,7 @@ export default function NoteCard({ note, onOpen, onTogglePin, onDelete }) {
         animate={{ rotate: tilt }}
         whileHover={{ rotate: 0, y: -5 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className="relative rounded-[1.4rem] border-2 shadow-card transition-shadow hover:shadow-lift"
+        className="note-paper on-light relative rounded-[1.4rem] border-2 shadow-card transition-shadow hover:shadow-lift"
         style={{ background: paper.paper, borderColor: paper.edge }}
       >
         {/* The tape. Sits half off the top edge, leaning the other way to the

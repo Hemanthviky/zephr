@@ -135,7 +135,7 @@ export default function Icon3D({ name, size = 48, className = '', float = false,
         style={{
           fontSize: size * 0.86,
           lineHeight: 1,
-          filter: 'drop-shadow(0 8px 10px rgba(122,84,25,0.35))',
+          filter: 'drop-shadow(0 8px 10px var(--shadow-prop))',
         }}
         role={decorative ? 'presentation' : 'img'}
         aria-label={decorative ? undefined : alt}
@@ -161,7 +161,7 @@ export default function Icon3D({ name, size = 48, className = '', float = false,
       style={{
         width: size,
         height: size,
-        filter: 'drop-shadow(0 10px 14px rgba(122,84,25,0.32))',
+        filter: 'drop-shadow(0 10px 14px var(--shadow-prop))',
       }}
     />
   )

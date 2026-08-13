@@ -96,7 +96,10 @@ export default function Avatar({
         height: size,
         boxShadow: flat ? 'none' : `0 ${Math.max(2, size * 0.07)}px 0 0 ${edge}`,
       }}
-      className={`overflow-hidden border-ink-900 ${className}`}
+      // `on-light`: the tile behind a face is a fixed accent in both themes, so
+      // the outline and the initials on it have to stay dark after sunset
+      // rather than following the page.
+      className={`on-light overflow-hidden border-ink-900 ${className}`}
       aria-hidden={src ? undefined : 'true'}
     >
       {src ? <AvatarImage src={src} alt={name} /> : null}

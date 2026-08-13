@@ -82,7 +82,7 @@ export default function QuickCapture({ onQuickSave, onExpand, onNewSecret, savin
       <motion.div
         layout
         transition={{ type: 'spring', stiffness: 420, damping: 36 }}
-        className="rounded-[1.4rem] border-2 shadow-card"
+        className="note-paper on-light rounded-[1.4rem] border-2 shadow-card"
         style={{ background: paper.paper, borderColor: paper.edge }}
       >
         {/* A strip of tape here too, so the composer is visibly the same object

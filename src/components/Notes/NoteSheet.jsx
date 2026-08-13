@@ -712,7 +712,7 @@ export default function NoteSheet({
                     maxLength={20_000}
                     rows={5}
                     placeholder="Write it down before it’s gone…"
-                    className="w-full resize-none overflow-y-auto rounded-2xl border-[2.5px] border-ink-900/15 p-4 text-base font-semibold leading-relaxed text-ink-900 shadow-inset transition-colors placeholder:font-medium placeholder:text-ink-300 focus:border-lime-500"
+                    className="note-paper on-light w-full resize-none overflow-y-auto rounded-2xl border-[2.5px] border-ink-900/15 p-4 text-base font-semibold leading-relaxed text-ink-900 shadow-inset transition-colors placeholder:font-medium placeholder:text-ink-300 focus:border-lime-500"
                     style={{ background: paper.paper }}
                   />
                   <p className="mt-1.5 text-right text-[0.7rem] font-semibold text-ink-300">
@@ -736,7 +736,7 @@ export default function NoteSheet({
                         aria-label={option.label}
                         title={option.label}
                         className={[
-                          'tactile relative h-11 w-11 overflow-hidden rounded-xl border-2 transition-colors',
+                          'note-paper tactile relative h-11 w-11 overflow-hidden rounded-xl border-2 transition-colors',
                           active ? 'border-ink-900 shadow-press-sm' : 'border-ink-900/15',
                         ].join(' ')}
                         style={{ background: option.paper }}

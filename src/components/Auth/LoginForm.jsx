@@ -38,7 +38,7 @@ export default function LoginForm({
     <form onSubmit={handleSubmit} noValidate>
       <h2 className="font-display text-2xl font-extrabold tracking-tight">Welcome back</h2>
       <p className="mb-5 mt-1 text-sm font-medium text-ink-400">
-        Pick up where yesterday’s plate left off.
+        Pick up wherever yesterday left off.
       </p>
 
       <div className="space-y-4">

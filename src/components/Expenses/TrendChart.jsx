@@ -67,7 +67,7 @@ export default function TrendChart({ series, loading = false }) {
           <LineChart data={series} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
             <CartesianGrid
               strokeDasharray="3 7"
-              stroke="#E2CDA4"
+              stroke="rgb(var(--c-cream-400))"
               strokeWidth={1.5}
               vertical={false}
             />
@@ -76,27 +76,30 @@ export default function TrendChart({ series, loading = false }) {
               tickLine={false}
               axisLine={false}
               dy={6}
-              tick={{ fill: '#948B7B', fontSize: 11, fontWeight: 800 }}
+              tick={{ fill: 'rgb(var(--c-ink-400))', fontSize: 11, fontWeight: 800 }}
             />
             <YAxis
               width={46}
               tickLine={false}
               axisLine={false}
-              tick={{ fill: '#BDB4A2', fontSize: 10, fontWeight: 700 }}
+              tick={{ fill: 'rgb(var(--c-ink-300))', fontSize: 10, fontWeight: 700 }}
               tickFormatter={(value) => formatMoney(value, { compact: true })}
             />
 
             {average > 0 && (
               <ReferenceLine
                 y={average}
-                stroke="#1B1915"
+                stroke="rgb(var(--c-ink-900))"
                 strokeOpacity={0.35}
                 strokeDasharray="5 5"
                 strokeWidth={2}
               />
             )}
 
-            <Tooltip content={<TrendTooltip />} cursor={{ stroke: '#BDB4A2', strokeWidth: 2 }} />
+            <Tooltip
+              content={<TrendTooltip />}
+              cursor={{ stroke: 'rgb(var(--c-ink-300))', strokeWidth: 2 }}
+            />
 
             <Line
               type="monotone"
@@ -104,8 +107,15 @@ export default function TrendChart({ series, loading = false }) {
               stroke="#FF5A38"
               strokeWidth={4}
               strokeLinecap="round"
-              dot={{ r: 5, fill: '#FFFDF7', stroke: '#FF5A38', strokeWidth: 3 }}
-              activeDot={{ r: 8, fill: '#FF5A38', stroke: '#1B1915', strokeWidth: 2.5 }}
+              // The dot's fill is the card it's drawn on, not white — that's
+              // what makes it read as a hole punched in the line.
+              dot={{ r: 5, fill: 'rgb(var(--c-cream-50))', stroke: '#FF5A38', strokeWidth: 3 }}
+              activeDot={{
+                r: 8,
+                fill: '#FF5A38',
+                stroke: 'rgb(var(--c-ink-900))',
+                strokeWidth: 2.5,
+              }}
               animationDuration={650}
             />
           </LineChart>

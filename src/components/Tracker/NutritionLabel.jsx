@@ -57,7 +57,7 @@ export default function NutritionLabel({ totals, goals, loading = false, entryCo
               cy="100"
               r={RADIUS}
               fill="none"
-              stroke="#F7EDD8"
+              stroke="rgb(var(--c-cream-200))"
               strokeWidth={STROKE}
               strokeLinecap="round"
               strokeDasharray={`${ARC * CIRCUMFERENCE} ${CIRCUMFERENCE}`}
@@ -74,7 +74,7 @@ export default function NutritionLabel({ totals, goals, loading = false, entryCo
               initial={false}
               animate={{ strokeDashoffset: (1 - progress) * ARC * CIRCUMFERENCE }}
               transition={{ type: 'spring', stiffness: 90, damping: 20 }}
-              style={{ filter: 'drop-shadow(0 3px 0 rgba(27,25,21,0.14))' }}
+              style={{ filter: 'drop-shadow(0 3px 0 var(--shadow-drop))' }}
             />
           </svg>
 

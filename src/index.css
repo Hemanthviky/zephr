@@ -68,13 +68,91 @@
 }
 
 /* ==========================================================================
-   Zephr — global base
-   Light only, cream never white, ink never black.
+   Zephr — the palette, in both of its moods
+
+   Every colour in tailwind.config.js resolves to one of these variables, in
+   channel form so `border-ink-900/10` can still slot its own alpha in. Nothing
+   in the app writes a hex for a surface or a piece of text; it writes
+   `bg-cream-50` and `text-ink-900`, and what those *mean* is decided here.
+
+   The dark theme is not an inversion of the light one — it re-runs the two
+   neutral ramps in the other direction and leaves the four accents almost
+   alone:
+
+     • cream stops meaning "paper" and starts meaning "room": 100 is the page,
+       50 is the card lifted off it, 200 the well pressed into it. Every
+       existing `bg-cream-50` card therefore keeps sitting *above* its page
+       without a single className changing.
+     • ink runs light-on-dark, warm rather than gray — #F6F1E4, never #FFF, for
+       the same reason the light theme never uses #000.
+     • lime, coral, tangerine and avocado keep their exact hue at 300–500. They
+       are the brand and they read fine on a dark ground. What does change is
+       the -100/-200 tints (a pale lime block would be a flashbang on a black
+       page, so they become deep stains of the same hue) and the -600 text
+       shades (which have to go lighter, not darker, to stay legible).
    ========================================================================== */
 
 @layer base {
   :root {
     color-scheme: light;
+
+    --c-cream-50: 255 253 247;
+    --c-cream-100: 253 247 234;
+    --c-cream-200: 247 237 216;
+    --c-cream-300: 239 224 194;
+    --c-cream-400: 226 205 164;
+
+    --c-ink-900: 27 25 21;
+    --c-ink-700: 64 58 49;
+    --c-ink-500: 110 102 89;
+    --c-ink-400: 148 139 123;
+    --c-ink-300: 189 180 162;
+    /* Text on a saturated fill. Dark in both themes — lime-400 is lime-400. */
+    --c-ink-on-accent: 27 25 21;
+
+    --c-lime-100: 242 255 199;
+    --c-lime-200: 230 255 148;
+    --c-lime-300: 216 252 94;
+    --c-lime-400: 198 243 43;
+    --c-lime-500: 174 220 11;
+    --c-lime-600: 140 179 0;
+    --c-lime-700: 101 127 4;
+
+    --c-coral-100: 255 228 220;
+    --c-coral-300: 255 158 133;
+    --c-coral-500: 255 90 56;
+    --c-coral-600: 227 62 28;
+
+    --c-tangerine-100: 255 239 206;
+    --c-tangerine-300: 255 203 107;
+    --c-tangerine-500: 255 165 31;
+    --c-tangerine-600: 224 134 0;
+
+    --c-avocado-100: 214 245 236;
+    --c-avocado-300: 111 217 194;
+    --c-avocado-500: 18 179 154;
+    --c-avocado-600: 12 143 123;
+
+    /* Shadows. Warm brown light in the day, honest black at night. */
+    --shadow-hairline: rgba(27, 25, 21, 0.06);
+    --shadow-soft: rgba(122, 84, 25, 0.55);
+    --shadow-soft-strong: rgba(122, 84, 25, 0.65);
+    --shadow-hard: #1b1915;
+    --shadow-hard-lime: #657f04;
+    --shadow-hard-coral: #b32e13;
+    --shadow-inset: rgba(27, 25, 21, 0.08);
+    /* Two more the components reach for directly: the hard drop under a
+       progress ring, and the glow under a floating 3D prop. */
+    --shadow-drop: rgba(27, 25, 21, 0.14);
+    --shadow-prop: rgba(122, 84, 25, 0.35);
+
+    /* The wash behind the page, and the crosshatch on a vault card. */
+    --page-wash-1: rgba(214, 243, 43, 0.16);
+    --page-wash-2: rgba(255, 165, 31, 0.1);
+    --rule-strong: rgba(27, 25, 21, 0.16);
+    --rule-soft: rgba(27, 25, 21, 0.11);
+    --shimmer: rgba(255, 253, 247, 0.9);
+
     /* Home-indicator + notch padding, with a sane fallback on desktop. The
        left/right pair only ever matters on a notched phone held sideways,
        where the cutout eats into the page gutter. */
@@ -91,6 +169,58 @@
     /* What a module reserves at the bottom of its scroll: the docked action
        button and the tab bar underneath it. Shrinks as those two retire. */
     --dock-reserve: calc(6.5rem + var(--tabbar-h) + var(--safe-bottom));
+  }
+
+  /* ── After dark ──────────────────────────────────────────────────────────
+     Only the palette moves. Layout variables, safe areas and dock reserves are
+     the same room with the lights off. */
+  .dark {
+    color-scheme: dark;
+
+    /* The page, the card above it, the well below it. */
+    --c-cream-100: 21 19 15;
+    --c-cream-50: 31 28 23;
+    --c-cream-200: 43 39 33;
+    --c-cream-300: 56 51 43;
+    --c-cream-400: 74 68 58;
+
+    --c-ink-900: 246 241 228;
+    --c-ink-700: 220 213 196;
+    --c-ink-500: 171 162 146;
+    --c-ink-400: 139 130 114;
+    --c-ink-300: 110 103 89;
+    --c-ink-on-accent: 23 21 15;
+
+    /* Tints become stains; the accent itself doesn't budge. lime-200 is the
+       exception — it's a *fill* (a disabled button, a picked avatar tile), not
+       a background wash, so it stays pale and keeps its dark lettering. */
+    --c-lime-100: 44 58 8;
+    --c-lime-700: 200 237 91;
+
+    --c-coral-100: 58 26 18;
+    --c-coral-600: 255 133 99;
+
+    --c-tangerine-100: 59 42 12;
+    --c-tangerine-600: 255 180 74;
+
+    --c-avocado-100: 14 47 42;
+    --c-avocado-600: 53 214 184;
+
+    --shadow-hairline: rgba(0, 0, 0, 0.5);
+    --shadow-soft: rgba(0, 0, 0, 0.75);
+    --shadow-soft-strong: rgba(0, 0, 0, 0.85);
+    --shadow-hard: #050403;
+    --shadow-hard-lime: #4c6103;
+    --shadow-hard-coral: #7d1f0c;
+    --shadow-inset: rgba(0, 0, 0, 0.45);
+    --shadow-drop: rgba(0, 0, 0, 0.5);
+    --shadow-prop: rgba(0, 0, 0, 0.55);
+
+    --page-wash-1: rgba(174, 220, 11, 0.09);
+    --page-wash-2: rgba(255, 165, 31, 0.06);
+    --rule-strong: rgba(246, 241, 228, 0.14);
+    --rule-soft: rgba(246, 241, 228, 0.09);
+    --shimmer: rgba(246, 241, 228, 0.09);
   }
 
   /* From md the docked button is gone — the modules put it inline beside the
@@ -133,10 +263,11 @@
 
   body {
     @apply bg-cream-100 text-ink-900 font-sans antialiased;
-    /* A faint warm wash so the cream reads as paper, not as "unstyled white". */
+    /* A faint warm wash so the cream reads as paper, not as "unstyled white" —
+       and, after dark, so the page reads as a lit room rather than a void. */
     background-image:
-      radial-gradient(120% 60% at 50% -10%, rgba(214, 243, 43, 0.16), transparent 60%),
-      radial-gradient(80% 40% at 100% 100%, rgba(255, 165, 31, 0.1), transparent 70%);
+      radial-gradient(120% 60% at 50% -10%, var(--page-wash-1), transparent 60%),
+      radial-gradient(80% 40% at 100% 100%, var(--page-wash-2), transparent 70%);
     background-attachment: fixed;
     min-height: 100dvh;
     /* Nothing here scrolls sideways; a stray overflow on mobile is always a bug. */
@@ -188,8 +319,8 @@
     inset: auto 12px -9px 12px;
     height: 26px;
     border-radius: 1.5rem;
-    background: theme('colors.cream.200');
-    border: 2px solid rgba(27, 25, 21, 0.08);
+    background: rgb(var(--c-cream-200));
+    border: 2px solid rgb(var(--c-ink-900) / 0.08);
     z-index: -1;
   }
 
@@ -259,10 +390,10 @@
      and the 5px pitch is chosen to sit just above a phone's pixel grid — finer
      than that and it moirés as you scroll. */
   .guilloche {
-    background-color: theme('colors.cream.200');
+    background-color: rgb(var(--c-cream-200));
     background-image:
-      repeating-linear-gradient(45deg, rgba(27, 25, 21, 0.16) 0 1px, transparent 1px 5px),
-      repeating-linear-gradient(-45deg, rgba(27, 25, 21, 0.11) 0 1px, transparent 1px 5px);
+      repeating-linear-gradient(45deg, var(--rule-strong) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(-45deg, var(--rule-soft) 0 1px, transparent 1px 5px);
   }
 
   /* The foil edge down the side of a vault card. A flat lime stripe would just
@@ -288,8 +419,70 @@
   .skeleton::after {
     content: '';
     @apply absolute inset-0 -translate-x-full animate-shimmer;
-    background: linear-gradient(90deg, transparent, rgba(255, 253, 247, 0.9), transparent);
+    background: linear-gradient(90deg, transparent, var(--shimmer), transparent);
   }
+
+}
+
+/* ==========================================================================
+   Islands of daylight
+
+   Written with attribute selectors rather than the obvious `.bg-lime-300`, and
+   kept outside every @layer, for one reason: Tailwind resolves `@apply
+   bg-lime-300` (index.css uses it on ::selection) by finding every rule whose
+   selector mentions that class and inlining all of them. A hand-written rule
+   naming a utility therefore gets cloned into `::selection`, into `hover:`,
+   and into anything else that applies it — emitting mangled selectors and a
+   pair of build warnings. `[class~="bg-lime-300"]` matches exactly the same
+   elements at exactly the same specificity, and Tailwind never sees it.
+   ========================================================================== */
+
+/* ── Islands of daylight ──────────────────────────────────────────────────
+   Some things keep a bright fill after dark: a lime button, a coral delete,
+   a paper note. The lettering on them has to stay dark — but almost none of
+   it says so, because in the light theme it simply inherits `ink-900` from
+   the body, and `ink-900` is exactly the colour that just went white.
+
+   Rather than teach sixty call sites to spell out a foreground they never
+   needed to spell out before, these elements switch the neutral ramps back
+   to their daytime values *for their own subtree*. Because every utility in
+   the app resolves through these variables at the point of use, one
+   declaration block fixes the text, the borders (`border-ink-900/15`), the
+   tint fills (`bg-ink-900/[0.04]`) and the nested cream chips all at once —
+   and it keeps fixing them for markup nobody has written yet.
+
+   The accents themselves are absent from the list on purpose: lime-400 is
+   lime-400 in both themes, and the -100 tints are dark stains after dark, so
+   anything sitting on one of those wants the *night* ink and already has it. */
+.dark :is(
+    [class~='on-light'],
+    [class~='bg-lime-200'], [class~='bg-lime-300'], [class~='bg-lime-400'],
+    [class~='bg-lime-500'], [class~='bg-lime-600'],
+    [class~='bg-coral-300'], [class~='bg-coral-500'], [class~='bg-coral-600'],
+    [class~='bg-tangerine-300'], [class~='bg-tangerine-500'],
+    [class~='bg-avocado-300'], [class~='bg-avocado-500'],
+    [class~='foil']
+  ) {
+  --c-cream-50: 255 253 247;
+  --c-cream-100: 253 247 234;
+  --c-cream-200: 247 237 216;
+  --c-cream-300: 239 224 194;
+  --c-cream-400: 226 205 164;
+  --c-ink-900: 27 25 21;
+  --c-ink-700: 64 58 49;
+  --c-ink-500: 110 102 89;
+  --c-ink-400: 148 139 123;
+  --c-ink-300: 189 180 162;
+  --shadow-inset: rgba(27, 25, 21, 0.08);
+  color: rgb(var(--c-ink-900));
+}
+
+/* A wall of sticky notes keeps its paper stock after dark — a note is a
+   physical object and black paper isn't one — but six sheets of full
+   brightness cream is a glare at board size. Dimming the whole card, text
+   and tape included, keeps the material and loses the headlights. */
+.dark .note-paper {
+  filter: brightness(0.76) saturate(1.06);
 }
 
 @layer utilities {

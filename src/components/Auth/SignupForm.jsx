@@ -75,7 +75,7 @@ export default function SignupForm({ onSubmit, pending, error, notice, onSwitch,
     <form onSubmit={handleSubmit} noValidate>
       <h2 className="font-display text-2xl font-extrabold tracking-tight">Start tracking</h2>
       <p className="mb-5 mt-1 text-sm font-medium text-ink-400">
-        Free, and it syncs to every device you log in on.
+        One login for all four trackers, on every device you use.
       </p>
 
       <div className="space-y-4">
@@ -128,7 +128,8 @@ export default function SignupForm({ onSubmit, pending, error, notice, onSwitch,
                     key={step}
                     className="h-1.5 flex-1 rounded-pill transition-colors duration-200"
                     style={{
-                      background: step <= strength.score ? strength.color : '#F7EDD8',
+                      background:
+                        step <= strength.score ? strength.color : 'rgb(var(--c-cream-200))',
                     }}
                   />
                 ))}
