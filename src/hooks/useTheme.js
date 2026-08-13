@@ -1,13 +1,18 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
 /**
- * Light or dark, and who decided.
+ * Light or dark.
  *
- * Three states, not two: `light`, `dark`, and *nothing chosen yet* — which
- * follows the operating system and keeps following it as it changes at sunset.
- * A user who has never opened the toggle should get the theme their phone is
- * already in; the moment they do touch it, that choice outranks the OS forever,
- * on that device.
+ * Light is the app's default, full stop — Zephr is a cream app with lime on it,
+ * that's what the design *is*, and it's what everyone should meet first. Dark
+ * is available and it's remembered forever once chosen, but it is a choice
+ * somebody makes, not a state they can be dropped into by a phone that flipped
+ * itself at sunset.
+ *
+ * So the OS preference is deliberately not consulted. This used to follow
+ * `prefers-color-scheme` until a choice was made, which meant the same account
+ * looked like two different apps depending on the device and the hour, and a
+ * user who never asked for dark mode got it anyway.
  *
  * The class on <html> is the source of truth for CSS (see index.css, where the
  * whole palette hangs off `.dark`). This module owns writing it — and the first
@@ -30,7 +35,7 @@ const BAR_COLOR = { light: '#FDF7EA', dark: '#15130F' }
 
 const listeners = new Set()
 
-/** What the user has explicitly asked for, or null while they're following the OS. */
+/** What the user has explicitly asked for, or null if they never have. */
 function readPreference() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -42,19 +47,19 @@ function readPreference() {
   }
 }
 
-function systemTheme() {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
+/** The default, and the only thing an unset preference can mean. */
+const DEFAULT_THEME = 'light'
 
 function resolve() {
-  return readPreference() ?? systemTheme()
+  return readPreference() ?? DEFAULT_THEME
 }
 
-// One string, so useSyncExternalStore's identity check does the right thing:
-// "dark, and they picked it" is a different snapshot to "dark, following the OS",
-// and the toggle wants to know which.
+// A plain string, which is all useSyncExternalStore's identity check needs now
+// that the resolved theme is the whole story — it used to also have to carry
+// *where* the theme came from, because "dark" meant something different when
+// the OS had chosen it.
 function snapshot() {
-  return `${resolve()}:${readPreference() ?? 'system'}`
+  return resolve()
 }
 
 function apply(theme) {
@@ -73,15 +78,8 @@ function emit() {
 function subscribe(listener) {
   listeners.add(listener)
 
-  // Only relevant while the user is following the OS — but subscribing
-  // unconditionally is cheaper than tearing the listener down and rebuilding it
-  // every time the preference changes, and `emit` re-reads the preference
-  // anyway, so an OS flip while pinned to light is a no-op.
-  const media = window.matchMedia?.('(prefers-color-scheme: dark)')
-  const onSystemChange = () => {
-    if (readPreference() === null) emit()
-  }
-  media?.addEventListener('change', onSystemChange)
+  // No `prefers-color-scheme` listener: the OS doesn't get a vote, so a phone
+  // flipping itself to dark at sunset must not move a page that's open.
 
   // Two tabs open on Zephr should agree. `storage` only fires in the *other*
   // tabs, which is exactly what's wanted.
@@ -92,15 +90,14 @@ function subscribe(listener) {
 
   return () => {
     listeners.delete(listener)
-    media?.removeEventListener('change', onSystemChange)
     window.removeEventListener('storage', onStorage)
   }
 }
 
 /**
- * Set the theme, or pass `null` to hand the decision back to the OS.
- * Exported on its own for anything that wants to flip the theme without
- * subscribing to it.
+ * Set the theme, or pass `null` to clear the choice and fall back to the
+ * default. Exported on its own for anything that wants to flip the theme
+ * without subscribing to it.
  */
 export function setTheme(next) {
   try {
@@ -113,10 +110,9 @@ export function setTheme(next) {
 }
 
 export function useTheme() {
-  // The server snapshot is only ever read if this app is prerendered; light is
-  // the honest answer, since there's no OS to ask.
-  const value = useSyncExternalStore(subscribe, snapshot, () => 'light:system')
-  const [theme, preference] = value.split(':')
+  // The server snapshot is only ever read if this app is prerendered, and it
+  // agrees with the default the inline boot script assumes.
+  const theme = useSyncExternalStore(subscribe, snapshot, () => DEFAULT_THEME)
 
   const toggle = useCallback(() => {
     setTheme(resolve() === 'dark' ? 'light' : 'dark')
@@ -126,8 +122,6 @@ export function useTheme() {
     /** 'light' | 'dark' — what's actually on screen right now. */
     theme,
     isDark: theme === 'dark',
-    /** 'light' | 'dark' | 'system' — where that came from. */
-    preference,
     setTheme,
     toggle,
   }

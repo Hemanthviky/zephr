@@ -16,26 +16,27 @@
     <!-- Dark mode, before the first paint.
          This has to be inline and it has to be here, above the stylesheet: the
          app's own theme code doesn't run until the JS bundle has downloaded and
-         React has mounted, by which point a dark-mode user has already been
-         shown a full screen of cream. Reading one localStorage key costs well
-         under a millisecond and is the difference between a themed app and a
-         flashbang. Kept deliberately in step with src/hooks/useTheme.js. -->
+         React has mounted, by which point someone who chose dark has already
+         been shown a full screen of cream. Reading one localStorage key costs
+         well under a millisecond and is the difference between a themed app and
+         a flashbang. Kept deliberately in step with src/hooks/useTheme.js.
+
+         Only an explicit stored 'dark' counts. The OS preference is not
+         consulted here or anywhere else: light is the app's default, and dark
+         is something a user turns on rather than something their phone turns on
+         for them. -->
     <script>
       (function () {
         try {
-          var stored = localStorage.getItem('zephr:theme')
-          var dark =
-            stored === 'dark' ||
-            (stored !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
-          if (dark) {
+          if (localStorage.getItem('zephr:theme') === 'dark') {
             document.documentElement.classList.add('dark')
             document
               .querySelector('meta[name="theme-color"]')
               .setAttribute('content', '#15130F')
           }
         } catch (e) {
-          // Storage blocked, or no matchMedia. Light is the fallback, which is
-          // what the document already says.
+          // Storage blocked. Light is the fallback, which is what the document
+          // already says.
         }
       })()
     </script>
