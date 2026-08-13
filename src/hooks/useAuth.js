@@ -197,6 +197,37 @@ export function useAuth() {
     }
   }, [])
 
+  /**
+   * Change the avatar.
+   *
+   * Same bag as the name — one id string in `user_metadata`, so the choice
+   * rides along on every session and no table has to be read before the first
+   * face can be drawn.
+   */
+  const updateAvatar = useCallback(async (avatarId) => {
+    if (!isSupabaseConfigured) {
+      setError(friendlyError(null))
+      return false
+    }
+
+    setProfileSaving(true)
+    setError(null)
+    try {
+      const { data, error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_id: avatarId },
+      })
+      if (updateError) throw updateError
+
+      setSession((prev) => (prev && data?.user ? { ...prev, user: data.user } : prev))
+      return true
+    } catch (err) {
+      setError(friendlyError(err, 'Couldn’t save your avatar.'))
+      return false
+    } finally {
+      setProfileSaving(false)
+    }
+  }, [])
+
   const signOut = useCallback(async () => {
     if (!isSupabaseConfigured) return
     try {
@@ -221,6 +252,7 @@ export function useAuth() {
       signUp,
       signOut,
       updateName,
+      updateAvatar,
       clearMessages,
     }),
     [
@@ -234,6 +266,7 @@ export function useAuth() {
       signUp,
       signOut,
       updateName,
+      updateAvatar,
       clearMessages,
     ]
   )

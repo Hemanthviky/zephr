@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Pencil, Check, LogOut, AlertTriangle, Copy, CheckCheck, Mail,
-  ChevronRight, ChevronLeft, Save,
+  ChevronRight, ChevronLeft, Save, Smile,
 } from 'lucide-react'
 import Button from '../shared/Button'
 import Icon3D from '../shared/Icon3D'
-import Avatar from '../shared/Avatar'
+import Avatar, { useAvatarPref } from '../shared/Avatar'
+import { AVATARS, INITIALS_ID, defaultAvatarId } from '../shared/avatarArt'
 import Input from '../shared/Input'
 import { displayName } from '../../hooks/useAuth'
 import {
@@ -38,6 +39,7 @@ export default function ProfilePanel({
   onClose,
   user,
   onUpdateName,
+  onUpdateAvatar,
   saving = false,
   error,
   onSignOut,
@@ -153,6 +155,7 @@ export default function ProfilePanel({
                     <CardSlide
                       user={user}
                       onUpdateName={onUpdateName}
+                      onUpdateAvatar={onUpdateAvatar}
                       saving={saving}
                       error={error}
                       onClearError={onClearError}
@@ -182,11 +185,26 @@ export default function ProfilePanel({
 
 /* ── Slide 1: the card ────────────────────────────────────────────────────── */
 
-function CardSlide({ user, onUpdateName, saving, error, onClearError, onNext, onSignOut }) {
+function CardSlide({
+  user,
+  onUpdateName,
+  onUpdateAvatar,
+  saving,
+  error,
+  onClearError,
+  onNext,
+  onSignOut,
+}) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [copied, setCopied] = useState(false)
+  const [picking, setPicking] = useState(false)
   const inputRef = useRef(null)
+
+  // The live preference, so the picker agrees with what the rest of the app is
+  // already drawing — including the sex-derived default nobody has chosen yet.
+  const pref = useAvatarPref()
+  const currentAvatar = pref.avatarId ?? defaultAvatarId(pref.sex)
 
   const name = displayName(user)
   const email = user?.email ?? ''
@@ -252,14 +270,28 @@ function CardSlide({ user, onUpdateName, saving, error, onClearError, onNext, on
               draws straight over the top half of the monogram. */}
           <div className="relative z-10 px-5 pb-5">
             <div className="-mt-11 mb-4 flex items-end justify-between gap-3">
-              {/* Cream ring: the monogram should look punched *through* the
+              {/* Cream ring: the avatar should look punched *through* the
                   band, not dropped on top of it. */}
-              <span
-                className="inline-flex shrink-0 bg-cream-50 p-1"
-                style={{ borderRadius: 30 }}
-              >
-                <Avatar name={name} size={80} />
-              </span>
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClearError?.()
+                    setPicking((open) => !open)
+                  }}
+                  aria-expanded={picking}
+                  aria-label="Change your avatar"
+                  className="tactile inline-flex rounded-full bg-cream-50 p-1"
+                >
+                  <Avatar name={name} size={80} />
+                </button>
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-0.5 bottom-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-ink-900 bg-lime-400"
+                >
+                  <Smile className="h-4 w-4" strokeWidth={3} />
+                </span>
+              </div>
               {!editing && (
                 <button
                   type="button"
@@ -274,6 +306,18 @@ function CardSlide({ user, onUpdateName, saving, error, onClearError, onNext, on
                 </button>
               )}
             </div>
+
+            <AvatarPicker
+              open={picking}
+              value={currentAvatar}
+              name={name}
+              saving={saving}
+              onPick={async (id) => {
+                if (id === currentAvatar) return
+                await onUpdateAvatar?.(id)
+              }}
+              onClose={() => setPicking(false)}
+            />
 
             {editing ? (
               <div className="animate-pop-in">
@@ -408,6 +452,86 @@ function CardSlide({ user, onUpdateName, saving, error, onClearError, onNext, on
         </Button>
       </div>
     </>
+  )
+}
+
+/**
+ * The face picker.
+ *
+ * Expands inside the card rather than opening a second sheet — the thing being
+ * changed is two inches above it, and a dialog stacked on a dialog would put
+ * the preview behind a scrim at the exact moment you want to look at it.
+ *
+ * Choosing saves immediately. There's no Save button because there's nothing to
+ * lose: every option is one tap away from being undone, and a picker that needs
+ * confirming is a picker you can't browse.
+ */
+function AvatarPicker({ open, value, name, saving, onPick, onClose }) {
+  // Initials first: it's the only option that says something about *you* rather
+  // than being a face you liked the look of.
+  const options = [{ id: INITIALS_ID, label: 'Initials' }, ...AVATARS]
+
+  return (
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          className="overflow-hidden"
+        >
+          <div className="mb-4 rounded-2xl border-2 border-ink-900/10 bg-cream-100 p-3">
+            <div className="mb-2.5 flex items-center gap-2">
+              <p className="label-caps min-w-0 flex-1">Pick a face</p>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-xs font-extrabold text-ink-400 hover:text-ink-900"
+              >
+                Done
+              </button>
+            </div>
+
+            <div role="radiogroup" aria-label="Avatar" className="grid grid-cols-5 gap-2">
+              {options.map((option) => {
+                const selected = option.id === value
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    aria-label={option.label}
+                    title={option.label}
+                    disabled={saving}
+                    onClick={() => onPick(option.id)}
+                    className={[
+                      'relative flex aspect-square items-center justify-center rounded-2xl border-2 transition-colors disabled:opacity-60',
+                      selected
+                        ? 'border-ink-900 bg-lime-200 shadow-press-sm'
+                        : 'border-ink-900/10 bg-cream-50 hover:border-ink-900/30',
+                    ].join(' ')}
+                  >
+                    <Avatar name={name} avatarId={option.id} size={38} flat />
+                    {selected && (
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-ink-900 bg-lime-400">
+                        <Check className="h-3 w-3" strokeWidth={4} />
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+
+            <p className="mt-2.5 text-[0.7rem] font-semibold leading-snug text-ink-400">
+              Initials pick their own colour from your name. Until you choose,
+              you get the one that matches the sex on your body stats.
+            </p>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 

@@ -6,6 +6,7 @@ import Tracker from './components/Tracker/Tracker'
 import TabBar from './components/shared/TabBar'
 import ProfilePanel from './components/Settings/ProfilePanel'
 import Icon3D from './components/shared/Icon3D'
+import { AvatarPrefProvider, avatarIdOf } from './components/shared/Avatar'
 import NotFound from './components/Errors/NotFound'
 import Offline from './components/Errors/Offline'
 import CrashScreen from './components/Errors/CrashScreen'
@@ -70,6 +71,7 @@ export default function App() {
     signUp,
     signOut,
     updateName,
+    updateAvatar,
     clearMessages,
   } = useAuth()
   const [mode, setMode] = useState('login')
@@ -137,6 +139,7 @@ export default function App() {
       user={user}
       onSignOut={signOut}
       onUpdateName={updateName}
+      onUpdateAvatar={updateAvatar}
       profileSaving={profileSaving}
       profileError={error}
       onClearError={clearMessages}
@@ -174,7 +177,15 @@ function previewPage(name) {
  * into the URL fragment, so refreshing in the middle of the month's expenses
  * leaves you in the month's expenses.
  */
-function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, onClearError }) {
+function Modules({
+  user,
+  onSignOut,
+  onUpdateName,
+  onUpdateAvatar,
+  profileSaving,
+  profileError,
+  onClearError,
+}) {
   const [tab, setTab] = useState(tabFromHash)
   // Reloading straight onto a lazy module has to mount it, or it would sit
   // behind a "visited" flag that only a tab switch can ever set.
@@ -236,8 +247,11 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
     setProfileOpen(true)
   }
 
+  // Every avatar in the app — four module headers, the tab bar, the profile
+  // card — resolves the same choice from here, so none of those components has
+  // to carry a preference it otherwise has no interest in.
   return (
-    <>
+    <AvatarPrefProvider avatarId={avatarIdOf(user)} sex={goalsState.goals?.sex}>
       <div style={{ display: tab === 'food' ? undefined : 'none' }}>
         {/* Signing out lives in the profile now, so the modules no longer need it. */}
         <Tracker user={user} onOpenProfile={openProfile} goalsState={goalsState} />
@@ -286,6 +300,7 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
         onClose={() => setProfileOpen(false)}
         user={user}
         onUpdateName={onUpdateName}
+        onUpdateAvatar={onUpdateAvatar}
         saving={profileSaving}
         error={profileError}
         onClearError={onClearError}
@@ -295,7 +310,7 @@ function Modules({ user, onSignOut, onUpdateName, profileSaving, profileError, o
         goalsSaving={goalsState.saving}
         goalsError={goalsState.error}
       />
-    </>
+    </AvatarPrefProvider>
   )
 }
 

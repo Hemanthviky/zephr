@@ -30,6 +30,17 @@ export default {
         tall: { raw: '(min-height: 760px)' },
       },
       colors: {
+        // Semantic aliases the shadcn/neobrutalism registry components expect
+        // (bg-muted, ring-background, bg-primary…). They point at the palette
+        // below rather than introducing a second, grayer set of colours — a
+        // dropped-in component should come out looking like the rest of Zephr.
+        background: '#FFFDF7', // cream-50
+        foreground: '#1B1915', // ink-900
+        border: '#1B1915',
+        muted: '#F7EDD8', // cream-200
+        'muted-foreground': '#403A31', // ink-700
+        primary: '#AEDC0B', // lime-500
+        'primary-foreground': '#1B1915',
         cream: {
           50: '#FFFDF7',
           100: '#FDF7EA',
@@ -75,6 +86,8 @@ export default {
       },
       fontFamily: {
         display: ['"Bricolage Grotesque"', 'ui-rounded', 'Georgia', 'sans-serif'],
+        // What the registry components call the display face.
+        head: ['"Bricolage Grotesque"', 'ui-rounded', 'Georgia', 'sans-serif'],
         sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
