@@ -14,7 +14,7 @@ import { firstName, displayName } from '../../hooks/useAuth'
 import { todayISO } from '../../utils/dateHelpers'
 
 /**
- * The Hospital module — a ward chart for someone who's being looked after.
+ * The Intake module — a ward chart for someone who's being looked after.
  *
  * Same skeleton as Food and Money (header, date navigator, sticky summary on
  * the left, the record on the right), because anyone who has used the other two
@@ -190,7 +190,7 @@ export default function Hospital({ user, onOpenProfile }) {
       <ReportPanel
         open={reportOpen}
         onClose={() => setReportOpen(false)}
-        kind="hospital"
+        kind="intake"
         userId={user.id}
         userName={displayName(user)}
         userEmail={user.email}

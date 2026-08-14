@@ -53,7 +53,7 @@ export default function ChartTimeline({
   const sections = useMemo(() => groupByBand(visible), [visible])
 
   return (
-    <section aria-label="Ward chart">
+    <section aria-label="Intake chart">
       <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2 px-1">
         <h2 className="font-display text-lg font-extrabold tracking-tight">
           {isToday(date) ? 'Today’s chart' : 'That day’s chart'}

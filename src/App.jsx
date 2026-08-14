@@ -166,7 +166,7 @@ function previewPage(name) {
 }
 
 /**
- * Food, Money, Hospital and Notes, side by side behind a tab bar.
+ * Calories, Money, Intake and Notes, side by side behind a tab bar.
  *
  * Modules stay mounted once visited and are hidden with `display: none`
  * rather than unmounted, so each keeps its own state — the day you were looking
@@ -268,7 +268,7 @@ function Modules({
 
       {visited.has('hospital') && (
         <div style={{ display: tab === 'hospital' ? undefined : 'none' }}>
-          <Suspense fallback={<ModuleLoading icon="hospital" label="Hospital" />}>
+          <Suspense fallback={<ModuleLoading icon="hospital" label="Intake" />}>
             <Hospital user={user} onOpenProfile={openProfile} />
           </Suspense>
         </div>

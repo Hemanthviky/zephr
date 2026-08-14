@@ -162,7 +162,7 @@ export function downloadBlob(filename, blob) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
-/** `zephr-food-2026-08-01_2026-08-10.pdf` — sorts and self-describes. */
+/** `zephr-calories-2026-08-01_2026-08-10.pdf` — sorts and self-describes. */
 export function reportFilename(kind, from, to, extension) {
   const span = from === to ? from : `${from}_${to}`
   return `zephr-${kind}-${span}.${extension}`
