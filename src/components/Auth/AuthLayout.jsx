@@ -34,7 +34,7 @@ import { FOOD_COUNT } from '../../data/foodDatabase'
 const MODULES = [
   {
     icon: 'salad',
-    title: 'Food',
+    title: 'Calories',
     body: `${FOOD_COUNT} everyday foods, idli to burritos — macros landing against your daily goal.`,
   },
   {
@@ -44,7 +44,7 @@ const MODULES = [
   },
   {
     icon: 'hospital',
-    title: 'Hospital',
+    title: 'Intake',
     body: 'Every drink in millilitres and every dose, on one timeline with the hour it happened.',
   },
   {
@@ -109,8 +109,9 @@ export default function AuthLayout({ mode, onSwitch, children }) {
           </h1>
 
           <p className="mx-auto mt-4 max-w-[19rem] text-[0.95rem] font-medium leading-snug text-ink-500 md:max-w-[26rem] md:text-base lg:mx-0 lg:mt-6 lg:text-lg">
-            Four trackers, one login — the whole day in one place. You type what
-            happened; Zephr does the arithmetic and remembers it.
+            Calories, money, intake and notes — four trackers behind one login,
+            with the whole day in one place. You type what happened; Zephr does
+            the arithmetic and remembers it.
           </p>
 
           {/* The module breakdown needs a screen tall enough to carry it without

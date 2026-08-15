@@ -19,7 +19,7 @@ import { todayISO } from '../../utils/dateHelpers'
 /**
  * Reports — one sheet, three modules.
  *
- * Same panel for Food, Money and Hospital, because the question is identical
+ * Same panel for Calories, Money and Intake, because the question is identical
  * in all three ("give me this range, on paper") and only the columns differ.
  * What changes per module lives in utils/reportBuilders.js, so adding a fourth
  * report is a table name and a builder, not another screen.

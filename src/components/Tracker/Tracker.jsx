@@ -190,7 +190,7 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
       <ReportPanel
         open={reportOpen}
         onClose={() => setReportOpen(false)}
-        kind="food"
+        kind="calories"
         userId={user.id}
         userName={displayName(user)}
         userEmail={user.email}

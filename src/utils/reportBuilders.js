@@ -61,9 +61,9 @@ function groupByDay(rows, { ascending = true, meta = () => '' } = {}) {
     .map((date) => ({ label: dayHeading(date), meta: meta(days.get(date)), rows: days.get(date) }))
 }
 
-/* ── Food ────────────────────────────────────────────────────────────────── */
+/* ── Calories ────────────────────────────────────────────────────────────── */
 
-function foodReport(rows, _extras, range) {
+function caloriesReport(rows, _extras, range) {
   const total = rows.reduce(
     (sum, row) => ({
       calories: sum.calories + (Number(row.calories) || 0),
@@ -80,8 +80,8 @@ function foodReport(rows, _extras, range) {
   const days = daysInRange(range.from, range.to)
 
   return {
-    title: 'Food report',
-    subtitle: 'Food log',
+    title: 'Calorie report',
+    subtitle: 'Calorie log',
     columns: [
       { key: 'date', label: 'Date' },
       { key: 'meal', label: 'Section', csv: (r) => mealById(resolveMeal(r)).label, print: (r) => mealById(resolveMeal(r)).label },
@@ -158,16 +158,16 @@ function moneyReport(rows, extras) {
   }
 }
 
-/* ── Hospital ────────────────────────────────────────────────────────────── */
+/* ── Intake ──────────────────────────────────────────────────────────────── */
 
-function hospitalReport(rows, _extras, range) {
+function intakeReport(rows, _extras, range) {
   const drinks = rows.filter((r) => r.kind === 'drink')
   const meds = rows.filter((r) => r.kind === 'med')
   const ml = sumMl(drinks)
   const days = daysInRange(range.from, range.to)
 
   return {
-    title: 'Ward chart',
+    title: 'Intake chart',
     subtitle: 'Fluids & medicines',
     columns: [
       { key: 'date', label: 'Date' },
@@ -211,14 +211,14 @@ function hospitalReport(rows, _extras, range) {
  * is what turns the answer into a document.
  */
 export const REPORT_KINDS = {
-  food: {
-    id: 'food',
-    label: 'Food',
+  calories: {
+    id: 'calories',
+    label: 'Calories',
     icon: 'salad',
     blurb: 'Everything you ate, with its macros',
     table: 'entries',
     order: [{ column: 'date' }, { column: 'created_at' }],
-    build: foodReport,
+    build: caloriesReport,
   },
   money: {
     id: 'money',
@@ -230,14 +230,14 @@ export const REPORT_KINDS = {
     needs: ['categories', 'wallets'],
     build: moneyReport,
   },
-  hospital: {
-    id: 'hospital',
-    label: 'Hospital',
+  intake: {
+    id: 'intake',
+    label: 'Intake',
     icon: 'clipboard',
     blurb: 'Fluids and medicines, hour by hour',
     table: 'hospital_logs',
     order: [{ column: 'date' }, { column: 'at' }],
-    build: hospitalReport,
+    build: intakeReport,
   },
 }
 

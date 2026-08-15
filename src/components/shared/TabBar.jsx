@@ -19,7 +19,7 @@ import ThemeToggle from './ThemeToggle'
  * The mobile tiles stack their icon over their label. Side by side is the
  * better shape and it survived exactly two modules: a third left ~100px per
  * tile on a 360px phone, which is not enough for an icon, a gap and the word
- * "Hospital" on one line. A fourth takes that to ~77px, so the labels truncate
+ * "Calories" on one line. A fourth takes that to ~77px, so the labels truncate
  * rather than wrap — the icon is doing most of the identifying at that size
  * anyway, and a bar whose tiles are two lines tall on some phones and one on
  * others is worse than a clipped word.
@@ -35,9 +35,9 @@ import ThemeToggle from './ThemeToggle'
  */
 
 const TABS = [
-  { id: 'food', label: 'Food', icon: 'salad', blurb: 'Calories & macros' },
+  { id: 'food', label: 'Calories', icon: 'salad', blurb: 'Meals & macros' },
   { id: 'money', label: 'Money', icon: 'moneywings', blurb: 'Spending & budgets' },
-  { id: 'hospital', label: 'Hospital', icon: 'hospital', blurb: 'Fluids & medicines' },
+  { id: 'hospital', label: 'Intake', icon: 'hospital', blurb: 'Fluids & medicines' },
   { id: 'notes', label: 'Notes', icon: 'pushpin', blurb: 'Jottings & passwords' },
 ]
 
