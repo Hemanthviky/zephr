@@ -6,14 +6,27 @@
  * actually eats in one go (one banana, one dosa, one mug of chai), and it's what
  * we pre-fill the grams field with. Beverages use grams ≈ millilitres.
  *
- * Numbers are rounded reference values for cooked/ready-to-eat portions, drawn
- * from USDA FoodData Central and IFCT (Indian Food Composition Tables) where the
- * dish is Indian. They're good enough to steer a day's eating; they are not
- * lab measurements of your particular plate.
+ * Two lists make up the database:
  *
- * Tuple layout keeps 160 rows scannable in a diff:
+ *   - the core below: ~160 foods, rounded reference values for cooked/ready-to-
+ *     eat portions, drawn from USDA FoodData Central and IFCT (Indian Food
+ *     Composition Tables) where the dish is Indian.
+ *   - southIndianFoods.js: ~1200 South Indian dishes imported from a CSV. Less
+ *     carefully sourced, and carrying no sugar or sodium figures — those come
+ *     through as `null`, which means "not known", not "none".
+ *
+ * The core wins any name the two share; scripts/import-south-indian.mjs drops
+ * the duplicates at import time rather than at runtime.
+ *
+ * Either list is good enough to steer a day's eating; neither is a lab
+ * measurement of your particular plate.
+ *
+ * Tuple layout keeps the rows scannable in a diff:
  *   [name, category, emoji, serving g, kcal, protein, carbs, fat, fibre, sugar, sodium mg, aliases?]
  */
+// Extension included on purpose: the foods:check and foods:prompt scripts load
+// this file with plain Node, which does not resolve extensionless paths.
+import { SOUTH_INDIAN_RAW } from './southIndianFoods.js'
 
 export const CATEGORIES = {
   fruit: { label: 'Fruit', emoji: '🍓' },
@@ -22,6 +35,9 @@ export const CATEGORIES = {
   protein: { label: 'Protein', emoji: '🍗' },
   dairy: { label: 'Dairy', emoji: '🧀' },
   indian: { label: 'Indian', emoji: '🍛' },
+  curry: { label: 'Curries', emoji: '🍛' },
+  condiment: { label: 'Chutneys & podis', emoji: '🥣' },
+  sweet: { label: 'Sweets', emoji: '🍮' },
   fastfood: { label: 'Fast food', emoji: '🍔' },
   snack: { label: 'Snacks', emoji: '🍪' },
   drink: { label: 'Drinks', emoji: '🥤' },
@@ -216,25 +232,38 @@ const slugify = (name) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-export const FOODS = RAW.map(
-  ([name, category, emoji, serving, calories, protein, carbs, fat, fiber, sugar, sodium, aliases = []]) => ({
-    id: slugify(name),
-    name,
-    category,
-    emoji,
-    serving,
-    calories,
-    protein,
-    carbs,
-    fat,
-    fiber,
-    sugar,
-    sodium,
-    aliases,
-    // Precomputed once so search doesn't re-lowercase 160 strings per keystroke.
-    haystack: [name, ...aliases, CATEGORIES[category].label].join(' ').toLowerCase(),
-  })
-)
+const toFood = ([
+  name, category, emoji, serving, calories, protein, carbs, fat, fiber, sugar, sodium, aliases = [],
+], curated = true) => ({
+  id: slugify(name),
+  name,
+  category,
+  emoji,
+  serving,
+  calories,
+  protein,
+  carbs,
+  fat,
+  fiber,
+  sugar,
+  sodium,
+  aliases,
+  curated,
+  // Precomputed once so search doesn't re-lowercase 1,300 strings per keystroke.
+  haystack: [name, ...aliases, CATEGORIES[category].label].join(' ').toLowerCase(),
+})
+
+// The imported rows stop at fibre, so sugar and sodium slot in as null, and
+// they are not curated — which search uses to break ties, see below.
+const toImportedFood = ([name, category, emoji, serving, calories, protein, carbs, fat, fiber, aliases = []]) =>
+  toFood([name, category, emoji, serving, calories, protein, carbs, fat, fiber, null, null, aliases], false)
+
+// Wrapped rather than passed straight to map, which would hand `curated` the
+// row index — making the first core food, Apple, the one row that isn't curated.
+export const FOODS = [
+  ...RAW.map((row) => toFood(row)),
+  ...SOUTH_INDIAN_RAW.map((row) => toImportedFood(row)),
+]
 
 export const FOOD_COUNT = FOODS.length
 
@@ -247,6 +276,26 @@ export const getFoodById = (id) => byId.get(id) || null
  * up for cosmetics only (the emoji on a log row); a miss is harmless.
  */
 export const getFoodByName = (name) => (name ? byId.get(slugify(name)) || null : null)
+
+/**
+ * Which detail nutrients a day's entries can't fully account for.
+ *
+ * The imported foods have no sugar or sodium figure, and an entry logged from
+ * one contributes zero to those totals. Showing "12g sugar" for a day that
+ * included three chutneys would be a number the app can't stand behind, so the
+ * card marks the total as a floor instead. A food we can't find (a manual
+ * entry) had its numbers typed by hand, so it counts as known.
+ */
+export function unknownNutrients(entries = []) {
+  const unknown = new Set()
+  for (const entry of entries) {
+    const food = getFoodByName(entry.name)
+    if (!food) continue
+    if (food.sugar === null) unknown.add('sugar')
+    if (food.sodium === null) unknown.add('sodium')
+  }
+  return unknown
+}
 
 /**
  * A small hand-picked shortlist shown before the user types anything —
@@ -267,12 +316,21 @@ export const QUICK_PICKS = [
   .filter(Boolean)
 
 /**
- * Search-as-you-type ranking. Deliberately simple and synchronous — 160 rows is
- * nothing, and a debounce plus a fuzzy library would only add latency and bugs.
+ * Search-as-you-type ranking. Deliberately simple and synchronous — even at
+ * ~1,350 rows this is a single pass over precomputed lowercase strings, and a
+ * debounce plus a fuzzy library would only add latency and bugs.
  *
  * Scoring, highest first:
  *   exact name → name prefix → any word prefix → alias hit → substring anywhere
+ *
+ * Then two tiebreaks, which the imported list made necessary. Typing "dosa"
+ * matches sixty dishes at the same "a word starts with this" tier, and on
+ * length alone "Egg dosa" came out above "Plain dosa" — so a curated food
+ * outranks an imported one, and a shorter name outranks a longer one. The
+ * curated bonus is smaller than the gap between tiers, so it reorders foods
+ * that matched equally well and never promotes a worse match.
  */
+const CURATED_BONUS = 6
 export function searchFoods(query, limit = 8) {
   const q = query.trim().toLowerCase()
   if (!q) return QUICK_PICKS.slice(0, limit)
@@ -290,9 +348,10 @@ export function searchFoods(query, limit = 8) {
     else if (food.haystack.includes(q)) score = 35
 
     if (score > 0) {
-      // Nudge shorter names up: typing "dal" should surface "Dal tadka"
-      // before "Cooked lentils".
-      results.push({ food, score: score - name.length * 0.05 })
+      results.push({
+        food,
+        score: score + (food.curated ? CURATED_BONUS : 0) - name.length * 0.05,
+      })
     }
   }
 

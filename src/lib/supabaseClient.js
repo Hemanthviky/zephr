@@ -147,6 +147,23 @@ export function friendlyError(error, fallback = 'Something went wrong. Try again
   if (message.includes('rate limit') || message.includes('too many requests')) {
     return 'Too many attempts. Give it a minute, then try again.'
   }
+  // Reset links are rate-limited separately, and the raw message ("For security
+  // purposes, you can only request this after 51 seconds") reads like a telling-off.
+  if (message.includes('for security purposes') || message.includes('only request this')) {
+    return 'That link was just sent. Give it a minute before asking for another.'
+  }
+  if (message.includes('should be different from the old password')) {
+    return 'That’s your current password — pick a different one.'
+  }
+  // A recovery link that's expired, been used already, or had its session
+  // dropped by a refresh in a different browser than the one that opened it.
+  if (
+    message.includes('auth session missing') ||
+    message.includes('token has expired or is invalid') ||
+    message.includes('otp_expired')
+  ) {
+    return 'That reset link has expired or been used. Ask for a fresh one.'
+  }
   if (message.includes('row-level security') || message.includes('violates row-level')) {
     return 'That save was rejected by the database. Did schema.sql run successfully?'
   }

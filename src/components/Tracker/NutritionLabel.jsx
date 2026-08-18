@@ -23,12 +23,21 @@ import {
  * (Filename kept from the original spec; the layout is the progress card.)
  */
 
+// A stable identity, so the default prop doesn't re-trigger anything on render.
+const EMPTY_SET = new Set()
+
 const RADIUS = 80
 const STROKE = 17
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 const ARC = 0.75 // 270° of sweep, opening at the bottom
 
-export default function NutritionLabel({ totals, goals, loading = false, entryCount = 0 }) {
+export default function NutritionLabel({
+  totals,
+  goals,
+  loading = false,
+  entryCount = 0,
+  unknown = EMPTY_SET,
+}) {
   const calorieStatus = goalStatus(totals.calories, goals.calories)
   const isOver = calorieStatus === 'over'
   const left = round0(goals.calories - totals.calories)
@@ -146,8 +155,27 @@ export default function NutritionLabel({ totals, goals, loading = false, entryCo
         {entryCount > 0 && (
           <div className="mt-5 flex items-stretch gap-2 rounded-2xl border-2 border-ink-900/10 bg-cream-100 p-2.5">
             <Detail label="Fibre" value={`${round0(totals.fiber)}g`} />
-            <Detail label="Sugar" value={`${round0(totals.sugar)}g`} />
-            <Detail label="Sodium" value={`${formatNumber(totals.sodium)}mg`} />
+            {/* Foods with no published sugar/sodium contribute nothing to these
+                totals, so on a day that includes one the number is a floor, not
+                a figure. "at least 12g" is honest where a bare "12g" isn't. */}
+            <Detail
+              label="Sugar"
+              value={`${unknown.has('sugar') ? '≥' : ''}${round0(totals.sugar)}g`}
+              title={
+                unknown.has('sugar')
+                  ? 'At least this much — some of today’s foods have no sugar figure.'
+                  : undefined
+              }
+            />
+            <Detail
+              label="Sodium"
+              value={`${unknown.has('sodium') ? '≥' : ''}${formatNumber(totals.sodium)}mg`}
+              title={
+                unknown.has('sodium')
+                  ? 'At least this much — some of today’s foods have no sodium figure.'
+                  : undefined
+              }
+            />
             <Detail
               label="Split"
               value={`${split.protein}/${split.carbs}/${split.fat}`}

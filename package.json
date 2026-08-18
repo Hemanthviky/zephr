@@ -8,7 +8,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext js,jsx"
+    "lint": "eslint src --ext js,jsx",
+    "foods:prompt": "node scripts/food-prompt.mjs",
+    "foods:check": "node scripts/validate-foods.mjs",
+    "foods:import": "node scripts/import-south-indian.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

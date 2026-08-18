@@ -97,6 +97,9 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJI...
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Serve the built output locally |
 | `npm run lint` | ESLint over `src/` |
+| `npm run foods:check` | Validate the food database — duplicate ids, macros that don't match the stated calories |
+| `npm run foods:import` | Rebuild `src/data/southIndianFoods.js` from the CSV in `scripts/data/` |
+| `npm run foods:prompt` | Print a prompt for drafting new foods in a given category |
 
 ---
 
@@ -127,7 +130,9 @@ No serverless functions, no custom server, nothing to configure beyond the above
 
 ## Using it
 
-**Calories.** Search 160 foods (fruit, veg, grains, proteins, dairy, Indian dishes, fast food, snacks, drinks) — type "dosa" or "dal" and pick. Selecting one pre-fills its typical serving in grams; adjust and the calories update live before you commit. The arc shows what's left of your calorie goal; the three bars are protein, carbs and fat. Arrows move between days, and you can't navigate into the future.
+**Calories.** Search 1,359 foods — 161 hand-checked staples (fruit, veg, grains, proteins, dairy, fast food, snacks, drinks) plus ~1,200 South Indian dishes: curries, tiffin, chutneys and podis, sweets. Type "dosa" or "kuzhambu" and pick. Selecting one pre-fills its typical serving in grams; adjust and the calories update live before you commit. The arc shows what's left of your calorie goal; the three bars are protein, carbs and fat. Arrows move between days, and you can't navigate into the future.
+
+The imported South Indian dishes come with no sugar or sodium figures, so on a day that includes one the card shows those two as `≥` — the total is a floor, not a number the app can stand behind. Calories, protein, carbs, fibre and fat are complete for every food.
 
 **Money.** Tap **Add expense** for amount → category → wallet → note → date, with an expense/income toggle. The month reads as a bar rather than a dial — a budget isn't a daily gauge that refills, it's drawn down across a month that's running out too, so spending fills from the left and a marker shows where today falls. Filled past the marker means you're spending faster than the month is passing. It counts down from whichever cap you've set: an overall total for the month if there is one, otherwise the sum of your category budgets, otherwise income logged that month. Below it: a donut of where the month went, a six-month trend line, and the transaction list grouped by day — tap a row to edit, trash to delete.
 
@@ -160,7 +165,8 @@ src/
 ├── index.css                  Tailwind layers + base theme
 ├── lib/supabaseClient.js      client + human-readable error translation
 ├── data/
-│   ├── foodDatabase.js        160 foods, per-100g, with search ranking
+│   ├── foodDatabase.js        161 curated foods, per-100g, with search ranking
+│   ├── southIndianFoods.js    ~1,200 imported dishes (generated — see scripts/)
 │   ├── defaultCategories.js   seeded categories, wallets, icon/colour choices
 │   └── hospitalItems.js       drinks, medicine forms, dose units
 ├── hooks/

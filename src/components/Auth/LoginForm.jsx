@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { ArrowRight, AtSign, KeyRound, AlertTriangle, Check } from 'lucide-react'
+import { ArrowRight, AtSign, KeyRound, Check } from 'lucide-react'
 import Button from '../shared/Button'
 import Input from '../shared/Input'
+import { FormError } from './authShared'
 
 export default function LoginForm({
   onSubmit,
@@ -56,30 +57,38 @@ export default function LoginForm({
           error={emailError}
         />
 
-        <Input
-          label="Password"
-          type="password"
-          revealable
-          autoComplete="current-password"
-          placeholder="••••••••"
-          icon={KeyRound}
-          value={password}
-          onChange={change(setPassword)}
-          error={passwordError}
-        />
+        <div>
+          <Input
+            label="Password"
+            type="password"
+            revealable
+            autoComplete="current-password"
+            placeholder="••••••••"
+            icon={KeyRound}
+            value={password}
+            onChange={change(setPassword)}
+            error={passwordError}
+          />
+
+          {/* Under the field it belongs to, right-aligned, and small: it's the
+              way out of a dead end, not a second thing to consider on the way
+              in. Below the error rather than beside the label, so a wrong
+              password and its remedy read in that order. */}
+          <div className="mt-1.5 text-right">
+            <button
+              type="button"
+              onClick={() => onSwitch('forgot')}
+              className="text-xs font-bold text-ink-400 underline decoration-ink-900/20 decoration-2 underline-offset-4 transition-colors hover:text-ink-700 hover:decoration-lime-400"
+            >
+              Forgot password?
+            </button>
+          </div>
+        </div>
       </div>
 
       <RememberMe checked={remember} onChange={setRemember} />
 
-      {error && (
-        <div
-          role="alert"
-          className="mt-4 flex items-start gap-2.5 rounded-2xl border-2 border-coral-500 bg-coral-100 p-3 text-sm font-semibold text-coral-600 animate-pop-in"
-        >
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2.75} />
-          <span>{error}</span>
-        </div>
-      )}
+      <FormError>{error}</FormError>
 
       <Button
         type="submit"

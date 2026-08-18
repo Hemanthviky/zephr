@@ -46,7 +46,11 @@ export function LogoMark({ size = 40, className = '', float = false, alt = '' })
       // always above the fold, and deferring it only pushes it past first
       // paint. Small enough that fetching it early costs nothing.
       loading="eager"
-      fetchPriority="high"
+      // Lowercase on purpose. React only learned the camelCase `fetchPriority`
+      // prop in v19; on the v18 we're on it warns and drops the attribute, so
+      // the browser never sees the hint. Spelled this way it passes straight
+      // through, which is all we wanted.
+      fetchpriority="high"
       className={['inline-block shrink-0 select-none', float ? 'animate-float' : '', className]
         .join(' ')
         .trim()}
@@ -69,7 +73,7 @@ export function Wordmark({ height = 22, className = '', alt = 'Zephr' }) {
       draggable={false}
       decoding="async"
       loading="eager"
-      fetchPriority="high"
+      fetchpriority="high"
       className={['inline-block shrink-0 select-none', className].join(' ').trim()}
       style={{ height, width: 'auto' }}
     />

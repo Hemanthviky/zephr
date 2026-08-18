@@ -1,0 +1,1269 @@
+Food Item,Category,Serving Size,Calories (kcal),Protein (g),Carbohydrates (g),Fat (g),Fiber (g)
+Idli (2 pcs),Breakfast,100 g,78,2.5,16,0.3,0.8
+Plain Dosa,Breakfast,100 g,168,3.9,28,5.5,1.4
+Masala Dosa,Breakfast,150 g,250,5.5,40,8,2.5
+Rava Dosa,Breakfast,100 g,180,4,25,7,1
+Uttapam,Breakfast,100 g,150,4,25,4,1.5
+Appam,Breakfast,100 g,120,2,22,2.5,0.7
+Set Dosa,Breakfast,100 g,160,3.8,27,5,1.3
+Neer Dosa,Breakfast,100 g,110,2.2,20,2,0.5
+Pesarattu,Breakfast,100 g,140,7,20,3.5,3
+Vada (Medu Vada),Snack,50 g,97,3,10,5.5,1
+Sambar Vada,Snack,150 g,220,6,25,10,2.5
+Rava Idli,Breakfast,100 g,132,3,20,4,1
+Upma,Breakfast,150 g,225,5,35,7,2
+Pongal (Ven Pongal),Breakfast,200 g,300,7,45,9,2
+Sambar,Curry,150 g,120,6,18,3,4
+Rasam,Soup,150 g,60,2,10,1.5,1
+Curd Rice,Rice Dish,200 g,220,6,35,5,1
+Lemon Rice,Rice Dish,200 g,240,4,40,7,1.5
+Tamarind Rice (Puliyodarai),Rice Dish,200 g,260,4,45,7,1.5
+Coconut Rice,Rice Dish,200 g,270,4,42,10,1.5
+Bisi Bele Bath,Rice Dish,250 g,320,8,50,9,3
+Vegetable Biryani,Rice Dish,250 g,350,7,55,10,3
+Chicken Biryani,Rice Dish,250 g,450,22,55,15,2
+Mutton Biryani,Rice Dish,250 g,500,25,50,20,2
+Curd (Plain Yogurt),Dairy,100 g,60,3.5,4.7,3.3,0
+Buttermilk (Spiced),Beverage,200 ml,40,2,4,1,0
+Filter Coffee,Beverage,150 ml,60,1.5,8,2,0
+Avial,Curry,150 g,150,3,15,9,4
+Kootu,Curry,150 g,130,6,15,5,4
+Chettinad Chicken Curry,Curry,150 g,280,20,8,18,1.5
+Fish Curry (Kerala Style),Curry,150 g,220,18,6,14,1
+Prawn Curry,Curry,150 g,210,20,5,13,1
+Egg Curry,Curry,150 g,190,10,8,13,1.5
+Kadala Curry (Black Chana),Curry,150 g,180,9,25,5,7
+Payasam (Semiya),Dessert,100 g,180,3,28,6,0.5
+Payasam (Rice/Paal Payasam),Dessert,100 g,160,3,25,5,0.3
+Mysore Pak,Sweet,50 g,240,2.5,25,15,0.5
+Rava Kesari,Sweet,100 g,300,3,45,12,0.5
+Obbattu / Puran Poli,Sweet,80 g,280,5,45,8,1.5
+Banana Chips,Snack,50 g,270,1.5,30,17,2
+Murukku,Snack,50 g,240,3,26,13,1.5
+Mixture (Namkeen),Snack,50 g,250,6,22,15,2
+Chakli,Snack,50 g,230,4,25,12,1.5
+Adai,Breakfast,100 g,180,7,28,4,3
+Paniyaram,Snack,100 g,190,4,28,6,1
+Kesari Bath,Sweet,100 g,290,3,42,12,0.5
+Idiyappam,Breakfast,100 g,110,2,24,0.5,0.8
+Puttu,Breakfast,100 g,150,3,30,1.5,1.5
+Vegetable Kurma,Curry,150 g,180,4,15,12,2.5
+Chicken 65,Snack,150 g,320,22,10,20,1
+Gobi Manchurian,Snack,150 g,280,6,25,17,2.5
+Sundal (Chickpea),Snack,100 g,150,8,22,4,6
+Steamed Rice (White),Staple,150 g,195,4,43,0.5,0.6
+Brown Rice (Cooked),Staple,150 g,170,4,36,1.5,2.5
+Ragi Mudde,Staple,150 g,175,4,38,1,3.5
+Ragi Dosa,Breakfast,100 g,140,3.5,26,2.5,2
+Jowar Roti,Staple,50 g,120,3,25,1,2
+Sambar Rice,Rice Dish,250 g,280,7,45,6,3.5
+Vegetable Stew (Kerala),Curry,150 g,160,3,12,11,2
+Appalam / Papad (fried),Snack,10 g,45,1.5,5,2.5,0.4
+Coconut Chutney,Condiment,30 g,70,1,3,6,1
+Tomato Chutney,Condiment,30 g,40,0.8,4,2.5,0.6
+Peanut Chutney,Condiment,30 g,80,3,4,6,1
+Ginger Chutney,Condiment,20 g,35,0.5,4,2,0.3
+Sambar Podi (Powder),Condiment,10 g,35,1.5,5,1,1.5
+Rasam Podi (Powder),Condiment,10 g,30,1.2,4,1,1.2
+Coconut Oil,Fat/Oil,10 g,90,0,0,10,0
+Ghee,Fat/Oil,10 g,90,0,0,10,0
+Jaggery,Sweetener,20 g,77,0,20,0,0
+Banana (Nendran),Fruit,100 g,90,1,23,0.3,2
+Coconut (Fresh),Nuts/Fruit,50 g,177,1,3,17,2
+Groundnut (Roasted),Nuts,30 g,170,7,5,14,2
+Toor Dal (Cooked),Pulse,100 g,120,7,20,0.5,5
+Moong Dal (Cooked),Pulse,100 g,105,7,18,0.4,4
+Urad Dal (Cooked),Pulse,100 g,110,7,19,0.5,4.5
+Chana Dal (Cooked),Pulse,100 g,130,8,22,1,5
+Rice Flour,Staple,100 g,366,6,80,1.4,2.4
+Semolina (Rava/Sooji),Staple,100 g,360,10,73,1,3.9
+Poha (Flattened Rice),Staple,100 g,350,7,77,1,3
+Egg (Boiled),Protein,50 g,78,6.3,0.6,5.3,0
+Chicken Breast (Cooked),Protein,100 g,165,31,0,3.6,0
+"Fish (Sardine, Cooked)",Protein,100 g,208,25,0,11,0
+Prawns (Cooked),Protein,100 g,99,24,0.2,0.3,0
+Milk (Whole),Dairy,200 ml,122,6.4,9.6,6.6,0
+Paneer,Dairy,50 g,140,7,1,11,0
+Brinjal (Eggplant),Vegetable,100 g,25,1,6,0.2,3
+Okra (Lady's Finger),Vegetable,100 g,33,1.9,7.5,0.2,3.2
+Drumstick (Moringa Pods),Vegetable,100 g,37,2.1,8.5,0.2,3.2
+Bottle Gourd,Vegetable,100 g,15,0.6,3.4,0.1,0.5
+Ridge Gourd,Vegetable,100 g,20,0.5,4.4,0.2,1.1
+Snake Gourd,Vegetable,100 g,18,0.5,3.3,0.1,1.1
+Bitter Gourd,Vegetable,100 g,17,1,3.7,0.2,2.8
+Ash Gourd,Vegetable,100 g,13,0.4,3,0.2,2.9
+Pumpkin,Vegetable,100 g,26,1,6.5,0.1,0.5
+Cabbage,Vegetable,100 g,25,1.3,5.8,0.1,2.5
+Carrot,Vegetable,100 g,41,0.9,9.6,0.2,2.8
+Beetroot,Vegetable,100 g,43,1.6,10,0.2,2.8
+Beans (French),Vegetable,100 g,31,1.8,7,0.1,3.4
+Cluster Beans,Vegetable,100 g,45,3.2,7.9,0.4,4.6
+Broad Beans,Vegetable,100 g,88,7.6,17.6,0.7,5.4
+Cauliflower,Vegetable,100 g,25,1.9,5,0.3,2
+Tomato,Vegetable,100 g,18,0.9,3.9,0.2,1.2
+Onion,Vegetable,100 g,40,1.1,9.3,0.1,1.7
+Potato,Vegetable,100 g,77,2,17,0.1,2.2
+Sweet Potato,Vegetable,100 g,86,1.6,20,0.1,3
+Yam (Elephant Foot),Vegetable,100 g,97,1.5,22,0.1,4.1
+Colocasia (Taro),Vegetable,100 g,112,1.5,26.5,0.1,4.1
+Raw Banana,Vegetable,100 g,89,1.1,22,0.3,2.6
+Capsicum,Vegetable,100 g,20,0.9,4.6,0.2,1.7
+Green Chilli,Vegetable,100 g,40,2,9,0.4,1.5
+Spinach (Palak),Vegetable,100 g,23,2.9,3.6,0.4,2.2
+Amaranth Leaves,Vegetable,100 g,23,2.5,4,0.3,2.1
+Curry Leaves,Vegetable,100 g,108,6.1,18.7,1,6.4
+Coriander Leaves,Vegetable,100 g,23,2.1,3.7,0.5,2.8
+Mint Leaves,Vegetable,100 g,44,3.3,8.4,0.7,6.8
+Radish,Vegetable,100 g,16,0.7,3.4,0.1,1.6
+Cucumber,Vegetable,100 g,15,0.7,3.6,0.1,0.5
+Garlic,Vegetable,100 g,149,6.4,33,0.5,2.1
+Ginger,Vegetable,100 g,80,1.8,17.8,0.8,2
+Green Peas,Vegetable,100 g,81,5.4,14,0.4,5.1
+Field Beans,Vegetable,100 g,102,6.5,16.9,0.6,6.8
+Ivy Gourd (Tindora),Vegetable,100 g,17,1.2,3.2,0.4,1.6
+Plantain Stem,Vegetable,100 g,12,0.3,2.9,0.1,1.4
+Banana Flower,Vegetable,100 g,51,1.6,9.9,0.6,5.7
+Yardlong Beans,Vegetable,100 g,47,2.8,8.4,0.4,3.2
+Turnip,Vegetable,100 g,28,0.9,6.4,0.1,1.8
+Spring Onion,Vegetable,100 g,32,1.8,7.3,0.2,2.6
+Mango (Ripe),Fruit,100 g,60,0.8,15,0.4,1.6
+Banana (Poovan),Fruit,100 g,89,1.1,23,0.3,2.6
+Papaya,Fruit,100 g,43,0.5,11,0.3,1.7
+Watermelon,Fruit,100 g,30,0.6,7.6,0.2,0.4
+Pineapple,Fruit,100 g,50,0.5,13,0.1,1.4
+Guava,Fruit,100 g,68,2.6,14,1,5.4
+Sapota (Chikoo),Fruit,100 g,83,0.4,20,1.1,5.3
+Jackfruit,Fruit,100 g,95,1.7,23.2,0.6,1.5
+Custard Apple,Fruit,100 g,94,1.7,24,0.6,4.4
+Grapes,Fruit,100 g,69,0.7,18,0.2,0.9
+Orange,Fruit,100 g,47,0.9,12,0.1,2.4
+Pomegranate,Fruit,100 g,83,1.7,18.7,1.2,4
+Apple,Fruit,100 g,52,0.3,14,0.2,2.4
+Sweet Lime (Mosambi),Fruit,100 g,43,0.7,10,0.2,1.8
+Jamun (Java Plum),Fruit,100 g,60,0.7,15.6,0.2,0.6
+Amla (Indian Gooseberry),Fruit,100 g,44,0.9,10,0.6,4.3
+Tamarind (Raw),Fruit,100 g,239,2.8,62.5,0.6,5.1
+Coconut Water,Fruit,100 g,19,0.7,3.7,0.2,1.1
+Foxtail Millet (Cooked),Grain/Millet,100 g,123,4.1,26,0.5,2.3
+Kodo Millet (Cooked),Grain/Millet,100 g,120,3.6,26,0.4,2.6
+Little Millet (Cooked),Grain/Millet,100 g,119,3.9,25,0.4,3.2
+Barnyard Millet (Cooked),Grain/Millet,100 g,101,3.7,20,0.5,3.9
+Pearl Millet / Bajra (Cooked),Grain/Millet,100 g,122,3.5,24,1.5,1.8
+Sorghum / Jowar (Cooked),Grain/Millet,100 g,123,3.5,26,1,2
+Finger Millet / Ragi (Cooked),Grain/Millet,100 g,97,2.3,20,0.4,3.5
+Wheat Flour (Atta),Grain/Millet,100 g,340,12,72,1.7,11
+Semolina Upma Rava,Grain/Millet,100 g,360,10,73,1,3.9
+Idli Rava,Grain/Millet,100 g,356,7,79,0.5,2
+Broken Wheat (Dalia),Grain/Millet,100 g,342,12,72,2,17.3
+Puffed Rice (Murmura),Grain/Millet,100 g,365,7.5,80,0.5,1.5
+Horse Gram (Cooked),Pulse/Legume,100 g,321,22,57,0.5,5.5
+"Black Chickpea (Kala Chana, Cooked)",Pulse/Legume,100 g,164,8.9,27.4,2.6,8
+"White Chickpea (Kabuli Chana, Cooked)",Pulse/Legume,100 g,164,8.9,27.4,2.6,7.6
+"Rajma (Kidney Beans, Cooked)",Pulse/Legume,100 g,127,8.7,22.8,0.5,6.4
+Green Gram Whole (Cooked),Pulse/Legume,100 g,105,7,18,0.4,4
+Black Eyed Peas (Cooked),Pulse/Legume,100 g,116,7.7,20.8,0.5,6.5
+Lentils / Masoor Dal (Cooked),Pulse/Legume,100 g,116,9,20,0.4,7.9
+Cashew Nuts,Nuts/Seeds,100 g,553,18,30,44,3.3
+Almonds,Nuts/Seeds,100 g,579,21,22,50,12.5
+Sesame Seeds,Nuts/Seeds,100 g,573,17.7,23.4,49.7,11.8
+Flax Seeds,Nuts/Seeds,100 g,534,18.3,29,42,27.3
+Pumpkin Seeds,Nuts/Seeds,100 g,559,30.2,10.7,49,6
+Chia Seeds,Nuts/Seeds,100 g,486,16.5,42,30.7,34.4
+Mustard Seeds,Spice/Condiment,100 g,508,26.1,28.1,36.2,12.5
+Cumin Seeds,Spice/Condiment,100 g,375,17.7,44.2,22.3,10.5
+Fenugreek Seeds,Spice/Condiment,100 g,323,23,58.4,6.4,24.6
+Turmeric Powder,Spice/Condiment,100 g,354,7.8,65,10,21
+Red Chilli Powder,Spice/Condiment,100 g,282,14.3,49.7,17,34.8
+Coriander Powder,Spice/Condiment,100 g,298,12.4,55,17.8,41.9
+Black Pepper,Spice/Condiment,100 g,251,10.4,64,3.3,25.3
+Asafoetida (Hing),Spice/Condiment,100 g,297,4,67.8,1.1,4.1
+Tamarind Paste,Spice/Condiment,100 g,239,2.8,62.5,0.6,5.1
+Beans Poriyal,Curry,100 g,86.9,2.8,8.7,3.8,3.1
+Beans Thoran,Curry,100 g,92.5,3.2,8.4,4.4,2.8
+Beans Kootu,Curry,150 g,105.0,5.0,12.9,3.8,4.1
+Beans Sambar,Curry,150 g,115.8,5.7,17.2,3.1,3.7
+Beans Curry,Curry,150 g,136.4,4.1,11.7,6.6,3.2
+Beans Kurma,Curry,150 g,165.6,3.7,13.1,11.6,2.5
+Beans Masiyal,Curry,100 g,83.9,3.1,8.0,4.3,2.9
+Beans Fry,Snack,100 g,141.2,3.2,13.2,9.5,2.5
+Beans Pachadi,Condiment,80 g,62.0,1.9,5.7,2.9,1.4
+Beans Chutney,Condiment,30 g,52.6,1.4,4.8,3.6,1.2
+Beans Sabzi,Curry,100 g,97.9,2.9,9.6,6.4,2.6
+Beans Rice,Rice Dish,200 g,234.0,4.7,39.4,6.6,2.5
+Beans Dosa,Breakfast,100 g,167.1,4.1,25.2,4.6,1.9
+Beans Paratha,Breakfast,100 g,219.3,4.8,27.8,7.8,2.4
+Carrot Poriyal,Curry,100 g,81.1,3.2,9.5,3.9,3.1
+Carrot Thoran,Curry,100 g,88.5,3.2,8.9,4.3,2.9
+Carrot Kootu,Curry,150 g,111.1,4.8,14.2,4.3,3.9
+Carrot Sambar,Curry,150 g,109.8,6.5,17.0,2.8,3.7
+Carrot Curry,Curry,150 g,121.9,4.1,12.6,6.9,2.8
+Carrot Kurma,Curry,150 g,166.8,4.3,14.1,11.8,2.6
+Carrot Masiyal,Curry,100 g,73.7,3.1,8.2,4.0,2.9
+Carrot Fry,Snack,100 g,143.2,2.8,12.9,8.9,2.7
+Carrot Pachadi,Condiment,80 g,63.6,1.9,6.0,2.8,1.6
+Carrot Chutney,Condiment,30 g,58.3,1.5,5.1,3.6,1.1
+Carrot Sabzi,Curry,100 g,104.2,3.0,10.4,6.0,2.3
+Carrot Rice,Rice Dish,200 g,223.5,4.6,40.6,7.4,2.6
+Carrot Dosa,Breakfast,100 g,150.2,3.7,26.5,4.8,1.7
+Carrot Paratha,Breakfast,100 g,209.5,4.7,31.3,8.3,2.4
+Cabbage Poriyal,Curry,100 g,84.7,3.0,8.7,4.2,3.0
+Cabbage Thoran,Curry,100 g,85.8,3.0,9.3,4.3,2.9
+Cabbage Kootu,Curry,150 g,118.7,5.1,13.9,4.0,3.8
+Cabbage Sambar,Curry,150 g,109.9,5.8,17.2,2.9,3.8
+Cabbage Curry,Curry,150 g,121.1,4.1,11.5,7.5,3.2
+Cabbage Kurma,Curry,150 g,158.3,3.8,14.4,10.5,2.4
+Cabbage Masiyal,Curry,100 g,85.6,3.0,8.0,4.2,3.1
+Cabbage Fry,Snack,100 g,133.1,2.8,12.9,8.9,2.5
+Cabbage Pachadi,Condiment,80 g,62.2,2.1,6.5,2.8,1.5
+Cabbage Chutney,Condiment,30 g,53.6,1.6,4.8,3.3,1.2
+Cabbage Sabzi,Curry,100 g,98.8,2.9,9.6,6.4,2.5
+Cabbage Rice,Rice Dish,200 g,243.3,5.0,35.3,7.6,2.6
+Cabbage Dosa,Breakfast,100 g,166.6,4.3,26.4,4.3,1.8
+Cabbage Paratha,Breakfast,100 g,200.4,4.9,27.9,7.8,2.7
+Beetroot Poriyal,Curry,100 g,81.8,3.1,8.9,4.0,3.2
+Beetroot Thoran,Curry,100 g,97.1,3.0,9.3,4.3,2.9
+Beetroot Kootu,Curry,150 g,118.2,5.1,14.1,4.2,3.7
+Beetroot Sambar,Curry,150 g,116.5,6.0,18.0,2.8,4.3
+Beetroot Curry,Curry,150 g,121.3,3.8,12.2,7.2,2.9
+Beetroot Kurma,Curry,150 g,159.7,4.2,13.4,11.2,2.5
+Beetroot Masiyal,Curry,100 g,79.0,3.0,8.0,4.3,2.9
+Beetroot Fry,Snack,100 g,144.8,2.9,12.8,9.2,2.4
+Beetroot Pachadi,Condiment,80 g,58.2,2.1,5.6,3.0,1.6
+Beetroot Chutney,Condiment,30 g,59.4,1.4,4.8,3.4,1.3
+Beetroot Sabzi,Curry,100 g,106.1,3.2,9.8,5.7,2.6
+Beetroot Rice,Rice Dish,200 g,237.5,5.1,41.0,7.2,2.3
+Beetroot Dosa,Breakfast,100 g,162.9,3.9,25.7,4.8,1.7
+Beetroot Paratha,Breakfast,100 g,197.1,4.7,30.3,7.7,2.5
+Brinjal Poriyal,Curry,100 g,88.0,2.9,9.2,3.8,3.0
+Brinjal Thoran,Curry,100 g,95.8,3.2,8.4,4.4,2.9
+Brinjal Kootu,Curry,150 g,101.3,5.2,14.3,3.8,4.2
+Brinjal Sambar,Curry,150 g,116.0,5.9,15.7,2.8,4.2
+Brinjal Curry,Curry,150 g,138.4,4.0,12.6,7.1,2.8
+Brinjal Kurma,Curry,150 g,159.9,3.9,14.9,11.5,2.6
+Brinjal Masiyal,Curry,100 g,85.1,2.9,7.7,3.7,3.1
+Brinjal Fry,Snack,100 g,148.6,3.0,13.3,8.5,2.7
+Brinjal Pachadi,Condiment,80 g,63.5,2.2,6.3,3.2,1.4
+Brinjal Chutney,Condiment,30 g,57.1,1.5,5.3,3.7,1.3
+Brinjal Sabzi,Curry,100 g,105.0,2.9,10.5,5.6,2.6
+Brinjal Rice,Rice Dish,200 g,243.2,4.8,39.9,7.0,2.4
+Brinjal Dosa,Breakfast,100 g,162.3,3.8,23.1,4.3,1.8
+Brinjal Paratha,Breakfast,100 g,222.2,5.4,28.9,8.2,2.5
+Okra Poriyal,Curry,100 g,91.5,3.0,9.6,3.8,3.2
+Okra Thoran,Curry,100 g,85.4,3.2,8.7,4.2,3.0
+Okra Kootu,Curry,150 g,114.0,4.9,14.2,4.0,3.9
+Okra Sambar,Curry,150 g,116.4,5.8,17.6,2.8,4.3
+Okra Curry,Curry,150 g,130.8,4.1,12.5,7.2,2.9
+Okra Kurma,Curry,150 g,158.3,4.1,13.6,10.7,2.6
+Okra Masiyal,Curry,100 g,82.8,2.9,7.8,3.9,3.0
+Okra Fry,Snack,100 g,135.4,2.8,12.8,9.6,2.6
+Okra Pachadi,Condiment,80 g,63.9,2.0,5.8,3.0,1.4
+Okra Chutney,Condiment,30 g,53.1,1.5,5.1,3.6,1.2
+Okra Sabzi,Curry,100 g,99.1,2.9,10.0,6.4,2.6
+Okra Rice,Rice Dish,200 g,217.8,4.7,38.1,7.1,2.4
+Okra Dosa,Breakfast,100 g,162.9,4.2,25.7,4.3,1.7
+Okra Paratha,Breakfast,100 g,194.0,4.8,29.9,8.4,2.3
+Drumstick Poriyal,Curry,100 g,83.8,3.1,8.6,4.1,3.0
+Drumstick Thoran,Curry,100 g,86.3,3.1,8.3,4.7,3.1
+Drumstick Kootu,Curry,150 g,103.1,4.9,13.3,4.3,4.0
+Drumstick Sambar,Curry,150 g,106.7,5.8,17.9,3.0,4.2
+Drumstick Curry,Curry,150 g,133.5,4.3,12.2,7.5,3.2
+Drumstick Kurma,Curry,150 g,173.1,4.1,14.0,11.6,2.5
+Drumstick Masiyal,Curry,100 g,85.1,3.1,8.0,3.8,2.9
+Drumstick Fry,Snack,100 g,143.1,3.1,13.0,9.2,2.4
+Drumstick Pachadi,Condiment,80 g,55.9,1.9,5.8,2.9,1.5
+Drumstick Chutney,Condiment,30 g,51.8,1.4,5.2,3.6,1.1
+Drumstick Sabzi,Curry,100 g,98.5,3.0,9.9,5.7,2.5
+Drumstick Rice,Rice Dish,200 g,244.9,5.1,39.2,7.4,2.6
+Drumstick Dosa,Breakfast,100 g,152.0,3.7,24.4,4.7,1.9
+Drumstick Paratha,Breakfast,100 g,225.2,4.9,31.2,8.1,2.5
+Bottle Gourd Poriyal,Curry,100 g,81.2,2.9,8.9,3.7,2.9
+Bottle Gourd Thoran,Curry,100 g,92.6,3.0,8.5,4.5,2.8
+Bottle Gourd Kootu,Curry,150 g,112.2,4.6,13.8,4.0,3.7
+Bottle Gourd Sambar,Curry,150 g,117.6,5.7,16.9,2.8,3.9
+Bottle Gourd Curry,Curry,150 g,124.0,3.9,12.5,6.9,3.1
+Bottle Gourd Kurma,Curry,150 g,179.0,3.8,13.1,10.2,2.5
+Bottle Gourd Masiyal,Curry,100 g,86.4,2.9,8.2,4.2,3.1
+Bottle Gourd Fry,Snack,100 g,145.7,3.2,12.4,8.3,2.4
+Bottle Gourd Pachadi,Condiment,80 g,56.4,2.1,6.1,2.9,1.5
+Bottle Gourd Chutney,Condiment,30 g,57.3,1.4,5.1,3.6,1.1
+Bottle Gourd Sabzi,Curry,100 g,105.1,3.2,9.4,5.5,2.4
+Bottle Gourd Rice,Rice Dish,200 g,236.5,5.4,37.4,7.2,2.3
+Bottle Gourd Dosa,Breakfast,100 g,159.7,4.1,23.4,4.7,1.9
+Bottle Gourd Paratha,Breakfast,100 g,213.4,4.7,32.3,8.4,2.4
+Ridge Gourd Poriyal,Curry,100 g,84.0,2.9,9.0,3.9,3.2
+Ridge Gourd Thoran,Curry,100 g,94.6,2.8,9.7,4.6,3.2
+Ridge Gourd Kootu,Curry,150 g,113.6,4.9,14.5,4.3,3.9
+Ridge Gourd Sambar,Curry,150 g,120.7,6.0,17.0,3.0,4.1
+Ridge Gourd Curry,Curry,150 g,125.2,4.2,12.6,6.5,3.2
+Ridge Gourd Kurma,Curry,150 g,163.0,4.0,14.2,10.8,2.3
+Ridge Gourd Masiyal,Curry,100 g,84.5,2.8,7.6,4.2,2.9
+Ridge Gourd Fry,Snack,100 g,148.5,3.1,12.5,8.3,2.7
+Ridge Gourd Pachadi,Condiment,80 g,56.0,2.1,6.0,3.1,1.5
+Ridge Gourd Chutney,Condiment,30 g,56.3,1.5,5.2,3.3,1.1
+Ridge Gourd Sabzi,Curry,100 g,103.1,2.9,10.1,6.0,2.5
+Ridge Gourd Rice,Rice Dish,200 g,227.3,5.2,37.0,7.2,2.4
+Ridge Gourd Dosa,Breakfast,100 g,148.8,3.8,23.8,4.2,1.8
+Ridge Gourd Paratha,Breakfast,100 g,218.8,4.7,28.6,8.0,2.6
+Snake Gourd Poriyal,Curry,100 g,91.5,3.0,8.7,3.7,2.9
+Snake Gourd Thoran,Curry,100 g,86.1,2.8,8.3,4.5,2.9
+Snake Gourd Kootu,Curry,150 g,118.3,5.0,14.4,3.8,4.2
+Snake Gourd Sambar,Curry,150 g,114.8,6.4,17.2,3.0,4.0
+Snake Gourd Curry,Curry,150 g,123.4,3.7,12.8,7.0,3.2
+Snake Gourd Kurma,Curry,150 g,167.3,3.7,14.3,10.2,2.4
+Snake Gourd Masiyal,Curry,100 g,80.8,2.9,8.6,3.8,3.1
+Snake Gourd Fry,Snack,100 g,142.4,3.1,12.4,9.0,2.5
+Snake Gourd Pachadi,Condiment,80 g,59.5,2.1,6.5,2.9,1.5
+Snake Gourd Chutney,Condiment,30 g,56.0,1.6,5.4,3.3,1.1
+Snake Gourd Sabzi,Curry,100 g,102.6,2.8,9.5,5.6,2.3
+Snake Gourd Rice,Rice Dish,200 g,228.2,5.1,36.7,6.7,2.6
+Snake Gourd Dosa,Breakfast,100 g,160.0,4.0,25.7,4.8,1.9
+Snake Gourd Paratha,Breakfast,100 g,214.2,5.1,32.1,7.9,2.5
+Bitter Gourd Poriyal,Curry,100 g,87.0,3.2,9.5,3.7,2.8
+Bitter Gourd Thoran,Curry,100 g,87.2,3.1,9.1,4.3,2.8
+Bitter Gourd Kootu,Curry,150 g,113.3,5.2,15.0,4.0,4.0
+Bitter Gourd Sambar,Curry,150 g,107.3,5.6,16.8,2.9,3.8
+Bitter Gourd Curry,Curry,150 g,121.5,4.3,12.6,7.1,3.2
+Bitter Gourd Kurma,Curry,150 g,183.6,4.1,13.5,10.2,2.6
+Bitter Gourd Masiyal,Curry,100 g,79.6,3.1,8.5,3.8,3.0
+Bitter Gourd Fry,Snack,100 g,143.0,3.0,12.1,8.8,2.4
+Bitter Gourd Pachadi,Condiment,80 g,61.6,2.1,5.8,3.1,1.4
+Bitter Gourd Chutney,Condiment,30 g,58.9,1.6,5.0,3.5,1.2
+Bitter Gourd Sabzi,Curry,100 g,97.2,3.2,9.8,6.0,2.7
+Bitter Gourd Rice,Rice Dish,200 g,235.8,5.0,37.5,6.7,2.4
+Bitter Gourd Dosa,Breakfast,100 g,161.4,4.1,26.0,4.3,1.8
+Bitter Gourd Paratha,Breakfast,100 g,224.4,5.0,31.0,7.5,2.7
+Ash Gourd Poriyal,Curry,100 g,86.5,2.9,8.5,4.0,3.0
+Ash Gourd Thoran,Curry,100 g,84.1,3.2,9.6,4.5,2.8
+Ash Gourd Kootu,Curry,150 g,115.8,5.0,14.5,4.0,3.9
+Ash Gourd Sambar,Curry,150 g,121.2,6.5,16.3,3.0,3.9
+Ash Gourd Curry,Curry,150 g,138.8,4.0,12.7,7.4,2.9
+Ash Gourd Kurma,Curry,150 g,177.9,3.9,15.0,11.0,2.6
+Ash Gourd Masiyal,Curry,100 g,77.2,2.9,8.1,4.3,3.0
+Ash Gourd Fry,Snack,100 g,132.1,3.0,12.7,9.1,2.5
+Ash Gourd Pachadi,Condiment,80 g,59.6,1.9,5.7,3.1,1.5
+Ash Gourd Chutney,Condiment,30 g,52.7,1.6,4.6,3.6,1.2
+Ash Gourd Sabzi,Curry,100 g,105.0,2.9,10.3,6.3,2.7
+Ash Gourd Rice,Rice Dish,200 g,229.8,4.6,38.0,7.1,2.6
+Ash Gourd Dosa,Breakfast,100 g,164.3,4.0,25.1,4.5,1.9
+Ash Gourd Paratha,Breakfast,100 g,207.0,5.1,28.3,8.0,2.7
+Pumpkin Poriyal,Curry,100 g,82.8,3.1,9.2,4.2,3.2
+Pumpkin Thoran,Curry,100 g,95.2,2.9,8.7,4.7,3.1
+Pumpkin Kootu,Curry,150 g,116.6,4.6,13.0,4.1,4.3
+Pumpkin Sambar,Curry,150 g,124.2,6.2,16.8,2.8,4.1
+Pumpkin Curry,Curry,150 g,137.7,4.0,12.4,7.5,2.8
+Pumpkin Kurma,Curry,150 g,178.1,3.9,13.7,10.4,2.5
+Pumpkin Masiyal,Curry,100 g,80.8,3.1,7.6,3.7,3.2
+Pumpkin Fry,Snack,100 g,142.7,2.9,13.9,8.5,2.5
+Pumpkin Pachadi,Condiment,80 g,57.6,1.9,5.5,3.1,1.6
+Pumpkin Chutney,Condiment,30 g,56.6,1.4,5.0,3.4,1.2
+Pumpkin Sabzi,Curry,100 g,102.2,3.0,9.6,6.3,2.4
+Pumpkin Rice,Rice Dish,200 g,225.8,5.0,36.4,7.1,2.5
+Pumpkin Dosa,Breakfast,100 g,167.2,3.9,26.9,4.6,1.7
+Pumpkin Paratha,Breakfast,100 g,212.2,5.1,31.2,7.4,2.5
+Cauliflower Poriyal,Curry,100 g,85.0,3.2,8.7,4.2,3.1
+Cauliflower Thoran,Curry,100 g,87.9,3.1,9.2,4.6,3.1
+Cauliflower Kootu,Curry,150 g,112.8,5.3,14.3,4.3,4.1
+Cauliflower Sambar,Curry,150 g,111.5,5.9,17.2,3.1,3.7
+Cauliflower Curry,Curry,150 g,125.7,4.2,11.4,6.6,3.0
+Cauliflower Kurma,Curry,150 g,182.8,4.0,14.9,11.6,2.4
+Cauliflower Masiyal,Curry,100 g,84.2,3.0,8.4,4.2,2.9
+Cauliflower Fry,Snack,100 g,131.4,3.2,12.3,9.7,2.6
+Cauliflower Pachadi,Condiment,80 g,62.2,2.2,6.4,3.1,1.5
+Cauliflower Chutney,Condiment,30 g,57.6,1.4,5.0,3.5,1.2
+Cauliflower Sabzi,Curry,100 g,102.8,3.0,10.5,6.4,2.3
+Cauliflower Rice,Rice Dish,200 g,220.2,4.6,40.3,7.1,2.7
+Cauliflower Dosa,Breakfast,100 g,148.1,3.7,26.3,4.8,1.7
+Cauliflower Paratha,Breakfast,100 g,206.9,4.7,32.1,7.7,2.5
+Raw Banana Poriyal,Curry,100 g,79.5,3.2,8.5,4.0,3.1
+Raw Banana Thoran,Curry,100 g,93.5,3.2,8.9,4.7,2.8
+Raw Banana Kootu,Curry,150 g,108.5,4.7,14.0,3.9,4.3
+Raw Banana Sambar,Curry,150 g,106.4,5.9,16.8,3.2,4.2
+Raw Banana Curry,Curry,150 g,121.7,4.1,12.1,7.5,2.9
+Raw Banana Kurma,Curry,150 g,167.2,3.8,13.2,11.6,2.5
+Raw Banana Masiyal,Curry,100 g,82.1,3.1,8.1,3.7,3.1
+Raw Banana Fry,Snack,100 g,134.3,2.8,13.1,8.4,2.6
+Raw Banana Pachadi,Condiment,80 g,57.2,1.9,6.4,2.9,1.4
+Raw Banana Chutney,Condiment,30 g,58.5,1.4,5.3,3.3,1.1
+Raw Banana Sabzi,Curry,100 g,96.0,2.8,10.3,5.5,2.3
+Raw Banana Rice,Rice Dish,200 g,240.7,4.8,36.9,6.6,2.3
+Raw Banana Dosa,Breakfast,100 g,161.0,4.0,26.0,4.5,1.9
+Raw Banana Paratha,Breakfast,100 g,210.4,4.7,30.0,8.6,2.3
+Yam Poriyal,Curry,100 g,88.9,3.2,9.0,4.0,3.2
+Yam Thoran,Curry,100 g,83.7,3.0,8.9,4.6,3.0
+Yam Kootu,Curry,150 g,117.2,4.7,13.1,4.1,3.7
+Yam Sambar,Curry,150 g,110.9,6.1,17.1,2.9,4.3
+Yam Curry,Curry,150 g,130.6,4.0,12.2,6.6,3.1
+Yam Kurma,Curry,150 g,179.6,4.1,14.6,11.4,2.4
+Yam Masiyal,Curry,100 g,79.4,2.9,7.8,4.0,3.0
+Yam Fry,Snack,100 g,130.9,3.0,13.3,8.8,2.4
+Yam Pachadi,Condiment,80 g,64.1,1.9,6.3,2.8,1.4
+Yam Chutney,Condiment,30 g,57.1,1.6,5.0,3.5,1.2
+Yam Sabzi,Curry,100 g,97.3,2.8,9.8,6.2,2.6
+Yam Rice,Rice Dish,200 g,243.5,5.2,40.8,7.1,2.4
+Yam Dosa,Breakfast,100 g,156.9,3.8,25.6,4.3,1.7
+Yam Paratha,Breakfast,100 g,221.6,4.9,31.3,8.1,2.6
+Colocasia Poriyal,Curry,100 g,89.7,3.2,9.5,4.1,3.1
+Colocasia Thoran,Curry,100 g,83.2,3.2,9.5,4.3,2.8
+Colocasia Kootu,Curry,150 g,113.6,4.8,13.6,3.7,4.2
+Colocasia Sambar,Curry,150 g,116.2,5.9,16.0,3.1,3.7
+Colocasia Curry,Curry,150 g,135.1,3.8,11.8,6.8,2.9
+Colocasia Kurma,Curry,150 g,176.0,4.2,14.2,10.3,2.3
+Colocasia Masiyal,Curry,100 g,75.6,3.1,8.2,3.9,3.1
+Colocasia Fry,Snack,100 g,139.7,3.0,12.5,9.4,2.3
+Colocasia Pachadi,Condiment,80 g,59.3,1.9,6.2,3.0,1.5
+Colocasia Chutney,Condiment,30 g,51.0,1.5,5.1,3.2,1.2
+Colocasia Sabzi,Curry,100 g,95.4,2.8,9.6,5.8,2.3
+Colocasia Rice,Rice Dish,200 g,239.1,4.7,37.3,7.2,2.5
+Colocasia Dosa,Breakfast,100 g,163.3,4.2,23.3,4.8,1.7
+Colocasia Paratha,Breakfast,100 g,193.8,5.3,31.7,8.1,2.5
+Cluster Beans Poriyal,Curry,100 g,87.8,3.0,8.4,3.7,2.9
+Cluster Beans Thoran,Curry,100 g,94.3,3.1,9.5,4.8,2.8
+Cluster Beans Kootu,Curry,150 g,116.1,4.8,14.2,4.0,3.9
+Cluster Beans Sambar,Curry,150 g,111.5,5.8,16.5,2.8,4.0
+Cluster Beans Curry,Curry,150 g,122.0,4.0,12.8,6.8,3.1
+Cluster Beans Kurma,Curry,150 g,178.7,4.2,13.4,10.4,2.4
+Cluster Beans Masiyal,Curry,100 g,81.3,3.1,8.2,3.8,3.1
+Cluster Beans Fry,Snack,100 g,139.9,3.1,13.5,8.9,2.7
+Cluster Beans Pachadi,Condiment,80 g,60.6,2.0,6.1,3.2,1.5
+Cluster Beans Chutney,Condiment,30 g,51.9,1.4,5.0,3.4,1.2
+Cluster Beans Sabzi,Curry,100 g,92.9,3.0,9.7,6.0,2.3
+Cluster Beans Rice,Rice Dish,200 g,242.2,4.7,40.2,7.4,2.5
+Cluster Beans Dosa,Breakfast,100 g,155.2,4.0,25.2,4.7,1.9
+Cluster Beans Paratha,Breakfast,100 g,208.3,5.2,30.7,7.8,2.5
+Broad Beans Poriyal,Curry,100 g,80.3,2.8,8.4,4.3,2.9
+Broad Beans Thoran,Curry,100 g,93.1,3.0,8.5,4.3,3.0
+Broad Beans Kootu,Curry,150 g,108.9,5.0,13.2,3.9,3.9
+Broad Beans Sambar,Curry,150 g,113.3,5.8,17.3,3.1,4.1
+Broad Beans Curry,Curry,150 g,121.0,3.7,12.3,6.8,3.1
+Broad Beans Kurma,Curry,150 g,174.3,4.3,14.8,10.7,2.5
+Broad Beans Masiyal,Curry,100 g,75.4,2.9,8.6,4.1,2.9
+Broad Beans Fry,Snack,100 g,142.1,3.2,12.6,8.8,2.6
+Broad Beans Pachadi,Condiment,80 g,63.0,2.1,6.3,3.1,1.5
+Broad Beans Chutney,Condiment,30 g,55.2,1.5,4.9,3.4,1.2
+Broad Beans Sabzi,Curry,100 g,94.9,2.9,10.7,6.0,2.4
+Broad Beans Rice,Rice Dish,200 g,216.7,4.7,40.1,6.6,2.6
+Broad Beans Dosa,Breakfast,100 g,163.3,4.2,23.2,4.4,1.9
+Broad Beans Paratha,Breakfast,100 g,197.6,4.9,28.4,8.4,2.6
+Ivy Gourd Poriyal,Curry,100 g,89.2,2.8,8.9,3.9,3.1
+Ivy Gourd Thoran,Curry,100 g,86.2,3.0,8.7,4.7,3.0
+Ivy Gourd Kootu,Curry,150 g,110.6,4.8,14.7,4.0,4.2
+Ivy Gourd Sambar,Curry,150 g,112.6,6.4,18.3,3.0,3.9
+Ivy Gourd Curry,Curry,150 g,127.5,4.0,12.9,7.4,3.1
+Ivy Gourd Kurma,Curry,150 g,160.2,3.8,14.3,11.7,2.5
+Ivy Gourd Masiyal,Curry,100 g,74.9,3.2,8.4,3.9,3.1
+Ivy Gourd Fry,Snack,100 g,134.9,3.2,12.3,8.9,2.7
+Ivy Gourd Pachadi,Condiment,80 g,57.3,2.0,5.9,2.8,1.4
+Ivy Gourd Chutney,Condiment,30 g,55.0,1.4,5.4,3.4,1.1
+Ivy Gourd Sabzi,Curry,100 g,106.9,3.2,10.2,6.3,2.4
+Ivy Gourd Rice,Rice Dish,200 g,222.2,5.3,39.2,6.6,2.6
+Ivy Gourd Dosa,Breakfast,100 g,153.7,3.7,23.3,4.3,1.9
+Ivy Gourd Paratha,Breakfast,100 g,211.6,5.2,30.1,7.5,2.4
+Yardlong Beans Poriyal,Curry,100 g,82.3,2.8,8.9,4.2,3.0
+Yardlong Beans Thoran,Curry,100 g,84.4,3.2,9.1,4.2,3.0
+Yardlong Beans Kootu,Curry,150 g,105.5,4.7,13.8,4.1,3.8
+Yardlong Beans Sambar,Curry,150 g,113.5,6.2,15.9,3.2,3.7
+Yardlong Beans Curry,Curry,150 g,130.5,4.0,12.9,7.1,2.9
+Yardlong Beans Kurma,Curry,150 g,169.2,4.1,15.1,10.6,2.3
+Yardlong Beans Masiyal,Curry,100 g,83.7,2.9,8.3,4.1,3.1
+Yardlong Beans Fry,Snack,100 g,145.3,2.9,12.1,9.1,2.6
+Yardlong Beans Pachadi,Condiment,80 g,56.9,2.1,6.0,3.1,1.5
+Yardlong Beans Chutney,Condiment,30 g,57.7,1.4,5.2,3.5,1.2
+Yardlong Beans Sabzi,Curry,100 g,92.7,2.9,9.3,6.4,2.5
+Yardlong Beans Rice,Rice Dish,200 g,248.0,5.0,36.5,7.3,2.4
+Yardlong Beans Dosa,Breakfast,100 g,151.5,4.2,26.5,4.4,1.7
+Yardlong Beans Paratha,Breakfast,100 g,205.6,5.3,31.2,8.5,2.5
+Spinach Poriyal,Curry,100 g,91.4,3.0,9.0,4.3,3.0
+Spinach Thoran,Curry,100 g,94.3,3.1,8.4,4.6,3.2
+Spinach Kootu,Curry,150 g,110.8,4.9,13.1,4.1,3.9
+Spinach Sambar,Curry,150 g,116.9,5.9,17.5,2.9,3.7
+Spinach Curry,Curry,150 g,137.7,3.9,13.0,6.7,3.2
+Spinach Kurma,Curry,150 g,182.2,3.7,14.3,10.8,2.6
+Spinach Masiyal,Curry,100 g,82.3,3.2,7.5,4.1,3.1
+Spinach Fry,Snack,100 g,129.6,2.8,13.6,8.8,2.5
+Spinach Pachadi,Condiment,80 g,60.6,2.0,6.2,3.2,1.5
+Spinach Chutney,Condiment,30 g,57.3,1.5,5.0,3.4,1.2
+Spinach Sabzi,Curry,100 g,96.0,2.8,10.4,6.0,2.5
+Spinach Rice,Rice Dish,200 g,232.3,4.8,36.5,6.9,2.7
+Spinach Dosa,Breakfast,100 g,149.7,4.3,25.0,4.2,1.9
+Spinach Paratha,Breakfast,100 g,208.4,5.3,29.7,7.5,2.6
+Amaranth Leaves Poriyal,Curry,100 g,89.7,2.9,8.8,3.7,3.0
+Amaranth Leaves Thoran,Curry,100 g,95.6,3.2,9.3,4.8,3.1
+Amaranth Leaves Kootu,Curry,150 g,115.2,5.0,13.2,3.8,3.8
+Amaranth Leaves Sambar,Curry,150 g,120.3,5.5,17.1,2.9,4.2
+Amaranth Leaves Curry,Curry,150 g,131.1,4.1,11.2,6.8,3.2
+Amaranth Leaves Kurma,Curry,150 g,176.0,4.0,14.6,11.6,2.3
+Amaranth Leaves Masiyal,Curry,100 g,86.0,3.1,7.9,4.1,2.9
+Amaranth Leaves Fry,Snack,100 g,148.5,3.1,13.3,8.5,2.7
+Amaranth Leaves Pachadi,Condiment,80 g,59.4,2.1,5.6,2.8,1.4
+Amaranth Leaves Chutney,Condiment,30 g,52.0,1.5,5.2,3.4,1.3
+Amaranth Leaves Sabzi,Curry,100 g,106.3,3.2,9.6,6.1,2.5
+Amaranth Leaves Rice,Rice Dish,200 g,216.2,4.8,38.2,7.0,2.4
+Amaranth Leaves Dosa,Breakfast,100 g,166.0,3.8,25.6,4.7,1.8
+Amaranth Leaves Paratha,Breakfast,100 g,221.5,5.1,31.6,7.4,2.3
+Radish Poriyal,Curry,100 g,86.9,3.0,9.2,4.2,3.0
+Radish Thoran,Curry,100 g,92.0,3.0,9.2,4.3,3.2
+Radish Kootu,Curry,150 g,109.7,5.2,14.4,3.9,3.7
+Radish Sambar,Curry,150 g,106.9,5.9,17.0,2.9,4.1
+Radish Curry,Curry,150 g,126.1,4.1,12.4,7.4,3.2
+Radish Kurma,Curry,150 g,160.0,3.9,14.1,10.7,2.5
+Radish Masiyal,Curry,100 g,77.0,2.9,7.5,3.9,2.9
+Radish Fry,Snack,100 g,142.6,2.9,13.8,8.5,2.4
+Radish Pachadi,Condiment,80 g,60.7,1.9,6.3,3.0,1.5
+Radish Chutney,Condiment,30 g,55.0,1.5,4.6,3.7,1.2
+Radish Sabzi,Curry,100 g,107.5,2.9,9.8,5.6,2.5
+Radish Rice,Rice Dish,200 g,244.1,5.1,37.8,7.0,2.6
+Radish Dosa,Breakfast,100 g,153.3,4.2,25.9,4.7,1.8
+Radish Paratha,Breakfast,100 g,206.7,5.1,28.5,8.1,2.3
+Sweet Potato Poriyal,Curry,100 g,85.1,3.1,8.7,4.3,3.1
+Sweet Potato Thoran,Curry,100 g,84.5,3.2,8.8,4.7,2.9
+Sweet Potato Kootu,Curry,150 g,117.7,5.2,13.3,4.0,4.0
+Sweet Potato Sambar,Curry,150 g,106.6,5.7,16.5,3.0,4.0
+Sweet Potato Curry,Curry,150 g,132.2,4.0,11.7,7.1,2.8
+Sweet Potato Kurma,Curry,150 g,183.3,4.2,13.6,10.7,2.6
+Sweet Potato Masiyal,Curry,100 g,80.4,3.1,7.7,4.2,2.9
+Sweet Potato Fry,Snack,100 g,143.9,3.2,13.2,9.4,2.6
+Sweet Potato Pachadi,Condiment,80 g,61.8,1.8,6.0,3.2,1.6
+Sweet Potato Chutney,Condiment,30 g,57.4,1.5,5.2,3.5,1.1
+Sweet Potato Sabzi,Curry,100 g,102.1,3.1,10.5,5.7,2.6
+Sweet Potato Rice,Rice Dish,200 g,212.8,5.4,35.6,6.5,2.4
+Sweet Potato Dosa,Breakfast,100 g,146.4,4.1,24.6,4.7,1.9
+Sweet Potato Paratha,Breakfast,100 g,222.5,5.2,27.9,7.5,2.4
+Field Beans Poriyal,Curry,100 g,82.6,3.1,9.0,3.9,2.8
+Field Beans Thoran,Curry,100 g,95.9,2.9,8.8,4.7,3.1
+Field Beans Kootu,Curry,150 g,112.5,5.2,14.2,3.8,3.8
+Field Beans Sambar,Curry,150 g,116.1,5.7,18.3,2.9,3.9
+Field Beans Curry,Curry,150 g,123.9,4.1,11.6,6.8,3.2
+Field Beans Kurma,Curry,150 g,178.0,3.9,13.2,11.3,2.5
+Field Beans Masiyal,Curry,100 g,86.1,3.2,8.6,4.2,2.9
+Field Beans Fry,Snack,100 g,135.2,3.1,12.7,8.9,2.4
+Field Beans Pachadi,Condiment,80 g,59.8,1.9,6.0,3.2,1.5
+Field Beans Chutney,Condiment,30 g,51.8,1.5,5.1,3.4,1.2
+Field Beans Sabzi,Curry,100 g,100.5,3.1,9.3,5.9,2.6
+Field Beans Rice,Rice Dish,200 g,215.3,5.2,35.0,7.1,2.7
+Field Beans Dosa,Breakfast,100 g,152.7,4.3,26.5,4.5,1.7
+Field Beans Paratha,Breakfast,100 g,225.6,4.9,30.7,8.5,2.3
+Green Peas Poriyal,Curry,100 g,86.0,3.0,9.3,4.3,3.2
+Green Peas Thoran,Curry,100 g,85.3,3.2,8.5,4.8,3.2
+Green Peas Kootu,Curry,150 g,108.2,5.0,15.0,4.3,4.3
+Green Peas Sambar,Curry,150 g,121.9,5.5,17.2,2.8,4.3
+Green Peas Curry,Curry,150 g,125.5,4.3,12.1,7.0,3.2
+Green Peas Kurma,Curry,150 g,179.5,4.0,13.3,10.3,2.4
+Green Peas Masiyal,Curry,100 g,79.5,2.9,7.6,4.2,3.1
+Green Peas Fry,Snack,100 g,141.5,3.1,12.3,9.5,2.7
+Green Peas Pachadi,Condiment,80 g,63.1,2.0,5.6,3.1,1.4
+Green Peas Chutney,Condiment,30 g,51.8,1.5,4.8,3.4,1.1
+Green Peas Sabzi,Curry,100 g,104.1,3.2,9.7,6.2,2.3
+Green Peas Rice,Rice Dish,200 g,235.7,5.2,35.3,6.6,2.4
+Green Peas Dosa,Breakfast,100 g,152.7,4.0,26.6,4.6,1.7
+Green Peas Paratha,Breakfast,100 g,197.1,5.3,29.0,8.1,2.4
+Capsicum Poriyal,Curry,100 g,80.0,2.8,9.4,4.1,3.0
+Capsicum Thoran,Curry,100 g,90.7,3.0,9.1,4.6,2.9
+Capsicum Kootu,Curry,150 g,105.6,5.2,14.8,3.7,4.0
+Capsicum Sambar,Curry,150 g,118.7,5.6,17.2,2.8,4.0
+Capsicum Curry,Curry,150 g,130.1,4.0,11.3,6.8,3.0
+Capsicum Kurma,Curry,150 g,159.6,3.8,14.2,10.3,2.5
+Capsicum Masiyal,Curry,100 g,84.0,3.0,8.0,4.0,2.8
+Capsicum Fry,Snack,100 g,139.2,3.1,13.5,8.9,2.6
+Capsicum Pachadi,Condiment,80 g,62.4,2.0,5.6,2.9,1.4
+Capsicum Chutney,Condiment,30 g,59.3,1.6,4.7,3.7,1.1
+Capsicum Sabzi,Curry,100 g,98.5,3.1,10.4,6.5,2.6
+Capsicum Rice,Rice Dish,200 g,227.1,5.4,37.3,7.4,2.7
+Capsicum Dosa,Breakfast,100 g,151.9,4.1,25.6,4.5,1.8
+Capsicum Paratha,Breakfast,100 g,204.9,4.7,30.2,8.0,2.6
+Potato Poriyal,Curry,100 g,81.2,2.8,8.3,3.9,3.1
+Potato Thoran,Curry,100 g,90.6,3.0,9.5,4.3,2.9
+Potato Kootu,Curry,150 g,106.1,5.3,14.5,3.8,4.2
+Potato Sambar,Curry,150 g,113.5,6.3,18.0,2.8,3.8
+Potato Curry,Curry,150 g,121.7,3.7,12.2,7.2,2.8
+Potato Kurma,Curry,150 g,176.5,3.9,13.4,10.5,2.6
+Potato Masiyal,Curry,100 g,74.3,3.0,7.7,4.2,3.1
+Potato Fry,Snack,100 g,135.9,3.0,13.4,8.7,2.4
+Potato Pachadi,Condiment,80 g,56.6,2.1,5.7,2.9,1.4
+Potato Chutney,Condiment,30 g,58.9,1.6,5.3,3.6,1.2
+Potato Sabzi,Curry,100 g,99.9,3.2,10.7,6.2,2.6
+Potato Rice,Rice Dish,200 g,223.3,4.9,35.9,6.9,2.6
+Potato Dosa,Breakfast,100 g,154.3,4.2,24.2,4.6,1.9
+Potato Paratha,Breakfast,100 g,223.9,5.0,32.2,8.1,2.4
+Onion Poriyal,Curry,100 g,81.5,2.9,9.2,4.3,3.2
+Onion Thoran,Curry,100 g,84.1,3.1,8.6,4.3,3.1
+Onion Kootu,Curry,150 g,111.8,5.3,13.3,4.2,4.1
+Onion Sambar,Curry,150 g,116.1,6.0,18.0,2.9,4.3
+Onion Curry,Curry,150 g,119.9,4.3,12.9,6.6,3.2
+Onion Kurma,Curry,150 g,169.4,3.8,14.2,10.5,2.7
+Onion Masiyal,Curry,100 g,80.7,3.1,7.8,4.0,2.9
+Onion Fry,Snack,100 g,134.7,3.0,13.0,8.4,2.7
+Onion Pachadi,Condiment,80 g,59.7,2.1,6.4,2.9,1.5
+Onion Chutney,Condiment,30 g,55.6,1.4,4.7,3.4,1.3
+Onion Sabzi,Curry,100 g,101.3,3.0,9.4,5.8,2.5
+Onion Rice,Rice Dish,200 g,242.3,5.0,38.9,7.2,2.4
+Onion Dosa,Breakfast,100 g,163.0,4.3,25.6,4.5,1.7
+Onion Paratha,Breakfast,100 g,219.9,4.7,31.1,8.0,2.7
+Tomato Poriyal,Curry,100 g,85.6,3.1,8.4,3.7,3.2
+Tomato Thoran,Curry,100 g,96.4,3.1,9.4,4.4,3.2
+Tomato Kootu,Curry,150 g,105.3,5.2,12.9,4.0,3.9
+Tomato Sambar,Curry,150 g,117.2,6.2,17.3,3.0,4.0
+Tomato Curry,Curry,150 g,119.7,4.0,11.1,7.0,2.9
+Tomato Kurma,Curry,150 g,183.0,3.7,14.7,11.3,2.6
+Tomato Masiyal,Curry,100 g,85.2,2.8,7.5,3.8,2.9
+Tomato Fry,Snack,100 g,140.6,3.2,12.5,8.9,2.4
+Tomato Pachadi,Condiment,80 g,59.1,2.0,6.5,2.9,1.5
+Tomato Sabzi,Curry,100 g,98.1,3.0,9.3,5.5,2.4
+Tomato Rice,Rice Dish,200 g,230.0,4.9,39.7,7.1,2.6
+Tomato Dosa,Breakfast,100 g,145.0,4.0,23.2,4.3,1.9
+Tomato Paratha,Breakfast,100 g,223.0,5.0,27.8,7.5,2.7
+Turnip Poriyal,Curry,100 g,90.4,3.0,8.3,4.3,2.9
+Turnip Thoran,Curry,100 g,96.6,3.0,9.4,4.7,3.0
+Turnip Kootu,Curry,150 g,102.6,4.7,13.4,4.2,3.9
+Turnip Sambar,Curry,150 g,122.3,5.8,17.7,2.8,4.3
+Turnip Curry,Curry,150 g,134.7,4.0,12.9,6.5,3.0
+Turnip Kurma,Curry,150 g,179.2,3.9,14.6,11.8,2.5
+Turnip Masiyal,Curry,100 g,83.5,2.8,7.7,4.3,3.0
+Turnip Fry,Snack,100 g,136.8,3.2,12.9,9.3,2.6
+Turnip Pachadi,Condiment,80 g,56.0,2.0,6.3,3.1,1.4
+Turnip Chutney,Condiment,30 g,52.0,1.6,5.1,3.6,1.2
+Turnip Sabzi,Curry,100 g,93.7,2.8,9.7,5.9,2.4
+Turnip Rice,Rice Dish,200 g,216.5,4.7,37.7,7.1,2.5
+Turnip Dosa,Breakfast,100 g,143.3,3.9,23.4,4.6,1.7
+Turnip Paratha,Breakfast,100 g,206.1,4.8,29.5,7.5,2.7
+Banana Flower Poriyal,Curry,100 g,90.5,3.2,9.1,3.8,2.9
+Banana Flower Thoran,Curry,100 g,84.8,2.9,9.0,4.2,3.0
+Banana Flower Kootu,Curry,150 g,108.6,5.0,13.1,3.8,3.8
+Banana Flower Sambar,Curry,150 g,117.3,6.1,16.2,2.8,3.9
+Banana Flower Curry,Curry,150 g,139.3,3.9,12.2,7.3,2.9
+Banana Flower Kurma,Curry,150 g,165.5,4.2,14.8,11.8,2.4
+Banana Flower Masiyal,Curry,100 g,77.7,3.2,7.6,3.9,3.2
+Banana Flower Fry,Snack,100 g,150.5,2.9,13.4,9.0,2.5
+Banana Flower Pachadi,Condiment,80 g,57.5,2.0,6.3,2.9,1.4
+Banana Flower Chutney,Condiment,30 g,55.6,1.5,5.0,3.6,1.2
+Banana Flower Sabzi,Curry,100 g,107.2,3.0,10.3,5.9,2.4
+Banana Flower Rice,Rice Dish,200 g,237.1,5.3,39.8,6.9,2.5
+Banana Flower Dosa,Breakfast,100 g,158.3,3.8,25.6,4.7,1.9
+Banana Flower Paratha,Breakfast,100 g,195.7,5.4,29.9,7.9,2.5
+Plantain Stem Poriyal,Curry,100 g,90.7,3.1,9.1,4.2,2.9
+Plantain Stem Thoran,Curry,100 g,95.7,3.0,9.2,4.2,3.1
+Plantain Stem Kootu,Curry,150 g,112.8,4.9,14.3,3.7,4.3
+Plantain Stem Sambar,Curry,150 g,118.3,5.9,17.7,3.2,4.0
+Plantain Stem Curry,Curry,150 g,119.8,3.8,12.0,7.0,3.0
+Plantain Stem Kurma,Curry,150 g,172.0,4.0,13.8,11.5,2.5
+Plantain Stem Masiyal,Curry,100 g,80.0,2.9,7.4,3.7,3.0
+Plantain Stem Fry,Snack,100 g,150.3,2.8,13.9,8.5,2.4
+Plantain Stem Pachadi,Condiment,80 g,59.6,1.9,6.0,3.0,1.5
+Plantain Stem Chutney,Condiment,30 g,56.7,1.5,4.8,3.7,1.1
+Plantain Stem Sabzi,Curry,100 g,105.6,3.1,10.3,5.7,2.7
+Plantain Stem Rice,Rice Dish,200 g,220.6,4.7,35.9,7.1,2.7
+Plantain Stem Dosa,Breakfast,100 g,148.4,3.9,23.7,4.6,1.8
+Plantain Stem Paratha,Breakfast,100 g,194.2,5.1,28.5,8.1,2.5
+Toor Dal Sambar,Curry,150 g,123.9,5.7,18.7,3.1,4.2
+Toor Dal Kootu,Curry,150 g,107.7,7.4,14.2,3.4,4.5
+Toor Dal Rasam,Soup,150 g,62.5,2.6,10.0,1.5,1.5
+Toor Dal Tadka,Curry,150 g,142.5,8.1,17.6,4.2,5.1
+Toor Dal Curry,Curry,150 g,136.5,7.7,16.4,4.1,4.2
+Toor Dal Payasam,Dessert,100 g,178.9,3.8,27.1,6.6,1.0
+Toor Dal Vada,Snack,50 g,100.2,3.9,10.4,4.9,1.1
+Toor Dal Adai (mix),Breakfast,100 g,189.0,8.2,27.6,4.9,3.2
+Moong Dal Sambar,Curry,150 g,119.8,5.7,17.5,3.0,4.2
+Moong Dal Kootu,Curry,150 g,112.4,6.5,14.1,3.7,4.8
+Moong Dal Rasam,Soup,150 g,65.1,2.5,10.3,1.5,1.6
+Moong Dal Tadka,Curry,150 g,139.7,7.5,16.6,4.2,4.8
+Moong Dal Curry,Curry,150 g,125.3,7.5,16.1,4.0,4.7
+Moong Dal Payasam,Dessert,100 g,198.1,4.0,26.3,6.6,1.0
+Moong Dal Vada,Snack,50 g,105.2,3.9,11.6,4.6,1.2
+Moong Dal Adai (mix),Breakfast,100 g,186.4,8.6,25.3,4.7,3.3
+Urad Dal Sambar,Curry,150 g,116.1,6.5,17.9,2.9,4.7
+Urad Dal Kootu,Curry,150 g,113.9,7.6,15.7,3.4,4.7
+Urad Dal Rasam,Soup,150 g,65.9,2.4,10.3,1.5,1.4
+Urad Dal Tadka,Curry,150 g,131.9,7.6,17.2,3.7,4.9
+Urad Dal Curry,Curry,150 g,125.4,7.5,16.5,4.1,4.3
+Urad Dal Payasam,Dessert,100 g,182.9,4.2,30.2,7.2,0.9
+Urad Dal Vada,Snack,50 g,107.4,4.2,11.7,5.4,1.3
+Urad Dal Adai (mix),Breakfast,100 g,174.0,8.5,25.9,4.7,3.4
+Chana Dal Sambar,Curry,150 g,125.0,6.2,18.0,3.0,4.3
+Chana Dal Kootu,Curry,150 g,113.4,6.9,15.3,3.7,4.2
+Chana Dal Rasam,Soup,150 g,65.2,2.4,10.7,1.5,1.6
+Chana Dal Tadka,Curry,150 g,136.1,7.4,18.8,4.1,5.2
+Chana Dal Curry,Curry,150 g,129.1,7.7,16.6,3.7,4.5
+Chana Dal Payasam,Dessert,100 g,181.4,4.0,26.7,6.7,1.1
+Chana Dal Vada,Snack,50 g,97.4,4.0,11.1,5.0,1.2
+Chana Dal Adai (mix),Breakfast,100 g,190.4,7.4,25.3,4.7,3.2
+Masoor Dal Sambar,Curry,150 g,112.8,6.3,17.8,2.8,4.8
+Masoor Dal Kootu,Curry,150 g,109.5,7.2,14.1,3.6,4.3
+Masoor Dal Rasam,Soup,150 g,69.5,2.4,10.2,1.4,1.5
+Masoor Dal Tadka,Curry,150 g,149.0,7.6,17.7,3.9,5.2
+Masoor Dal Curry,Curry,150 g,124.5,7.7,17.6,3.7,4.5
+Masoor Dal Payasam,Dessert,100 g,178.8,3.8,28.8,6.5,1.0
+Masoor Dal Vada,Snack,50 g,105.1,4.3,10.9,4.7,1.1
+Masoor Dal Adai (mix),Breakfast,100 g,181.5,8.3,25.3,4.4,3.4
+Horse Gram Sambar,Curry,150 g,113.0,6.3,18.7,2.8,4.9
+Horse Gram Kootu,Curry,150 g,108.4,7.0,13.8,3.6,4.5
+Horse Gram Rasam,Soup,150 g,67.3,2.6,9.4,1.5,1.5
+Horse Gram Tadka,Curry,150 g,148.1,7.5,16.8,4.2,5.1
+Horse Gram Curry,Curry,150 g,127.6,8.1,16.5,3.8,4.3
+Horse Gram Payasam,Dessert,100 g,177.4,4.0,28.4,7.1,1.0
+Horse Gram Vada,Snack,50 g,103.0,4.2,11.3,4.8,1.2
+Horse Gram Adai (mix),Breakfast,100 g,185.3,8.3,26.1,4.2,3.4
+Mixed Dal Sambar,Curry,150 g,128.7,6.0,16.9,3.0,4.6
+Mixed Dal Kootu,Curry,150 g,115.5,7.5,16.2,3.7,4.2
+Mixed Dal Rasam,Soup,150 g,68.8,2.5,9.8,1.5,1.6
+Mixed Dal Tadka,Curry,150 g,150.2,8.3,16.6,3.7,4.8
+Mixed Dal Curry,Curry,150 g,120.4,7.0,17.8,4.0,4.6
+Mixed Dal Payasam,Dessert,100 g,190.0,3.9,28.9,6.5,1.0
+Mixed Dal Vada,Snack,50 g,101.9,3.9,10.7,5.0,1.1
+Mixed Dal Adai (mix),Breakfast,100 g,194.1,8.0,26.5,4.6,3.4
+Green Gram Sambar,Curry,150 g,123.5,5.6,18.6,3.1,4.7
+Green Gram Kootu,Curry,150 g,106.9,6.5,14.8,3.5,4.6
+Green Gram Rasam,Soup,150 g,63.0,2.6,10.4,1.4,1.5
+Green Gram Tadka,Curry,150 g,144.5,7.6,19.3,4.0,5.2
+Green Gram Curry,Curry,150 g,134.6,7.1,16.0,4.2,4.3
+Green Gram Payasam,Dessert,100 g,201.7,4.2,25.9,7.3,1.0
+Green Gram Vada,Snack,50 g,93.0,4.1,11.1,4.7,1.2
+Green Gram Adai (mix),Breakfast,100 g,180.9,8.0,27.3,4.4,3.1
+Chicken Curry,Curry,150 g,215.4,20.2,7.2,14.3,1.0
+Chicken Fry,Snack,150 g,259.6,25.4,5.8,17.9,0.8
+Chicken Roast,Snack,150 g,283.2,26.7,8.5,20.2,1.1
+Chicken Masala,Curry,150 g,270.0,21.7,8.7,15.8,1.2
+Chicken Pepper Fry,Snack,150 g,275.1,25.2,7.5,20.4,0.9
+Chicken Ghee Roast,Snack,150 g,294.8,21.9,9.1,20.3,1.0
+Chicken Stew,Curry,150 g,208.8,19.3,10.0,12.5,1.1
+Chicken Varutharacha Curry,Curry,150 g,287.3,21.9,9.6,15.7,1.5
+Mutton Curry,Curry,150 g,220.2,19.5,7.4,15.9,1.1
+Mutton Fry,Snack,150 g,257.7,24.6,6.3,18.7,0.7
+Mutton Roast,Snack,150 g,301.4,24.0,8.0,18.6,1.1
+Mutton Masala,Curry,150 g,268.8,20.6,9.6,17.0,1.2
+Mutton Pepper Fry,Snack,150 g,273.0,25.2,6.5,19.2,1.0
+Mutton 65,Snack,150 g,333.0,21.1,9.6,18.4,1.0
+Mutton Ghee Roast,Snack,150 g,330.3,23.9,8.7,20.2,0.9
+Mutton Stew,Curry,150 g,200.0,19.9,10.1,11.3,1.1
+Mutton Varutharacha Curry,Curry,150 g,268.5,20.7,10.1,18.3,1.4
+Fish (Mackerel) Curry,Curry,150 g,222.9,19.2,6.6,14.2,1.0
+Fish (Mackerel) Fry,Snack,150 g,294.6,24.8,5.6,19.0,0.8
+Fish (Mackerel) Roast,Snack,150 g,280.4,24.0,7.8,20.0,1.0
+Fish (Mackerel) Masala,Curry,150 g,250.0,23.7,8.3,15.8,1.2
+Fish (Mackerel) Biryani,Rice Dish,250 g,478.3,21.1,51.7,16.8,1.7
+Fish (Mackerel) Pepper Fry,Snack,150 g,267.4,25.3,7.5,17.9,1.1
+Fish (Mackerel) 65,Snack,150 g,303.7,22.5,10.2,19.3,1.0
+Fish (Mackerel) Ghee Roast,Snack,150 g,336.0,21.2,8.4,22.4,1.0
+Fish (Mackerel) Stew,Curry,150 g,197.5,20.2,10.5,11.7,1.1
+Fish (Mackerel) Varutharacha Curry,Curry,150 g,268.3,19.9,10.1,17.9,1.5
+Fish (Pomfret) Curry,Curry,150 g,212.7,20.6,6.6,14.3,0.9
+Fish (Pomfret) Fry,Snack,150 g,270.1,25.5,5.6,18.3,0.8
+Fish (Pomfret) Roast,Snack,150 g,290.2,24.6,8.1,18.6,1.0
+Fish (Pomfret) Masala,Curry,150 g,244.9,20.9,9.6,16.1,1.2
+Fish (Pomfret) Biryani,Rice Dish,250 g,482.2,23.0,56.1,16.7,1.8
+Fish (Pomfret) Pepper Fry,Snack,150 g,292.1,23.9,7.5,19.0,1.0
+Fish (Pomfret) 65,Snack,150 g,294.1,21.4,9.6,20.2,1.0
+Fish (Pomfret) Ghee Roast,Snack,150 g,297.4,24.8,9.0,21.9,1.1
+Fish (Pomfret) Stew,Curry,150 g,225.9,17.8,10.3,11.6,1.3
+Fish (Pomfret) Varutharacha Curry,Curry,150 g,288.0,19.5,10.8,16.2,1.6
+Fish (Seer) Curry,Curry,150 g,240.9,19.5,7.4,15.8,0.9
+Fish (Seer) Fry,Snack,150 g,284.1,25.2,6.2,19.2,0.7
+Fish (Seer) Roast,Snack,150 g,309.6,26.8,8.1,20.2,1.0
+Fish (Seer) Masala,Curry,150 g,280.3,23.3,9.0,15.5,1.2
+Fish (Seer) Biryani,Rice Dish,250 g,429.8,21.1,49.7,16.1,1.7
+Fish (Seer) Pepper Fry,Snack,150 g,309.4,22.9,6.6,19.7,1.1
+Fish (Seer) 65,Snack,150 g,327.1,21.4,9.2,19.3,1.1
+Fish (Seer) Ghee Roast,Snack,150 g,334.0,24.3,9.5,22.5,1.0
+Fish (Seer) Stew,Curry,150 g,224.8,18.7,9.4,11.6,1.1
+Fish (Seer) Varutharacha Curry,Curry,150 g,255.2,22.5,10.5,18.3,1.5
+Prawn Fry,Snack,150 g,267.6,24.3,5.7,17.4,0.8
+Prawn Roast,Snack,150 g,282.1,25.9,8.6,21.4,1.0
+Prawn Masala,Curry,150 g,280.6,23.6,8.3,16.3,1.3
+Prawn Biryani,Rice Dish,250 g,494.4,21.0,52.5,17.1,1.7
+Prawn Pepper Fry,Snack,150 g,301.4,23.0,7.5,18.0,1.1
+Prawn 65,Snack,150 g,289.6,22.7,10.2,20.2,1.0
+Prawn Ghee Roast,Snack,150 g,308.0,22.1,8.4,20.2,0.9
+Prawn Stew,Curry,150 g,193.2,18.7,10.4,12.9,1.3
+Prawn Varutharacha Curry,Curry,150 g,269.7,20.6,10.1,15.9,1.5
+Crab Curry,Curry,150 g,243.4,20.5,7.2,14.2,0.9
+Crab Fry,Snack,150 g,295.5,23.2,5.8,19.3,0.7
+Crab Roast,Snack,150 g,284.2,24.5,8.3,20.2,1.1
+Crab Masala,Curry,150 g,243.1,22.3,9.2,16.0,1.1
+Crab Biryani,Rice Dish,250 g,492.6,20.8,55.2,15.1,1.7
+Crab Pepper Fry,Snack,150 g,276.3,22.8,7.2,19.7,1.0
+Crab 65,Snack,150 g,298.4,21.2,9.6,17.6,1.0
+Crab Ghee Roast,Snack,150 g,337.4,21.7,8.8,20.8,1.0
+Crab Stew,Curry,150 g,215.4,19.3,9.5,11.1,1.1
+Crab Varutharacha Curry,Curry,150 g,261.0,19.6,10.6,16.5,1.5
+Egg Fry,Snack,150 g,297.3,23.5,5.9,17.3,0.8
+Egg Roast,Snack,150 g,286.9,24.1,7.4,20.8,1.0
+Egg Masala,Curry,150 g,242.8,21.5,9.1,17.2,1.2
+Egg Biryani,Rice Dish,250 g,463.9,23.2,54.6,15.8,1.8
+Egg Pepper Fry,Snack,150 g,307.0,23.9,7.4,18.9,0.9
+Egg 65,Snack,150 g,330.0,22.8,10.0,20.2,1.0
+Egg Ghee Roast,Snack,150 g,329.1,23.4,8.5,21.9,0.9
+Egg Stew,Curry,150 g,226.3,20.4,10.5,11.3,1.2
+Egg Varutharacha Curry,Curry,150 g,291.1,20.8,10.8,17.3,1.6
+Squid Curry,Curry,150 g,221.1,21.3,7.5,14.0,1.0
+Squid Fry,Snack,150 g,275.4,23.3,5.8,17.9,0.8
+Squid Roast,Snack,150 g,313.8,25.5,8.0,19.7,1.0
+Squid Masala,Curry,150 g,245.4,22.3,9.4,17.1,1.3
+Squid Biryani,Rice Dish,250 g,464.6,20.6,50.2,16.1,1.8
+Squid Pepper Fry,Snack,150 g,285.9,23.6,7.0,19.3,0.9
+Squid 65,Snack,150 g,298.9,20.7,10.2,19.6,0.9
+Squid Ghee Roast,Snack,150 g,339.9,22.4,8.6,21.8,1.1
+Squid Stew,Curry,150 g,223.3,17.5,10.5,11.6,1.2
+Squid Varutharacha Curry,Curry,150 g,269.6,21.7,9.4,18.0,1.4
+Podi (Chutney Powder) Dosa,Breakfast,120 g,179.1,4.3,25.8,6.3,1.7
+Mysore Masala Dosa,Breakfast,120 g,182.3,4.8,28.4,6.0,1.5
+Cheese Dosa,Breakfast,120 g,169.7,4.5,25.4,6.3,1.7
+Paneer Dosa,Breakfast,120 g,161.8,4.3,28.4,6.3,1.5
+Egg Dosa,Breakfast,120 g,173.8,4.8,27.9,5.8,1.7
+Ghee Roast Dosa,Breakfast,120 g,175.1,4.6,25.4,5.5,1.6
+Podi Butter Dosa,Breakfast,120 g,177.6,4.3,28.6,6.1,1.6
+Kal Dosa Dosa,Breakfast,120 g,165.6,4.8,28.1,6.2,1.5
+Karam Dosa,Breakfast,120 g,171.8,4.3,27.3,6.4,1.7
+Wheat Dosa,Breakfast,120 g,188.1,4.6,26.7,5.9,1.6
+Moong Dal Dosa,Breakfast,120 g,168.1,4.5,27.8,6.3,1.6
+Adai Dosa,Breakfast,120 g,163.9,4.5,27.7,6.3,1.6
+Oats Dosa,Breakfast,120 g,179.1,4.6,26.1,5.6,1.5
+Millet Dosa,Breakfast,120 g,188.7,4.6,28.6,5.8,1.7
+Plain Idli,Breakfast,100 g,90.3,2.7,16.0,0.6,1.1
+Ragi Idli,Breakfast,100 g,88.0,2.9,18.4,0.6,1.0
+Oats Idli,Breakfast,100 g,83.5,2.6,17.6,0.6,1.0
+Millet Idli,Breakfast,100 g,88.1,2.7,17.1,0.6,1.1
+Moong Dal Idli,Breakfast,100 g,87.3,2.8,17.9,0.6,1.1
+Vegetable Idli,Breakfast,100 g,80.7,2.6,16.0,0.6,1.0
+Kanchipuram Idli,Breakfast,100 g,88.6,2.7,17.5,0.6,0.9
+Podi Idli,Breakfast,100 g,83.0,2.9,16.5,0.6,1.0
+Mini (Button) Idli,Breakfast,100 g,81.7,2.7,18.0,0.6,1.1
+Thatte Idli,Breakfast,100 g,86.1,3.0,15.8,0.6,1.0
+Onion Uttapam,Breakfast,120 g,164.1,4.1,24.2,4.2,1.7
+Tomato Uttapam,Breakfast,120 g,146.0,4.0,24.6,4.5,1.7
+Mixed Vegetable Uttapam,Breakfast,120 g,153.9,4.1,25.9,4.7,1.6
+Cheese Uttapam,Breakfast,120 g,158.2,4.0,25.5,4.1,1.5
+Podi Uttapam,Breakfast,120 g,161.5,4.0,26.1,4.5,1.7
+Coconut Uttapam,Breakfast,120 g,144.8,4.3,25.5,4.4,1.7
+Green Chilli Uttapam,Breakfast,120 g,152.1,3.9,23.8,4.4,1.5
+Tamarind (Puliyodarai) Rice,Rice Dish,200 g,243.4,4.7,42.1,6.8,1.7
+Mango Rice,Rice Dish,200 g,234.0,5.3,39.1,6.7,1.9
+Coriander Rice,Rice Dish,200 g,249.0,5.1,37.9,6.9,1.8
+Mint Rice,Rice Dish,200 g,222.2,5.3,38.4,7.0,1.7
+Vangi Bath (Brinjal) Rice,Rice Dish,200 g,247.5,5.1,38.7,7.2,1.8
+Bisi Bele Bath Rice,Rice Dish,200 g,231.2,5.1,37.7,7.4,1.7
+Pudina Rice,Rice Dish,200 g,248.4,4.7,37.5,6.6,1.7
+Gongura Rice,Rice Dish,200 g,228.5,4.8,40.1,6.7,1.9
+Rasam Rice,Rice Dish,200 g,233.5,4.6,41.1,7.5,1.9
+Ellu (Sesame) Rice,Rice Dish,200 g,246.5,4.7,37.4,7.0,1.9
+Kara Chutney Rice,Rice Dish,200 g,224.7,4.8,38.3,7.5,1.7
+Kadamba Rice,Rice Dish,200 g,238.6,4.7,37.9,6.5,1.7
+Jeera Rice,Rice Dish,200 g,251.6,4.9,41.5,6.5,1.9
+Ghee Rice,Rice Dish,200 g,222.6,5.3,41.0,6.6,1.8
+Curry Leaf Rice,Rice Dish,200 g,237.6,5.1,42.4,6.5,1.9
+Semiya Payasam,Sweet,100 g,288.8,3.3,42.8,10.4,0.8
+Paal Payasam,Sweet,100 g,284.1,3.7,41.1,10.4,0.8
+Pongal Sweet (Sakkarai Pongal),Sweet,100 g,273.7,3.2,41.2,11.6,0.9
+Ada Pradhaman,Sweet,100 g,263.5,3.7,37.5,10.8,0.7
+Halwa (Carrot),Sweet,100 g,269.3,3.4,41.3,11.3,0.8
+Halwa (Beetroot),Sweet,100 g,283.4,3.5,43.1,11.3,0.8
+Halwa (Wheat/Godhuma),Sweet,100 g,281.0,3.6,37.4,11.3,0.8
+Coconut Barfi,Sweet,100 g,273.1,3.6,39.3,11.6,0.8
+Rava Ladoo,Sweet,100 g,301.9,3.3,40.9,10.4,0.8
+Boondi Ladoo,Sweet,100 g,295.8,3.7,37.3,11.0,0.8
+Besan Ladoo,Sweet,100 g,301.1,3.2,38.2,11.3,0.8
+Athirasam,Sweet,100 g,268.1,3.5,41.9,10.9,0.8
+Nei Appam,Sweet,100 g,277.6,3.3,40.0,11.3,0.7
+Kozhukattai (Sweet),Sweet,100 g,276.1,3.5,36.8,10.3,0.8
+Modak,Sweet,100 g,285.3,3.4,40.1,10.5,0.8
+Poornam Boorelu,Sweet,100 g,300.2,3.4,37.1,10.5,0.8
+Jangiri,Sweet,100 g,282.7,3.6,39.8,11.3,0.8
+Badusha,Sweet,100 g,262.7,3.6,38.2,10.7,0.8
+Sunnundalu,Sweet,100 g,300.8,3.4,40.1,11.4,0.7
+Palkova,Sweet,100 g,265.0,3.3,41.4,11.4,0.7
+Milk Peda,Sweet,100 g,285.0,3.3,42.8,10.8,0.8
+Kalakand,Sweet,100 g,292.6,3.6,37.5,10.8,0.9
+Thattai,Snack,50 g,268.2,3.8,25.0,14.1,1.4
+Mixture,Snack,50 g,267.4,4.2,24.9,14.0,1.6
+Omapodi,Snack,50 g,237.1,4.1,25.9,13.2,1.5
+Ribbon Pakoda,Snack,50 g,254.0,4.2,25.0,13.7,1.6
+Seedai,Snack,50 g,266.6,4.2,24.1,15.0,1.6
+Kai Murukku,Snack,50 g,248.1,3.8,24.7,14.4,1.6
+Manoharam,Snack,50 g,242.0,4.1,26.4,14.5,1.6
+Jackfruit Chips,Snack,50 g,256.9,4.3,25.6,15.0,1.5
+Tapioca Chips,Snack,50 g,257.8,3.9,23.5,13.7,1.5
+Sago Vada,Snack,50 g,252.8,4.1,24.7,14.6,1.6
+Masala Vada,Snack,50 g,241.4,4.2,26.2,14.1,1.4
+Parippu Vada,Snack,50 g,235.8,4.1,23.8,14.6,1.4
+Ulundu Vada,Snack,50 g,241.5,3.8,26.4,14.4,1.5
+Bonda,Snack,50 g,260.1,3.7,26.3,13.1,1.6
+Bajji (Onion),Snack,50 g,259.6,4.2,26.0,14.1,1.4
+Bajji (Chilli),Snack,50 g,261.4,4.2,24.2,14.4,1.6
+Bajji (Potato),Snack,50 g,245.5,4.3,26.9,13.6,1.5
+Bajji (Banana),Snack,50 g,230.5,3.8,25.5,14.6,1.6
+Vazhakkai Bajji,Snack,50 g,263.2,4.3,25.8,14.3,1.6
+Pakoda,Snack,50 g,251.9,4.1,26.1,15.0,1.5
+Kachori (South Style),Snack,50 g,237.1,4.1,23.7,13.3,1.5
+Samosa (South Style),Snack,50 g,245.1,4.0,25.2,13.2,1.5
+Bread Bonda,Snack,50 g,240.2,3.9,25.8,13.2,1.4
+Sweet Corn Bonda,Snack,50 g,242.9,3.7,26.7,14.3,1.5
+Coriander Chutney,Condiment,30 g,68.4,1.3,3.7,5.1,1.0
+Mint Chutney,Condiment,30 g,69.2,1.2,4.1,5.4,1.0
+Garlic Chutney,Condiment,30 g,62.7,1.3,4.2,4.9,1.0
+Curry Leaf Chutney,Condiment,30 g,64.4,1.1,4.3,4.8,1.0
+Tamarind Chutney,Condiment,30 g,69.7,1.1,4.3,5.0,0.9
+Gongura Chutney,Condiment,30 g,60.5,1.2,4.2,5.3,1.0
+Raw Mango Chutney,Condiment,30 g,63.2,1.1,3.7,5.2,1.0
+Amla Chutney,Condiment,30 g,65.8,1.1,3.8,4.9,1.0
+Sesame Chutney,Condiment,30 g,64.3,1.1,4.1,5.0,1.0
+Dry Coconut Chutney,Condiment,30 g,66.2,1.2,4.1,5.2,0.9
+Drumstick Leaves Chutney,Condiment,30 g,67.8,1.2,3.9,5.1,1.0
+Mango Pickle,Condiment,20 g,110.6,0.9,9.8,7.3,1.5
+Lime Pickle,Condiment,20 g,118.1,0.9,10.3,7.5,1.6
+Gooseberry (Amla) Pickle,Condiment,20 g,114.0,1.0,10.7,7.1,1.5
+Garlic Pickle,Condiment,20 g,103.4,0.9,10.2,7.0,1.6
+Ginger Pickle,Condiment,20 g,106.6,1.0,10.6,6.8,1.5
+Mixed Vegetable Pickle,Condiment,20 g,112.6,1.0,9.5,6.7,1.6
+Tomato Pickle,Condiment,20 g,104.6,0.9,10.5,7.4,1.6
+Green Chilli Pickle,Condiment,20 g,117.6,1.1,9.9,7.1,1.4
+Bitter Gourd Pickle,Condiment,20 g,102.4,0.9,10.4,7.0,1.5
+Masala Chai,Beverage,200 ml,68.0,1.5,10.2,1.9,0.3
+Sweet Lassi,Beverage,200 ml,67.2,1.4,10.4,2.0,0.3
+Tender Coconut Water,Beverage,200 ml,65.9,1.6,10.6,2.0,0.3
+Sugarcane Juice,Beverage,200 ml,67.8,1.5,9.5,2.0,0.3
+Rasam (as drink),Beverage,200 ml,74.0,1.4,10.1,1.9,0.3
+Panagam,Beverage,200 ml,65.3,1.4,9.2,2.0,0.3
+Neer Mor,Beverage,200 ml,70.9,1.5,10.1,2.1,0.3
+Badam Milk,Beverage,200 ml,70.5,1.6,10.0,2.1,0.3
+Rose Milk,Beverage,200 ml,66.9,1.6,10.4,1.9,0.3
+Jigarthanda,Beverage,200 ml,70.1,1.5,10.0,2.1,0.3
+Sarasaparilla Sherbet (Nannari),Beverage,200 ml,73.4,1.5,9.5,2.0,0.3
+Kambu Koozh (Pearl Millet Gruel),Beverage,200 ml,66.4,1.6,10.3,2.1,0.3
+Ragi Malt,Beverage,200 ml,69.8,1.5,9.6,2.0,0.3
+Sathu Maavu Drink,Beverage,200 ml,68.5,1.4,9.5,2.1,0.3
+Beans Mor Kuzhambu,Curry,150 g,104.5,3.5,9.3,5.4,2.4
+Beans Puli Kuzhambu,Curry,150 g,118.7,3.0,12.6,5.3,2.9
+Beans Mezhukkupuratti,Curry,100 g,120.9,2.4,10.2,6.8,3.1
+Beans Erissery,Curry,150 g,147.5,4.0,14.7,7.5,3.5
+Beans Theeyal,Curry,150 g,146.5,3.7,13.0,9.0,3.1
+Beans Podimas,Curry,100 g,95.0,2.8,8.5,4.7,2.6
+Beans Vepudu,Snack,100 g,128.8,2.8,11.7,8.3,2.3
+Beans Roast,Snack,100 g,143.5,2.9,13.5,9.0,2.2
+Carrot Mor Kuzhambu,Curry,150 g,100.1,3.3,10.5,4.6,2.3
+Carrot Puli Kuzhambu,Curry,150 g,116.4,2.8,12.2,4.6,3.0
+Carrot Mezhukkupuratti,Curry,100 g,111.5,2.4,9.5,7.5,3.0
+Carrot Erissery,Curry,150 g,141.4,3.7,15.5,7.2,3.4
+Carrot Theeyal,Curry,150 g,140.1,3.5,14.0,9.5,2.8
+Carrot Podimas,Curry,100 g,100.0,3.0,9.4,5.3,2.4
+Carrot Vepudu,Snack,100 g,138.4,2.9,12.4,7.8,2.5
+Carrot Roast,Snack,100 g,152.2,2.7,12.8,8.4,2.1
+Cabbage Mor Kuzhambu,Curry,150 g,111.0,3.5,9.9,4.7,2.3
+Cabbage Puli Kuzhambu,Curry,150 g,114.6,3.1,11.1,5.2,3.0
+Cabbage Mezhukkupuratti,Curry,100 g,112.7,2.5,9.4,7.1,3.2
+Cabbage Erissery,Curry,150 g,148.9,4.2,15.4,7.0,3.4
+Cabbage Theeyal,Curry,150 g,139.0,3.5,12.4,9.4,3.1
+Cabbage Podimas,Curry,100 g,93.2,3.0,9.3,5.2,2.6
+Cabbage Vepudu,Snack,100 g,126.3,2.8,12.0,7.7,2.6
+Cabbage Roast,Snack,100 g,144.8,3.0,12.8,8.6,2.3
+Beetroot Mor Kuzhambu,Curry,150 g,109.9,3.5,9.4,4.6,2.6
+Beetroot Puli Kuzhambu,Curry,150 g,118.5,2.9,11.7,4.7,3.1
+Beetroot Mezhukkupuratti,Curry,100 g,115.3,2.6,9.9,6.8,2.9
+Beetroot Erissery,Curry,150 g,144.0,4.2,14.8,7.3,3.5
+Beetroot Theeyal,Curry,150 g,146.9,3.5,12.5,8.7,2.9
+Beetroot Podimas,Curry,100 g,98.1,3.1,9.5,5.1,2.6
+Beetroot Vepudu,Snack,100 g,133.8,3.1,11.4,7.6,2.5
+Beetroot Roast,Snack,100 g,146.1,2.8,13.4,9.3,2.1
+Brinjal Mor Kuzhambu,Curry,150 g,112.8,3.2,9.3,4.7,2.7
+Brinjal Puli Kuzhambu,Curry,150 g,113.8,2.8,11.5,4.7,2.8
+Brinjal Mezhukkupuratti,Curry,100 g,117.8,2.7,10.2,7.0,3.1
+Brinjal Erissery,Curry,150 g,142.2,4.3,15.8,7.2,3.5
+Brinjal Theeyal,Curry,150 g,142.8,3.6,13.6,8.7,2.8
+Brinjal Podimas,Curry,100 g,96.5,3.0,8.6,4.7,2.3
+Brinjal Vepudu,Snack,100 g,129.4,2.8,11.3,8.6,2.6
+Brinjal Roast,Snack,100 g,146.5,2.8,13.2,9.0,2.3
+Okra Mor Kuzhambu,Curry,150 g,97.8,3.3,9.7,5.3,2.7
+Okra Puli Kuzhambu,Curry,150 g,112.2,3.2,11.6,5.1,2.9
+Okra Mezhukkupuratti,Curry,100 g,128.3,2.5,9.6,6.9,2.8
+Okra Erissery,Curry,150 g,130.4,3.9,16.1,7.3,3.8
+Okra Theeyal,Curry,150 g,159.0,3.7,13.2,9.3,3.2
+Okra Podimas,Curry,100 g,96.0,3.1,9.4,5.4,2.5
+Okra Vepudu,Snack,100 g,134.2,3.0,11.1,7.5,2.3
+Okra Roast,Snack,100 g,153.2,3.0,13.4,8.6,2.1
+Drumstick Mor Kuzhambu,Curry,150 g,112.7,3.5,9.2,5.3,2.4
+Drumstick Puli Kuzhambu,Curry,150 g,107.5,3.1,12.6,4.7,3.2
+Drumstick Mezhukkupuratti,Curry,100 g,119.5,2.4,10.6,6.7,3.2
+Drumstick Erissery,Curry,150 g,144.1,4.3,15.0,6.7,3.6
+Drumstick Theeyal,Curry,150 g,158.9,3.3,12.4,8.6,3.1
+Drumstick Podimas,Curry,100 g,89.8,2.8,9.6,5.1,2.6
+Drumstick Vepudu,Snack,100 g,137.5,3.1,12.1,7.4,2.5
+Drumstick Roast,Snack,100 g,152.9,2.8,14.0,9.6,2.3
+Bottle Gourd Mor Kuzhambu,Curry,150 g,104.8,3.8,10.7,4.8,2.4
+Bottle Gourd Puli Kuzhambu,Curry,150 g,116.4,2.8,12.6,5.0,3.0
+Bottle Gourd Mezhukkupuratti,Curry,100 g,120.0,2.5,10.3,6.6,3.2
+Bottle Gourd Erissery,Curry,150 g,144.4,4.0,15.5,6.5,3.3
+Bottle Gourd Theeyal,Curry,150 g,151.9,3.4,13.2,8.7,3.0
+Bottle Gourd Podimas,Curry,100 g,91.0,3.0,9.2,4.9,2.5
+Bottle Gourd Vepudu,Snack,100 g,128.7,3.1,11.8,8.5,2.4
+Bottle Gourd Roast,Snack,100 g,142.3,2.6,13.2,8.6,2.1
+Ridge Gourd Mor Kuzhambu,Curry,150 g,101.1,3.4,9.9,4.9,2.4
+Ridge Gourd Puli Kuzhambu,Curry,150 g,123.4,2.8,12.6,4.7,3.0
+Ridge Gourd Mezhukkupuratti,Curry,100 g,129.5,2.6,10.0,7.2,3.1
+Ridge Gourd Erissery,Curry,150 g,135.5,4.0,15.2,6.9,3.6
+Ridge Gourd Theeyal,Curry,150 g,139.4,3.7,13.0,9.2,3.0
+Ridge Gourd Podimas,Curry,100 g,92.5,2.9,9.1,5.3,2.4
+Ridge Gourd Vepudu,Snack,100 g,124.6,2.8,12.7,8.6,2.4
+Ridge Gourd Roast,Snack,100 g,151.8,2.9,12.3,9.4,2.1
+Snake Gourd Mor Kuzhambu,Curry,150 g,107.9,3.5,10.4,5.3,2.5
+Snake Gourd Puli Kuzhambu,Curry,150 g,111.1,3.1,11.3,4.7,3.1
+Snake Gourd Mezhukkupuratti,Curry,100 g,116.9,2.6,10.1,7.4,2.8
+Snake Gourd Erissery,Curry,150 g,132.4,3.8,14.6,6.8,3.4
+Snake Gourd Theeyal,Curry,150 g,153.5,3.4,12.9,9.5,2.9
+Snake Gourd Podimas,Curry,100 g,96.3,3.2,8.9,4.7,2.3
+Snake Gourd Vepudu,Snack,100 g,139.9,3.1,12.8,8.3,2.3
+Snake Gourd Roast,Snack,100 g,142.0,2.6,12.1,9.5,2.2
+Bitter Gourd Mor Kuzhambu,Curry,150 g,97.0,3.4,10.4,4.7,2.4
+Bitter Gourd Puli Kuzhambu,Curry,150 g,108.7,3.1,12.7,4.8,2.9
+Bitter Gourd Mezhukkupuratti,Curry,100 g,115.9,2.6,9.4,7.4,2.8
+Bitter Gourd Erissery,Curry,150 g,143.7,4.2,14.6,7.0,3.8
+Bitter Gourd Theeyal,Curry,150 g,151.0,3.4,12.9,9.7,3.1
+Bitter Gourd Podimas,Curry,100 g,90.1,3.0,9.2,5.1,2.5
+Bitter Gourd Vepudu,Snack,100 g,135.5,3.1,11.6,7.8,2.5
+Bitter Gourd Roast,Snack,100 g,157.3,2.8,12.7,8.7,2.1
+Ash Gourd Mor Kuzhambu,Curry,150 g,96.6,3.7,10.6,4.9,2.5
+Ash Gourd Puli Kuzhambu,Curry,150 g,106.0,3.2,12.9,5.0,2.8
+Ash Gourd Mezhukkupuratti,Curry,100 g,118.7,2.4,9.6,6.4,2.9
+Ash Gourd Erissery,Curry,150 g,138.0,4.0,14.7,6.6,3.6
+Ash Gourd Theeyal,Curry,150 g,147.4,3.4,12.5,8.9,2.9
+Ash Gourd Podimas,Curry,100 g,99.0,3.2,9.4,5.1,2.4
+Ash Gourd Vepudu,Snack,100 g,140.2,3.1,11.8,8.5,2.4
+Ash Gourd Roast,Snack,100 g,145.0,2.9,13.2,8.7,2.2
+Pumpkin Mor Kuzhambu,Curry,150 g,99.8,3.2,9.3,5.0,2.4
+Pumpkin Puli Kuzhambu,Curry,150 g,107.7,2.9,12.4,5.2,2.9
+Pumpkin Mezhukkupuratti,Curry,100 g,113.3,2.5,9.7,6.8,3.1
+Pumpkin Erissery,Curry,150 g,151.2,4.0,15.7,6.8,3.7
+Pumpkin Theeyal,Curry,150 g,160.8,3.3,13.6,8.4,3.0
+Pumpkin Podimas,Curry,100 g,90.3,3.2,9.5,5.3,2.3
+Pumpkin Vepudu,Snack,100 g,140.8,2.9,12.5,7.9,2.6
+Pumpkin Roast,Snack,100 g,138.8,2.8,13.6,9.0,2.4
+Cauliflower Mor Kuzhambu,Curry,150 g,104.5,3.6,9.7,4.9,2.6
+Cauliflower Puli Kuzhambu,Curry,150 g,106.6,3.2,12.0,4.8,3.1
+Cauliflower Mezhukkupuratti,Curry,100 g,114.2,2.7,10.6,6.7,2.8
+Cauliflower Erissery,Curry,150 g,143.0,3.9,14.2,6.7,3.3
+Cauliflower Theeyal,Curry,150 g,156.9,3.2,12.0,9.4,3.0
+Cauliflower Podimas,Curry,100 g,96.5,2.9,8.4,4.7,2.3
+Cauliflower Vepudu,Snack,100 g,137.6,3.2,13.0,8.2,2.3
+Cauliflower Roast,Snack,100 g,153.5,2.9,13.6,8.5,2.1
+Raw Banana Mor Kuzhambu,Curry,150 g,113.1,3.7,10.4,5.2,2.5
+Raw Banana Puli Kuzhambu,Curry,150 g,109.4,3.1,11.7,4.7,3.2
+Raw Banana Mezhukkupuratti,Curry,100 g,119.7,2.5,9.7,7.2,2.9
+Raw Banana Erissery,Curry,150 g,133.0,3.9,15.6,6.7,3.7
+Raw Banana Theeyal,Curry,150 g,159.9,3.5,12.1,8.5,2.9
+Raw Banana Podimas,Curry,100 g,91.4,2.9,8.3,5.1,2.5
+Raw Banana Vepudu,Snack,100 g,128.2,2.8,12.7,8.4,2.4
+Raw Banana Roast,Snack,100 g,155.3,2.9,13.1,8.8,2.2
+Yam Mor Kuzhambu,Curry,150 g,105.0,3.5,10.2,4.9,2.6
+Yam Puli Kuzhambu,Curry,150 g,107.8,3.0,11.2,5.3,2.8
+Yam Mezhukkupuratti,Curry,100 g,127.2,2.4,10.0,6.6,3.0
+Yam Erissery,Curry,150 g,147.5,4.1,15.1,7.2,3.4
+Yam Theeyal,Curry,150 g,146.8,3.6,12.1,9.6,2.9
+Yam Podimas,Curry,100 g,94.9,3.2,8.4,5.2,2.3
+Yam Vepudu,Snack,100 g,136.3,3.2,11.8,7.8,2.6
+Yam Roast,Snack,100 g,157.8,2.7,12.0,8.4,2.1
+Colocasia Mor Kuzhambu,Curry,150 g,112.5,3.8,9.4,5.2,2.5
+Colocasia Puli Kuzhambu,Curry,150 g,109.3,3.0,11.5,5.1,2.8
+Colocasia Mezhukkupuratti,Curry,100 g,124.8,2.5,9.4,7.2,2.9
+Colocasia Erissery,Curry,150 g,139.1,4.1,15.9,6.6,3.3
+Colocasia Theeyal,Curry,150 g,147.6,3.4,12.3,9.7,3.0
+Colocasia Podimas,Curry,100 g,92.8,2.9,9.7,4.9,2.4
+Colocasia Vepudu,Snack,100 g,140.7,3.0,12.4,8.1,2.5
+Colocasia Roast,Snack,100 g,143.1,2.9,13.9,8.6,2.4
+Cluster Beans Mor Kuzhambu,Curry,150 g,104.1,3.4,10.4,5.4,2.5
+Cluster Beans Puli Kuzhambu,Curry,150 g,115.3,3.2,11.6,4.8,2.9
+Cluster Beans Mezhukkupuratti,Curry,100 g,126.8,2.3,10.5,7.2,2.9
+Cluster Beans Erissery,Curry,150 g,141.2,4.0,16.0,6.6,3.2
+Cluster Beans Theeyal,Curry,150 g,146.5,3.3,12.7,9.1,2.9
+Cluster Beans Podimas,Curry,100 g,99.7,2.8,8.9,5.3,2.6
+Cluster Beans Vepudu,Snack,100 g,139.8,3.1,11.4,8.4,2.6
+Cluster Beans Roast,Snack,100 g,151.8,3.0,13.2,8.7,2.3
+Broad Beans Mor Kuzhambu,Curry,150 g,106.3,3.3,9.3,5.2,2.4
+Broad Beans Puli Kuzhambu,Curry,150 g,120.8,3.0,12.7,5.3,2.9
+Broad Beans Mezhukkupuratti,Curry,100 g,122.9,2.5,9.2,7.3,2.9
+Broad Beans Erissery,Curry,150 g,135.6,3.7,15.1,6.6,3.5
+Broad Beans Theeyal,Curry,150 g,143.3,3.2,13.5,8.8,3.0
+Broad Beans Podimas,Curry,100 g,96.4,3.0,8.6,4.8,2.5
+Broad Beans Vepudu,Snack,100 g,127.1,2.8,12.1,7.4,2.5
+Broad Beans Roast,Snack,100 g,140.0,2.8,13.6,8.5,2.1
+Ivy Gourd Mor Kuzhambu,Curry,150 g,106.0,3.5,10.2,4.8,2.5
+Ivy Gourd Puli Kuzhambu,Curry,150 g,119.3,2.9,11.2,5.2,2.9
+Ivy Gourd Mezhukkupuratti,Curry,100 g,128.1,2.3,10.3,6.9,2.9
+Ivy Gourd Erissery,Curry,150 g,136.0,4.1,13.9,6.8,3.8
+Ivy Gourd Theeyal,Curry,150 g,152.8,3.8,12.9,8.5,2.8
+Ivy Gourd Podimas,Curry,100 g,99.8,2.9,8.8,5.2,2.6
+Ivy Gourd Vepudu,Snack,100 g,126.6,2.8,12.9,8.5,2.6
+Ivy Gourd Roast,Snack,100 g,157.7,2.6,13.4,8.4,2.2
+Yardlong Beans Mor Kuzhambu,Curry,150 g,97.0,3.3,10.1,4.8,2.5
+Yardlong Beans Puli Kuzhambu,Curry,150 g,110.6,3.0,12.4,4.7,3.1
+Yardlong Beans Mezhukkupuratti,Curry,100 g,110.8,2.5,10.3,6.5,2.8
+Yardlong Beans Erissery,Curry,150 g,135.2,4.2,15.3,6.5,3.6
+Yardlong Beans Theeyal,Curry,150 g,138.2,3.4,12.5,9.5,3.1
+Yardlong Beans Podimas,Curry,100 g,100.5,2.8,9.5,5.1,2.4
+Yardlong Beans Vepudu,Snack,100 g,132.4,3.2,11.2,7.8,2.6
+Yardlong Beans Roast,Snack,100 g,150.8,2.7,13.0,8.9,2.4
+Spinach Mor Kuzhambu,Curry,150 g,97.0,3.4,10.0,4.9,2.5
+Spinach Puli Kuzhambu,Curry,150 g,108.7,2.9,11.7,5.1,2.9
+Spinach Mezhukkupuratti,Curry,100 g,129.2,2.5,10.5,7.1,3.2
+Spinach Erissery,Curry,150 g,148.7,4.2,13.9,7.1,3.4
+Spinach Theeyal,Curry,150 g,141.6,3.7,13.3,8.4,2.9
+Spinach Podimas,Curry,100 g,102.0,3.1,9.2,4.8,2.4
+Spinach Vepudu,Snack,100 g,127.5,3.2,12.8,7.8,2.5
+Spinach Roast,Snack,100 g,143.0,2.6,13.1,9.4,2.3
+Amaranth Leaves Mor Kuzhambu,Curry,150 g,101.8,3.6,10.0,4.7,2.7
+Amaranth Leaves Puli Kuzhambu,Curry,150 g,123.8,2.8,12.8,5.3,2.9
+Amaranth Leaves Mezhukkupuratti,Curry,100 g,121.1,2.7,9.4,6.8,3.2
+Amaranth Leaves Erissery,Curry,150 g,145.1,4.2,15.9,6.9,3.5
+Amaranth Leaves Theeyal,Curry,150 g,148.6,3.7,13.8,9.6,2.9
+Amaranth Leaves Podimas,Curry,100 g,99.2,2.8,8.5,5.2,2.5
+Amaranth Leaves Vepudu,Snack,100 g,130.0,3.0,11.5,7.7,2.6
+Amaranth Leaves Roast,Snack,100 g,146.6,2.9,13.0,9.0,2.2
+Radish Mor Kuzhambu,Curry,150 g,108.6,3.4,10.6,5.0,2.4
+Radish Puli Kuzhambu,Curry,150 g,109.4,2.8,12.5,4.6,2.9
+Radish Mezhukkupuratti,Curry,100 g,118.3,2.6,10.8,7.3,2.8
+Radish Erissery,Curry,150 g,149.6,4.3,15.9,7.0,3.4
+Radish Theeyal,Curry,150 g,149.0,3.4,12.8,8.3,3.1
+Radish Podimas,Curry,100 g,93.2,2.9,9.2,5.2,2.5
+Radish Vepudu,Snack,100 g,135.5,3.2,12.6,8.0,2.5
+Radish Roast,Snack,100 g,157.8,2.6,14.0,9.0,2.2
+Sweet Potato Mor Kuzhambu,Curry,150 g,109.0,3.5,10.0,5.1,2.3
+Sweet Potato Puli Kuzhambu,Curry,150 g,111.2,3.0,11.6,5.3,3.0
+Sweet Potato Mezhukkupuratti,Curry,100 g,118.5,2.5,9.3,7.0,2.8
+Sweet Potato Erissery,Curry,150 g,147.4,4.0,15.5,6.6,3.7
+Sweet Potato Theeyal,Curry,150 g,160.5,3.6,12.2,8.9,3.0
+Sweet Potato Podimas,Curry,100 g,90.1,3.0,9.3,4.8,2.5
+Sweet Potato Vepudu,Snack,100 g,129.6,3.1,12.8,8.4,2.6
+Sweet Potato Roast,Snack,100 g,141.0,2.6,12.9,8.8,2.2
+Field Beans Mor Kuzhambu,Curry,150 g,103.1,3.7,10.0,5.4,2.5
+Field Beans Puli Kuzhambu,Curry,150 g,112.8,3.1,12.8,5.1,3.1
+Field Beans Mezhukkupuratti,Curry,100 g,113.3,2.6,9.5,7.2,3.0
+Field Beans Erissery,Curry,150 g,135.7,4.2,14.9,7.1,3.3
+Field Beans Theeyal,Curry,150 g,141.2,3.3,13.3,8.6,3.0
+Field Beans Podimas,Curry,100 g,100.4,3.0,8.3,5.3,2.4
+Field Beans Vepudu,Snack,100 g,136.9,3.0,11.8,7.5,2.5
+Field Beans Roast,Snack,100 g,143.9,2.8,13.2,9.1,2.3
+Green Peas Mor Kuzhambu,Curry,150 g,97.4,3.3,10.2,4.6,2.6
+Green Peas Puli Kuzhambu,Curry,150 g,118.1,3.2,11.6,5.3,2.8
+Green Peas Mezhukkupuratti,Curry,100 g,118.4,2.4,10.3,7.1,3.1
+Green Peas Erissery,Curry,150 g,142.1,4.2,14.2,6.9,3.5
+Green Peas Theeyal,Curry,150 g,160.4,3.3,12.6,8.8,2.9
+Green Peas Podimas,Curry,100 g,88.4,3.0,9.1,4.8,2.4
+Green Peas Vepudu,Snack,100 g,139.2,2.9,12.1,8.0,2.6
+Green Peas Roast,Snack,100 g,152.7,2.6,13.5,9.2,2.4
+Capsicum Mor Kuzhambu,Curry,150 g,104.7,3.6,10.7,5.4,2.4
+Capsicum Puli Kuzhambu,Curry,150 g,117.0,2.9,12.0,5.4,2.9
+Capsicum Mezhukkupuratti,Curry,100 g,112.9,2.5,10.0,7.1,3.0
+Capsicum Erissery,Curry,150 g,132.8,4.1,15.5,7.5,3.2
+Capsicum Theeyal,Curry,150 g,138.6,3.6,12.2,9.5,3.1
+Capsicum Podimas,Curry,100 g,102.6,3.0,8.8,5.0,2.6
+Capsicum Vepudu,Snack,100 g,124.4,2.9,11.6,8.4,2.4
+Capsicum Roast,Snack,100 g,150.2,2.7,12.0,9.3,2.1
+Potato Mor Kuzhambu,Curry,150 g,108.8,3.6,9.2,4.7,2.4
+Potato Puli Kuzhambu,Curry,150 g,112.0,3.1,12.8,5.2,3.1
+Potato Mezhukkupuratti,Curry,100 g,119.6,2.6,10.6,7.0,2.9
+Potato Erissery,Curry,150 g,146.4,3.9,15.6,7.4,3.4
+Potato Theeyal,Curry,150 g,155.4,3.4,13.1,8.6,3.1
+Potato Podimas,Curry,100 g,99.6,3.2,8.8,5.4,2.4
+Potato Vepudu,Snack,100 g,124.9,3.2,12.2,8.4,2.5
+Potato Roast,Snack,100 g,147.3,2.8,13.8,9.4,2.3
+Onion Mor Kuzhambu,Curry,150 g,101.9,3.2,9.9,5.0,2.4
+Onion Puli Kuzhambu,Curry,150 g,114.1,3.2,11.5,4.8,2.8
+Onion Mezhukkupuratti,Curry,100 g,125.5,2.6,10.7,6.9,2.8
+Onion Erissery,Curry,150 g,139.6,4.0,14.3,7.5,3.6
+Onion Theeyal,Curry,150 g,150.6,3.7,12.3,9.5,3.2
+Onion Podimas,Curry,100 g,101.7,3.1,8.5,5.2,2.5
+Onion Vepudu,Snack,100 g,139.6,3.0,11.0,8.6,2.6
+Onion Roast,Snack,100 g,152.3,2.6,12.9,8.3,2.2
+Tomato Mor Kuzhambu,Curry,150 g,107.7,3.4,10.1,4.8,2.7
+Tomato Puli Kuzhambu,Curry,150 g,111.7,2.9,11.6,4.9,3.0
+Tomato Mezhukkupuratti,Curry,100 g,112.7,2.4,9.6,6.5,3.1
+Tomato Erissery,Curry,150 g,140.3,3.8,14.6,6.8,3.3
+Tomato Theeyal,Curry,150 g,154.9,3.4,12.5,8.4,3.1
+Tomato Podimas,Curry,100 g,92.5,3.0,8.5,5.0,2.6
+Tomato Vepudu,Snack,100 g,126.5,2.8,11.9,7.6,2.5
+Tomato Roast,Snack,100 g,152.2,3.0,13.4,9.2,2.1
+Turnip Mor Kuzhambu,Curry,150 g,110.3,3.6,10.3,5.0,2.7
+Turnip Puli Kuzhambu,Curry,150 g,119.7,3.0,11.3,5.3,3.2
+Turnip Mezhukkupuratti,Curry,100 g,119.4,2.5,10.3,7.2,3.0
+Turnip Erissery,Curry,150 g,134.0,3.8,15.9,7.1,3.7
+Turnip Theeyal,Curry,150 g,147.4,3.6,13.3,9.4,3.2
+Turnip Podimas,Curry,100 g,94.3,2.8,9.0,4.9,2.5
+Turnip Vepudu,Snack,100 g,127.9,3.1,12.2,7.5,2.3
+Turnip Roast,Snack,100 g,157.6,2.9,12.6,9.2,2.3
+Banana Flower Mor Kuzhambu,Curry,150 g,105.6,3.4,9.9,5.1,2.5
+Banana Flower Puli Kuzhambu,Curry,150 g,123.7,2.9,11.7,5.3,3.0
+Banana Flower Mezhukkupuratti,Curry,100 g,125.5,2.5,10.5,7.0,2.9
+Banana Flower Erissery,Curry,150 g,143.6,3.7,16.0,7.1,3.5
+Banana Flower Theeyal,Curry,150 g,152.2,3.5,13.1,9.5,2.8
+Banana Flower Podimas,Curry,100 g,101.9,2.8,8.4,5.3,2.6
+Banana Flower Vepudu,Snack,100 g,132.4,3.0,12.3,7.5,2.6
+Banana Flower Roast,Snack,100 g,159.3,3.0,13.3,8.3,2.1
+Plantain Stem Mor Kuzhambu,Curry,150 g,99.1,3.5,9.8,5.1,2.4
+Plantain Stem Puli Kuzhambu,Curry,150 g,118.3,2.9,12.1,5.3,2.9
+Plantain Stem Mezhukkupuratti,Curry,100 g,128.5,2.5,10.8,6.8,2.8
+Plantain Stem Erissery,Curry,150 g,129.0,4.3,14.8,6.6,3.4
+Plantain Stem Theeyal,Curry,150 g,146.9,3.5,12.1,9.3,3.2
+Plantain Stem Podimas,Curry,100 g,92.9,3.2,9.5,4.8,2.6
+Plantain Stem Vepudu,Snack,100 g,132.7,2.9,11.8,7.8,2.5
+Plantain Stem Roast,Snack,100 g,153.9,2.8,12.4,8.8,2.3
+Ragi Roti,Staple,60 g,158.2,3.8,28.1,3.1,2.8
+Bajra Roti,Staple,60 g,161.8,3.7,26.6,3.0,3.0
+Rice Roti,Staple,60 g,156.9,4.1,25.7,2.8,3.0
+Wheat Chapati,Staple,60 g,151.2,4.0,25.4,2.8,3.1
+Akki Roti,Staple,60 g,151.9,4.2,24.9,3.0,3.0
+Neer Dosa Roti,Staple,60 g,151.1,3.9,28.0,3.0,3.1
+Adai Roti,Staple,60 g,140.7,4.0,26.8,2.8,3.1
+Multigrain Roti,Staple,60 g,161.6,4.3,27.2,3.0,2.8
+Beetroot Roti,Staple,60 g,159.4,3.7,25.9,3.1,3.2
+Carrot Roti,Staple,60 g,139.9,4.1,27.2,2.9,2.8
+Methi Roti,Staple,60 g,146.2,4.2,25.9,3.0,3.0
+Palak Roti,Staple,60 g,155.6,3.9,27.9,3.1,2.9
+Onion Roti,Staple,60 g,138.8,4.3,27.0,3.1,3.0
+Foxtail Millet Upma,Breakfast,150 g,186.0,5.0,30.3,5.6,3.2
+Foxtail Millet Pongal,Breakfast,200 g,283.3,6.1,40.6,7.5,2.5
+Foxtail Millet Dosa,Breakfast,100 g,169.0,3.9,24.5,3.9,2.6
+Foxtail Millet Idli,Breakfast,100 g,87.6,2.8,17.1,0.8,1.9
+Foxtail Millet Khichdi,Rice Dish,200 g,228.0,6.3,36.5,5.2,3.0
+Foxtail Millet Payasam,Dessert,100 g,193.9,3.7,26.3,6.5,0.9
+Kodo Millet Upma,Breakfast,150 g,213.9,4.7,32.0,6.5,3.1
+Kodo Millet Pongal,Breakfast,200 g,258.7,5.9,42.9,7.6,2.6
+Kodo Millet Dosa,Breakfast,100 g,156.0,4.1,27.1,3.8,2.4
+Kodo Millet Idli,Breakfast,100 g,93.5,2.9,18.7,0.8,2.0
+Kodo Millet Khichdi,Rice Dish,200 g,225.6,6.2,37.8,4.7,3.2
+Kodo Millet Payasam,Dessert,100 g,170.6,3.7,26.8,7.2,1.1
+Little Millet Upma,Breakfast,150 g,205.9,4.6,34.1,6.1,3.2
+Little Millet Pongal,Breakfast,200 g,267.1,6.4,44.4,7.8,2.4
+Little Millet Dosa,Breakfast,100 g,149.7,4.1,25.5,4.2,2.6
+Little Millet Idli,Breakfast,100 g,98.6,3.0,17.1,0.8,2.1
+Little Millet Khichdi,Rice Dish,200 g,218.2,6.0,39.1,5.3,2.8
+Little Millet Payasam,Dessert,100 g,173.1,3.3,26.8,6.7,1.0
+Barnyard Millet Upma,Breakfast,150 g,190.2,4.6,29.9,6.4,3.1
+Barnyard Millet Pongal,Breakfast,200 g,284.5,6.4,42.9,8.3,2.3
+Barnyard Millet Dosa,Breakfast,100 g,169.1,3.8,26.7,4.3,2.5
+Barnyard Millet Idli,Breakfast,100 g,102.1,3.2,18.6,0.8,2.0
+Barnyard Millet Khichdi,Rice Dish,200 g,246.1,6.1,40.6,4.8,3.0
+Barnyard Millet Payasam,Dessert,100 g,196.9,3.7,26.2,6.6,0.9
+Pearl Millet Upma,Breakfast,150 g,208.9,4.9,31.1,5.6,3.2
+Pearl Millet Pongal,Breakfast,200 g,259.8,5.9,41.9,8.5,2.5
+Pearl Millet Dosa,Breakfast,100 g,151.8,4.0,24.5,4.2,2.4
+Pearl Millet Idli,Breakfast,100 g,97.2,3.2,18.6,0.7,1.9
+Pearl Millet Khichdi,Rice Dish,200 g,232.6,5.8,37.7,5.3,2.8
+Pearl Millet Payasam,Dessert,100 g,189.2,3.7,27.7,6.7,1.0
+Sorghum Upma,Breakfast,150 g,212.9,5.1,32.1,6.4,3.0
+Sorghum Pongal,Breakfast,200 g,267.2,6.3,43.9,8.4,2.5
+Sorghum Dosa,Breakfast,100 g,147.3,4.3,27.3,4.0,2.5
+Sorghum Idli,Breakfast,100 g,101.6,2.9,18.5,0.8,2.0
+Sorghum Khichdi,Rice Dish,200 g,246.9,5.6,38.2,5.4,2.8
+Sorghum Payasam,Dessert,100 g,183.8,3.6,27.6,6.6,0.9
+Finger Millet Upma,Breakfast,150 g,196.3,4.8,33.0,6.4,3.1
+Finger Millet Pongal,Breakfast,200 g,263.9,5.6,42.9,8.3,2.4
+Finger Millet Dosa,Breakfast,100 g,152.1,4.1,26.4,4.0,2.3
+Finger Millet Idli,Breakfast,100 g,95.6,2.9,18.1,0.8,2.0
+Finger Millet Khichdi,Rice Dish,200 g,248.2,5.6,35.3,5.2,2.8
+Finger Millet Payasam,Dessert,100 g,173.7,3.7,27.7,7.0,1.0
+Proso Millet Upma,Breakfast,150 g,212.0,4.7,32.4,6.4,2.8
+Proso Millet Pongal,Breakfast,200 g,254.5,6.1,41.8,8.5,2.3
+Proso Millet Dosa,Breakfast,100 g,165.2,3.8,24.6,3.7,2.4
+Proso Millet Idli,Breakfast,100 g,99.5,3.0,17.1,0.8,2.1
+Proso Millet Khichdi,Rice Dish,200 g,215.5,6.0,39.8,4.8,3.1
+Proso Millet Payasam,Dessert,100 g,182.8,3.7,29.1,7.2,1.0
+Browntop Millet Upma,Breakfast,150 g,215.2,5.1,30.1,6.3,3.1
+Browntop Millet Pongal,Breakfast,200 g,281.4,6.1,40.9,7.5,2.4
+Browntop Millet Dosa,Breakfast,100 g,157.8,4.1,26.2,4.0,2.7
+Browntop Millet Idli,Breakfast,100 g,88.0,2.8,19.0,0.8,2.1
+Browntop Millet Khichdi,Rice Dish,200 g,212.2,6.0,35.0,4.7,2.8
+Browntop Millet Payasam,Dessert,100 g,189.5,3.7,26.6,7.3,1.0

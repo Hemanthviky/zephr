@@ -142,33 +142,40 @@ export default function AuthLayout({ mode, onSwitch, children }) {
         <main className="mx-auto mt-8 w-full max-w-[420px] flex-1 md:max-w-[480px] lg:mx-0 lg:mt-0 lg:flex-none lg:justify-self-end">
           <div className="card-stacked">
             <div className="card p-5 sm:p-6 lg:p-8">
-              {/* Segmented control: two equal 44px+ targets, no dropdown. */}
-              <div
-                role="tablist"
-                aria-label="Log in or sign up"
-                className="mb-6 grid grid-cols-2 gap-1 rounded-2xl border-2 border-ink-900/10 bg-cream-200 p-1"
-              >
-                {[
-                  ['login', 'Log in'],
-                  ['signup', 'Sign up'],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    role="tab"
-                    type="button"
-                    aria-selected={mode === value}
-                    onClick={() => onSwitch(value)}
-                    className={[
-                      'min-h-[44px] rounded-xl font-display text-sm font-extrabold transition-all duration-150',
-                      mode === value
-                        ? 'bg-cream-50 text-ink-900 shadow-press-sm border-2 border-ink-900'
-                        : 'text-ink-400 hover:text-ink-700',
-                    ].join(' ')}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              {/* Segmented control: two equal 44px+ targets, no dropdown.
+                  Only for the two modes it actually toggles between — the
+                  password-reset screens aren't a third tab, they're somewhere
+                  you were sent, and each carries its own way back. A tablist
+                  with nothing selected would be both a lie to a screen reader
+                  and an invitation to lose a half-typed reset. */}
+              {(mode === 'login' || mode === 'signup') && (
+                <div
+                  role="tablist"
+                  aria-label="Log in or sign up"
+                  className="mb-6 grid grid-cols-2 gap-1 rounded-2xl border-2 border-ink-900/10 bg-cream-200 p-1"
+                >
+                  {[
+                    ['login', 'Log in'],
+                    ['signup', 'Sign up'],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      role="tab"
+                      type="button"
+                      aria-selected={mode === value}
+                      onClick={() => onSwitch(value)}
+                      className={[
+                        'min-h-[44px] rounded-xl font-display text-sm font-extrabold transition-all duration-150',
+                        mode === value
+                          ? 'bg-cream-50 text-ink-900 shadow-press-sm border-2 border-ink-900'
+                          : 'text-ink-400 hover:text-ink-700',
+                      ].join(' ')}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {children}
             </div>
