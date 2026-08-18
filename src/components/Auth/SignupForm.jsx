@@ -1,26 +1,9 @@
 import { useState } from 'react'
-import { ArrowRight, AtSign, KeyRound, AlertTriangle, MailCheck, Smile } from 'lucide-react'
+import { ArrowRight, AtSign, KeyRound, MailCheck, Smile } from 'lucide-react'
 import Button from '../shared/Button'
 import Input from '../shared/Input'
 import Icon3D from '../shared/Icon3D'
-
-/** Bottom-to-top strength meter — cheap heuristic, honest labels. */
-function strengthOf(password) {
-  if (!password) return { score: 0, label: '', color: '' }
-  let score = 0
-  if (password.length >= 6) score++
-  if (password.length >= 10) score++
-  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++
-  if (/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password)) score++
-
-  return [
-    { score: 0, label: '', color: '' },
-    { score: 1, label: 'Weak', color: '#FF5A38' },
-    { score: 2, label: 'Okay', color: '#FFA51F' },
-    { score: 3, label: 'Good', color: '#AEDC0B' },
-    { score: 4, label: 'Strong', color: '#12B39A' },
-  ][score]
-}
+import { FormError, PasswordStrength } from './authShared'
 
 export default function SignupForm({ onSubmit, pending, error, notice, onSwitch, onDirty }) {
   const [name, setName] = useState('')
@@ -28,7 +11,6 @@ export default function SignupForm({ onSubmit, pending, error, notice, onSwitch,
   const [password, setPassword] = useState('')
   const [touched, setTouched] = useState(false)
 
-  const strength = strengthOf(password)
   const nameError = touched && !name.trim() ? 'We need something to call you.' : ''
   const emailError = touched && !email.includes('@') ? 'That doesn’t look like an email.' : ''
   const passwordError =
@@ -120,40 +102,11 @@ export default function SignupForm({ onSubmit, pending, error, notice, onSwitch,
             error={passwordError}
           />
 
-          {password && !passwordError && (
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex flex-1 gap-1">
-                {[1, 2, 3, 4].map((step) => (
-                  <span
-                    key={step}
-                    className="h-1.5 flex-1 rounded-pill transition-colors duration-200"
-                    style={{
-                      background:
-                        step <= strength.score ? strength.color : 'rgb(var(--c-cream-200))',
-                    }}
-                  />
-                ))}
-              </div>
-              <span
-                className="w-12 text-right text-[0.7rem] font-extrabold uppercase tracking-wide"
-                style={{ color: strength.color }}
-              >
-                {strength.label}
-              </span>
-            </div>
-          )}
+          <PasswordStrength password={password} hidden={Boolean(passwordError)} />
         </div>
       </div>
 
-      {error && (
-        <div
-          role="alert"
-          className="mt-4 flex items-start gap-2.5 rounded-2xl border-2 border-coral-500 bg-coral-100 p-3 text-sm font-semibold text-coral-600 animate-pop-in"
-        >
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2.75} />
-          <span>{error}</span>
-        </div>
-      )}
+      <FormError>{error}</FormError>
 
       <Button
         type="submit"

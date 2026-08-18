@@ -2,6 +2,8 @@ import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 're
 import AuthLayout from './components/Auth/AuthLayout'
 import LoginForm from './components/Auth/LoginForm'
 import SignupForm from './components/Auth/SignupForm'
+import ForgotPasswordForm from './components/Auth/ForgotPasswordForm'
+import ResetPasswordForm from './components/Auth/ResetPasswordForm'
 import Tracker from './components/Tracker/Tracker'
 import TabBar from './components/shared/TabBar'
 import ProfilePanel from './components/Settings/ProfilePanel'
@@ -11,7 +13,7 @@ import { AvatarPrefProvider, avatarIdOf } from './components/shared/Avatar'
 import NotFound from './components/Errors/NotFound'
 import Offline from './components/Errors/Offline'
 import CrashScreen from './components/Errors/CrashScreen'
-import { useAuth, displayName } from './hooks/useAuth'
+import { useAuth, displayName, ARRIVED_ON_BAD_LINK } from './hooks/useAuth'
 import { useGoals } from './hooks/useGoals'
 import { useOnline } from './hooks/useOnline'
 import { isSupabaseConfigured } from './lib/supabaseClient'
@@ -66,16 +68,23 @@ export default function App() {
     pending,
     error,
     notice,
+    recovering,
     rememberedByDefault,
     profileSaving,
     signIn,
     signUp,
     signOut,
+    resetPassword,
+    updatePassword,
+    cancelRecovery,
     updateName,
     updateAvatar,
     clearMessages,
   } = useAuth()
-  const [mode, setMode] = useState('login')
+  // A dead reset link opens the request form, not the login form: the error
+  // seeded in useAuth says "ask for a fresh one", so the way to ask should
+  // already be on screen rather than one more click away.
+  const [mode, setMode] = useState(ARRIVED_ON_BAD_LINK ? 'forgot' : 'login')
   const online = useOnline()
   const [ignoredOffline, setIgnoredOffline] = useState(false)
 
@@ -104,15 +113,35 @@ export default function App() {
 
   if (loading) return <BootScreen />
 
-  if (!user) {
-    const switchMode = (next) => {
-      clearMessages()
-      setMode(next)
-    }
+  const switchMode = (next) => {
+    clearMessages()
+    setMode(next)
+  }
 
+  // Ahead of the `!user` check on purpose. A reset link signs you in before you
+  // have chosen a new password — that session is what authorises the change —
+  // so `user` is already set by the time we get here, and testing it first
+  // would drop someone into the tracker with the password they came to replace.
+  if (recovering) {
+    return (
+      <AuthLayout mode="reset" onSwitch={switchMode}>
+        <ResetPasswordForm
+          onSubmit={updatePassword}
+          onCancel={() => {
+            cancelRecovery()
+            setMode('login')
+          }}
+          pending={pending}
+          error={error}
+        />
+      </AuthLayout>
+    )
+  }
+
+  if (!user) {
     return (
       <AuthLayout mode={mode} onSwitch={switchMode}>
-        {mode === 'login' ? (
+        {mode === 'login' && (
           <LoginForm
             onSubmit={signIn}
             pending={pending}
@@ -121,9 +150,20 @@ export default function App() {
             onDirty={clearMessages}
             rememberedByDefault={rememberedByDefault}
           />
-        ) : (
+        )}
+        {mode === 'signup' && (
           <SignupForm
             onSubmit={signUp}
+            pending={pending}
+            error={error}
+            notice={notice}
+            onSwitch={switchMode}
+            onDirty={clearMessages}
+          />
+        )}
+        {mode === 'forgot' && (
+          <ForgotPasswordForm
+            onSubmit={resetPassword}
             pending={pending}
             error={error}
             notice={notice}

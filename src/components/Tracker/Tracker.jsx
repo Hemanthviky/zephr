@@ -11,6 +11,7 @@ import Logo from '../shared/Logo'
 import Avatar from '../shared/Avatar'
 import { IconButton } from '../shared/Button'
 import { useEntries } from '../../hooks/useEntries'
+import { unknownNutrients } from '../../data/foodDatabase'
 import { firstName, displayName } from '../../hooks/useAuth'
 import { todayISO, timeGreeting } from '../../utils/dateHelpers'
 
@@ -128,6 +129,7 @@ export default function Tracker({ user, onOpenProfile, goalsState }) {
                 goals={goals}
                 loading={entriesLoading || goalsLoading}
                 entryCount={entries.length}
+                unknown={unknownNutrients(entries)}
               />
             </div>
 
