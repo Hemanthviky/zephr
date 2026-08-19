@@ -2,10 +2,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   AlertTriangle,
+  AlignLeft,
   Check,
   Eye,
   EyeOff,
   Globe,
+  ListTodo,
   Lock,
   Pin,
   Plus,
@@ -22,7 +24,10 @@ import {
   NOTE_COLORS,
   SECRET_FIELD_LABEL_MAX,
   SECRET_FIELD_VALUE_MAX,
+  bodyToItems,
   getColor,
+  hasChecklist,
+  itemsToBody,
   normalizeSecretFields,
   parseTags,
 } from '../../utils/noteHelpers'
@@ -54,6 +59,47 @@ import {
  */
 let fieldSeq = 0
 const nextFieldId = () => `field-${(fieldSeq += 1)}`
+
+/** The same trick again, for checklist rows — two blank items would collide. */
+let itemSeq = 0
+const nextItemId = () => `item-${(itemSeq += 1)}`
+
+/**
+ * Size a textarea to its content.
+ *
+ * scrollHeight measures the content box while the box itself is sized
+ * border-box, so the difference has to be added back or the last line is
+ * clipped and a scrollbar appears on a field that was supposed to have grown
+ * to fit. `limit` is the point past which it stops growing and starts
+ * scrolling — the checklist rows pass none, because an item that has to
+ * scroll is an item you can't read, which is the whole thing this fixes.
+ */
+function growToFit(field, limit = Infinity) {
+  if (!field) return
+  field.style.height = 'auto'
+  const chrome = field.offsetHeight - field.clientHeight
+  field.style.height = `${Math.min(field.scrollHeight + chrome, limit)}px`
+}
+
+/**
+ * What the board asked for, mapped onto what this sheet actually is.
+ *
+ * Three doors — note, checklist, password — onto two kinds of row: a checklist
+ * is a note, opened with the list editor showing. Keeping that translation in
+ * one pair of functions is what stops 'checklist' leaking into `kind` and from
+ * there into a database column that has never heard of it.
+ */
+const kindOf = (requested) => (requested === 'secret' ? 'secret' : 'note')
+const modeOf = (requested) => (requested === 'checklist' ? 'list' : 'text')
+
+const withRowIds = (rows, { atLeastOne = false } = {}) => {
+  const withIds = (rows ?? []).map((row) => ({ ...row, id: nextItemId() }))
+  if (atLeastOne && withIds.length === 0) {
+    withIds.push({ id: nextItemId(), text: '', done: false })
+  }
+  return withIds
+}
+
 export default function NoteSheet({
   open,
   onClose,
@@ -72,9 +118,21 @@ export default function NoteSheet({
   onRequestVault,
   deferEscape = false,
 }) {
-  const [kind, setKind] = useState(initialKind)
+  const [kind, setKind] = useState(kindOf(initialKind))
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  /**
+   * How the note is being written: as prose, or as a list of tick boxes.
+   *
+   * Not a second kind of note — both save to the same `body` column, and a
+   * checklist is only a body whose lines start with a box (see the helpers).
+   * The mode is which editor is on screen, and switching it is a conversion
+   * that round-trips: text in, boxes out, text back.
+   */
+  const [mode, setMode] = useState(modeOf(initialKind))
+  const [items, setItems] = useState([])
+  // Which row to put the cursor in — see focusField, same reasoning.
+  const [focusItem, setFocusItem] = useState(null)
   const [color, setColor] = useState('cream')
   const [pinned, setPinned] = useState(false)
   const [tagText, setTagText] = useState('')
@@ -119,6 +177,7 @@ export default function NoteSheet({
       setSecretNote('')
       setFields([])
       setFocusField(null)
+      setFocusItem(null)
       setConfirmingDelete(false)
       return
     }
@@ -127,6 +186,11 @@ export default function NoteSheet({
       setKind(editing.kind)
       setTitle(editing.title ?? '')
       setBody(editing.kind === 'secret' ? '' : (editing.body ?? ''))
+      // Opened as what it already is: a note with boxes in it opens in the list
+      // editor, everything else opens in the text one. Deriving it from the
+      // body rather than storing it is the whole point of keeping one column.
+      setMode(hasChecklist(editing.body) ? 'list' : 'text')
+      setItems(withRowIds(bodyToItems(editing.body)))
       setColor(editing.color ?? 'cream')
       setPinned(Boolean(editing.pinned))
       setTagText((editing.tags ?? []).join(', '))
@@ -151,9 +215,17 @@ export default function NoteSheet({
     // A draft arrives when quick capture hands off to "More" — whatever was
     // already typed comes with it, or the handoff would be a punishment for
     // wanting a title.
-    setKind(initialKind)
+    setKind(kindOf(initialKind))
     setTitle('')
     setBody(initialDraft?.body ?? '')
+    setMode(modeOf(initialKind))
+    // A new list opens with one empty row already out, because "add the first
+    // item" is a tap that has no reason to exist.
+    setItems(
+      modeOf(initialKind) === 'list'
+        ? withRowIds(bodyToItems(initialDraft?.body), { atLeastOne: true })
+        : []
+    )
     setColor(initialDraft?.color ?? 'cream')
     setPinned(Boolean(initialDraft?.pinned))
     setTagText('')
@@ -183,15 +255,40 @@ export default function NoteSheet({
     }
   }, [open, onClose, deferEscape])
 
+  /**
+   * Put the cursor where the last edit said it should go.
+   *
+   * autoFocus can't do this job: it only fires when an input mounts, and half
+   * the moves here — backspacing an empty row to join the one above — hand the
+   * cursor to a row that's been on screen the whole time. The request is
+   * cleared once it's honoured so a re-render for any other reason doesn't
+   * yank focus back out of wherever it has since gone.
+   */
+  const itemRefs = useRef(new Map())
+  useEffect(() => {
+    if (!focusItem) return
+    const field = itemRefs.current.get(focusItem)
+    setFocusItem(null)
+    if (!field) return
+    field.focus()
+    field.setSelectionRange(field.value.length, field.value.length)
+  }, [focusItem, items])
+
+  // Every row, sized to what's in it. One pass over the whole list rather than
+  // a handler on each row, because a paste can add several at once and a mode
+  // switch replaces all of them.
+  useLayoutEffect(() => {
+    if (mode !== 'list' || !open) return
+    itemRefs.current.forEach((field) => growToFit(field))
+  }, [items, mode, open])
+
   // The body grows with what's in it — a note is however long it is, and a
   // fixed six-line box that scrolls internally inside a sheet that also scrolls
   // is two scrollbars fighting over one gesture. Layout effect so the height is
   // right in the frame the sheet opens, not one after.
   useLayoutEffect(() => {
-    const field = bodyRef.current
-    if (!field || isSecret) return
-    field.style.height = 'auto'
-    field.style.height = `${Math.min(field.scrollHeight, 420)}px`
+    if (isSecret) return
+    growToFit(bodyRef.current, 420)
   }, [body, open, isSecret])
 
   const tags = parseTags(tagText)
@@ -199,9 +296,14 @@ export default function NoteSheet({
   // a login that is nothing but a Wi-Fi key under a field called "Network key"
   // is a real login, so the empty rows have to be dropped before we ask.
   const secretFields = normalizeSecretFields(fields)
+  // What the list editor would save. Computed here rather than at submit
+  // because it's also the answer to "is there anything in this note yet".
+  const listBody = itemsToBody(items)
+  const noteBody = mode === 'list' ? listBody : body.trim()
+  const ticked = items.filter((item) => item.done && item.text.trim()).length
   const hasContent = isSecret
     ? Boolean(password.trim() || username.trim() || secretFields.length > 0)
-    : Boolean(title.trim() || body.trim())
+    : Boolean(title.trim() || noteBody)
   const canSave = hasContent && !saving
 
   /**
@@ -237,6 +339,93 @@ export default function NoteSheet({
     setFields((prev) => prev.filter((field) => field.id !== id))
   }
 
+  /* ── The checklist ────────────────────────────────────────────────────── */
+
+  /**
+   * Text ⟷ boxes, losing nothing in either direction.
+   *
+   * Every line of what's written becomes an item on the way in, and every item
+   * becomes a line with its box still on it on the way out — so this is a
+   * conversion rather than a flag, and flipping it twice gives back what you
+   * started with. That's what makes it safe to offer on a note that already
+   * has something in it, which is where most checklists actually come from.
+   */
+  function switchMode(next) {
+    if (next === mode) return
+    if (next === 'list') setItems(withRowIds(bodyToItems(body), { atLeastOne: true }))
+    else setBody(itemsToBody(items))
+    setFocusItem(null)
+    setMode(next)
+  }
+
+  /** A new row, under the one you were in — or at the end when nothing said. */
+  function addItem(afterId = null) {
+    const row = { id: nextItemId(), text: '', done: false }
+    const at = afterId ? items.findIndex((item) => item.id === afterId) : -1
+    setItems(at < 0 ? [...items, row] : [...items.slice(0, at + 1), row, ...items.slice(at + 1)])
+    setFocusItem(row.id)
+  }
+
+  function patchItem(id, patch) {
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)))
+  }
+
+  /**
+   * What was typed — or pasted — into one row.
+   *
+   * A row holds one line, because one line is what it saves as. So a paste
+   * carrying newlines becomes a row each instead of one row with the breaks
+   * quietly flattened out of it: pasting a list in from a message or a
+   * shopping site is the fastest way there is to get one onto the board, and
+   * it should land as a list.
+   */
+  function changeItem(item, value) {
+    if (!value.includes('\n')) {
+      patchItem(item.id, { text: value })
+      return
+    }
+
+    const rows = value
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((text) => ({ id: nextItemId(), text, done: item.done }))
+    // Nothing but whitespace pasted in: leave the row it landed in alone.
+    if (rows.length === 0) return
+
+    const at = items.findIndex((entry) => entry.id === item.id)
+    setItems([...items.slice(0, at), ...rows, ...items.slice(at + 1)])
+    setFocusItem(rows[rows.length - 1].id)
+  }
+
+  function removeItem(id, { focusPrevious = false } = {}) {
+    const at = items.findIndex((item) => item.id === id)
+    if (at < 0) return
+    if (focusPrevious) setFocusItem(items[at - 1]?.id ?? null)
+    setItems((prev) => prev.filter((item) => item.id !== id))
+  }
+
+  /**
+   * The two keys a list editor lives or dies by.
+   *
+   * Enter opens the next row instead of submitting the sheet — you write a
+   * shopping list in one run of typing, and reaching for the mouse between
+   * "milk" and "eggs" is the thing that stops people using it. Backspace on an
+   * empty row deletes it and joins the one above, which is the behaviour every
+   * other list editor has and whose absence makes one feel broken.
+   */
+  function handleItemKey(event, item) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      addItem(item.id)
+      return
+    }
+    if (event.key === 'Backspace' && !item.text && items.length > 1) {
+      event.preventDefault()
+      removeItem(item.id, { focusPrevious: true })
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     if (!canSave) return
@@ -244,7 +433,7 @@ export default function NoteSheet({
     const ok = await onSubmit({
       kind,
       title: title.trim().slice(0, 120),
-      body: isSecret ? null : body.trim() || null,
+      body: isSecret ? null : noteBody || null,
       color,
       pinned,
       tags,
@@ -307,17 +496,29 @@ export default function NoteSheet({
             />
 
             <header className="flex items-center gap-3 px-5 pb-3 pt-4">
-              <Icon3D name={isSecret ? 'lockkey' : 'memo'} size={34} />
+              <Icon3D name={isSecret ? 'lockkey' : mode === 'list' ? 'clipboard' : 'memo'} size={34} />
               <div className="min-w-0 flex-1">
                 <h2 className="truncate font-display text-xl font-extrabold tracking-tight">
-                  {isEdit ? (isSecret ? 'Edit this login' : 'Edit this note') : isSecret ? 'New login' : 'New note'}
+                  {isEdit
+                    ? isSecret
+                      ? 'Edit this login'
+                      : mode === 'list'
+                        ? 'Edit this list'
+                        : 'Edit this note'
+                    : isSecret
+                      ? 'New login'
+                      : mode === 'list'
+                        ? 'New checklist'
+                        : 'New note'}
                 </h2>
                 <p className="truncate text-xs font-bold text-ink-400">
                   {isSecret
                     ? encrypt
                       ? 'Encrypted here, before it’s saved'
                       : 'Saved without the lock'
-                    : 'Plain text, on your board'}
+                    : mode === 'list'
+                      ? 'Tick boxes, on your board'
+                      : 'Plain text, on your board'}
                 </p>
               </div>
 
@@ -352,27 +553,37 @@ export default function NoteSheet({
             </header>
 
             <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5">
+              {/* Three doors, two kinds of row: a checklist is a note that
+                  opens with its boxes showing. The list gets its own door
+                  rather than living behind a toggle inside the note editor
+                  because "add a to-do" is a thing people arrive already
+                  intending to do, and one tap is the whole feature. */}
               {!isEdit && (
-                <div className="mb-5 grid grid-cols-2 gap-2 rounded-2xl border-2 border-ink-900/10 bg-cream-200 p-1.5">
+                <div className="mb-5 grid grid-cols-3 gap-1.5 rounded-2xl border-2 border-ink-900/10 bg-cream-200 p-1.5">
                   {[
                     { id: 'note', label: 'Note', icon: 'memo' },
+                    { id: 'checklist', label: 'List', icon: 'clipboard' },
                     { id: 'secret', label: 'Password', icon: 'lockkey' },
                   ].map((option) => {
-                    const active = kind === option.id
+                    const active =
+                      option.id === 'secret' ? isSecret : !isSecret && mode === modeOf(option.id)
                     return (
                       <button
                         key={option.id}
                         type="button"
-                        onClick={() => setKind(option.id)}
+                        onClick={() => {
+                          setKind(kindOf(option.id))
+                          if (option.id !== 'secret') switchMode(modeOf(option.id))
+                        }}
                         aria-pressed={active}
                         className={[
-                          'tactile flex min-h-[48px] items-center justify-center gap-2 rounded-xl border-2 font-display text-sm font-extrabold transition-colors',
+                          'tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-xl border-2 px-1 font-display text-[0.8rem] font-extrabold transition-colors',
                           active
                             ? 'border-ink-900 bg-lime-400 shadow-press-sm'
                             : 'border-transparent text-ink-400 hover:bg-cream-50',
                         ].join(' ')}
                       >
-                        <Icon3D name={option.icon} size={20} />
+                        <Icon3D name={option.icon} size={19} />
                         {option.label}
                       </button>
                     )
@@ -701,23 +912,183 @@ export default function NoteSheet({
                 </>
               ) : (
                 <div className="mb-5">
-                  <label htmlFor="note-body" className="label-caps mb-2 block">
-                    Note
-                  </label>
-                  <textarea
-                    id="note-body"
-                    ref={bodyRef}
-                    value={body}
-                    onChange={(event) => setBody(event.target.value)}
-                    maxLength={20_000}
-                    rows={5}
-                    placeholder="Write it down before it’s gone…"
-                    className="note-paper on-light w-full resize-none overflow-y-auto rounded-2xl border-[2.5px] border-ink-900/15 p-4 text-base font-semibold leading-relaxed text-ink-900 shadow-inset transition-colors placeholder:font-medium placeholder:text-ink-300 focus:border-lime-500"
-                    style={{ background: paper.paper }}
-                  />
-                  <p className="mt-1.5 text-right text-[0.7rem] font-semibold text-ink-300">
-                    {body.length.toLocaleString()} / 20,000
-                  </p>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    {mode === 'list' ? (
+                      <p className="label-caps">Checklist</p>
+                    ) : (
+                      <label htmlFor="note-body" className="label-caps">
+                        Note
+                      </label>
+                    )}
+
+                    {/* The same two words as the door above, kept on screen for
+                        the case the door can't serve: a note you have already
+                        written and now want tick boxes down. Converting is
+                        lossless in both directions, so it's a toggle rather
+                        than a decision — see switchMode. */}
+                    <div className="flex shrink-0 items-center gap-1 rounded-pill border-2 border-ink-900/10 bg-cream-200 p-1">
+                      {[
+                        { id: 'text', label: 'Text', glyph: AlignLeft },
+                        { id: 'list', label: 'List', glyph: ListTodo },
+                      ].map((option) => {
+                        const active = mode === option.id
+                        const Glyph = option.glyph
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => switchMode(option.id)}
+                            aria-pressed={active}
+                            className={[
+                              'flex min-h-[32px] items-center gap-1 rounded-pill px-2.5 text-[0.7rem] font-extrabold transition-colors',
+                              active ? 'bg-ink-900 text-cream-50' : 'text-ink-400 hover:text-ink-900',
+                            ].join(' ')}
+                          >
+                            <Glyph className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
+                            {option.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {mode === 'list' ? (
+                    <div
+                      className="note-paper on-light rounded-2xl border-[2.5px] border-ink-900/15 p-2 shadow-inset"
+                      style={{ background: paper.paper }}
+                    >
+                      <ul>
+                        <AnimatePresence initial={false}>
+                          {items.map((item) => (
+                            <motion.li
+                              key={item.id}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                              className="flex items-start gap-1 overflow-hidden"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => patchItem(item.id, { done: !item.done })}
+                                role="checkbox"
+                                aria-checked={item.done}
+                                aria-label={item.text.trim() || 'This item'}
+                                className="flex h-11 w-9 shrink-0 items-center justify-center"
+                              >
+                                <span
+                                  className={[
+                                    'flex h-[1.2rem] w-[1.2rem] items-center justify-center rounded-[6px] border-2 transition-colors',
+                                    item.done
+                                      ? 'border-ink-900 bg-lime-400'
+                                      : 'border-ink-900/35 bg-cream-50/70',
+                                  ].join(' ')}
+                                  aria-hidden="true"
+                                >
+                                  {item.done && (
+                                    <Check className="h-3.5 w-3.5 text-ink-900" strokeWidth={4} />
+                                  )}
+                                </span>
+                              </button>
+
+                              {/* A textarea, not an input, and this is the
+                                  whole reason: an item is often a sentence —
+                                  "ring the clinic back about the scan" — and a
+                                  single-line input scrolls it sideways out of
+                                  sight, so you cannot read what you wrote. This
+                                  wraps and grows instead. Newlines never reach
+                                  the value: Enter opens the next row, and a
+                                  pasted block is split into rows. */}
+                              <textarea
+                                rows={1}
+                                value={item.text}
+                                ref={(element) => {
+                                  if (element) itemRefs.current.set(item.id, element)
+                                  else itemRefs.current.delete(item.id)
+                                }}
+                                onChange={(event) => changeItem(item, event.target.value)}
+                                onKeyDown={(event) => handleItemKey(event, item)}
+                                maxLength={300}
+                                placeholder="Something to do…"
+                                aria-label="Item"
+                                autoComplete="off"
+                                className={[
+                                  'min-h-[44px] min-w-0 flex-1 resize-none overflow-hidden rounded-xl border-2 border-transparent bg-transparent px-2 py-[0.6rem] text-[0.95rem] font-semibold leading-[1.4] outline-none transition-colors placeholder:font-medium placeholder:text-ink-300 focus:border-lime-500 focus:bg-cream-50/70',
+                                  item.done ? 'text-ink-300 line-through' : 'text-ink-900',
+                                ].join(' ')}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => removeItem(item.id)}
+                                aria-label={`Remove ${item.text.trim() || 'this item'}`}
+                                title="Remove this item"
+                                className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-ink-300 transition-colors hover:bg-coral-100 hover:text-coral-600"
+                              >
+                                <X className="h-4 w-4" strokeWidth={3} />
+                              </button>
+                            </motion.li>
+                          ))}
+                        </AnimatePresence>
+                      </ul>
+
+                      <button
+                        type="button"
+                        onClick={() => addItem()}
+                        className="tactile mt-1 inline-flex min-h-[44px] items-center gap-1.5 rounded-pill border-2 border-dashed border-ink-900/25 px-4 text-xs font-extrabold text-ink-500 transition-colors hover:border-ink-900 hover:text-ink-900"
+                      >
+                        <Plus className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+                        Add an item
+                      </button>
+                    </div>
+                  ) : (
+                    <textarea
+                      id="note-body"
+                      ref={bodyRef}
+                      value={body}
+                      onChange={(event) => setBody(event.target.value)}
+                      maxLength={20_000}
+                      rows={5}
+                      placeholder="Write it down before it’s gone…"
+                      // Ruled, like the card it becomes. --rule-pad is how far
+                      // the ruling has to reach back across this box's own left
+                      // padding, so the red margin lands at the edge of the
+                      // paper rather than at the edge of the writing.
+                      className="note-paper ruled on-light w-full resize-none overflow-y-auto rounded-2xl border-[2.5px] border-ink-900/15 py-4 pl-[2.1rem] pr-4 text-base font-semibold text-ink-900 shadow-inset transition-colors placeholder:font-medium placeholder:text-ink-300 focus:border-lime-500 [--rule-pad:2.1rem]"
+                      // backgroundColor, not the `background` shorthand: the
+                      // ruling *is* a background-image, and the shorthand would
+                      // quietly reset it to none.
+                      style={{ backgroundColor: paper.paper }}
+                    />
+                  )}
+
+                  <div className="mt-1.5 flex items-center justify-between gap-2">
+                    {mode === 'list' ? (
+                      <>
+                        <span className="nums text-[0.7rem] font-extrabold text-ink-300">
+                          {ticked} of {items.filter((item) => item.text.trim()).length} ticked
+                        </span>
+                        {/* Sweeping the done ones off is the other half of a
+                            list. It shows up only once there's something to
+                            sweep, and it never touches an unticked row. */}
+                        {ticked > 0 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setItems((prev) => prev.filter((item) => !item.done || !item.text.trim()))
+                            }
+                            className="text-[0.7rem] font-extrabold text-ink-400 underline decoration-ink-900/20 underline-offset-2 transition-colors hover:text-coral-600"
+                          >
+                            Clear ticked
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <span className="ml-auto text-[0.7rem] font-semibold text-ink-300">
+                        {body.length.toLocaleString()} / 20,000
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -857,7 +1228,9 @@ export default function NoteSheet({
                       : !hasContent
                         ? isSecret
                           ? 'Add a password'
-                          : 'Write something first'
+                          : mode === 'list'
+                            ? 'Add an item first'
+                            : 'Write something first'
                         : isEdit
                           ? 'Save changes'
                           : isSecret

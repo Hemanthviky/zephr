@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertTriangle, KeyRound, Lock, Plus, Search, Unlock, X } from 'lucide-react'
+import { AlertTriangle, KeyRound, ListTodo, Lock, Plus, Search, Unlock, X } from 'lucide-react'
 import NoteBoard from './NoteBoard'
 import NoteSheet from './NoteSheet'
 import QuickCapture from './QuickCapture'
@@ -11,7 +11,7 @@ import Logo from '../shared/Logo'
 import { useNotes } from '../../hooks/useNotes'
 import { useVault } from '../../hooks/useVault'
 import { displayName, firstName } from '../../hooks/useAuth'
-import { collectTags, matchesQuery, sortNotes } from '../../utils/noteHelpers'
+import { collectTags, hasChecklist, matchesQuery, sortNotes, toggleTask } from '../../utils/noteHelpers'
 import { encryptJSON, isPlainSecret, packPlainSecret } from '../../utils/vaultCrypto'
 
 /**
@@ -118,6 +118,7 @@ export default function Notes({ user, onOpenProfile }) {
       if (filter === 'pinned' && !note.pinned) return false
       if (filter === 'note' && note.kind !== 'note') return false
       if (filter === 'secret' && note.kind !== 'secret') return false
+      if (filter === 'checklist' && !hasChecklist(note.body)) return false
       if (activeTag && !(note.tags ?? []).includes(activeTag)) return false
       return matchesQuery(note, query)
     })
@@ -276,6 +277,24 @@ export default function Notes({ user, onOpenProfile }) {
 
   const reveal = useCallback((note) => readSecret(getKey(), note), [readSecret, getKey])
 
+  /**
+   * Ticking a box on the card, without opening anything.
+   *
+   * The card hands back the line it means and gets a whole new body written for
+   * it, because a body is what the column holds. It reads that body off the
+   * note it was just rendered with — which is already the optimistic copy — so
+   * two quick taps on two different boxes don't race each other back to the
+   * state before the first one.
+   */
+  const handleToggleTask = useCallback(
+    (note, index) => {
+      const body = toggleTask(note.body, index)
+      if (body === note.body) return false
+      return updateNote(note.id, { body })
+    },
+    [updateNote]
+  )
+
   /** The passphrase change, with useNotes doing the re-encryption half. */
   const handleChangePassphrase = useCallback(
     (currentPass, nextPass, nextHint) =>
@@ -292,6 +311,9 @@ export default function Notes({ user, onOpenProfile }) {
     { id: 'all', label: 'All', count: notes.length },
     { id: 'pinned', label: 'Pinned', count: notes.filter((note) => note.pinned).length },
     { id: 'note', label: 'Notes', count: notes.length - secretCount },
+    // A checklist isn't a kind of row — it's a note with boxes in it — so this
+    // filter counts what's in the bodies rather than reading a column.
+    { id: 'checklist', label: 'To-do', count: notes.filter((note) => hasChecklist(note.body)).length },
     { id: 'secret', label: 'Vault', count: secretCount },
   ]
 
@@ -336,6 +358,7 @@ export default function Notes({ user, onOpenProfile }) {
           <QuickCapture
             onQuickSave={quickSave}
             onExpand={(prefill) => openCreate('note', prefill)}
+            onNewChecklist={() => openCreate('checklist')}
             onNewSecret={() => openCreate('secret')}
             saving={saving}
           />
@@ -459,6 +482,7 @@ export default function Notes({ user, onOpenProfile }) {
           vaultUnlocked={unlocked}
           onOpen={openEdit}
           onTogglePin={togglePin}
+          onToggleTask={handleToggleTask}
           onDelete={deleteNote}
           onReveal={reveal}
           onRequestUnlock={() => openGate('auto')}
@@ -473,7 +497,7 @@ export default function Notes({ user, onOpenProfile }) {
       <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--tabbar-h)+var(--safe-bottom))] z-40 md:hidden">
         <div className="h-16 bg-gradient-to-t from-cream-100 via-cream-100/90 to-transparent short:h-8" />
         <div className="bg-cream-100 pb-3 short:pb-2">
-          <div className="mx-auto grid w-full max-w-[540px] grid-cols-[1fr_auto] gap-2 px-page">
+          <div className="mx-auto grid w-full max-w-[540px] grid-cols-[1fr_auto_auto] gap-2 px-page">
             <button
               type="button"
               onClick={() => openCreate('note')}
@@ -483,11 +507,22 @@ export default function Notes({ user, onOpenProfile }) {
               New note
               <Icon3D name="memo" size={22} />
             </button>
+
+            <button
+              type="button"
+              onClick={() => openCreate('checklist')}
+              aria-label="Start a checklist"
+              title="Start a checklist"
+              className="tactile pointer-events-auto flex min-h-[62px] w-[62px] shrink-0 items-center justify-center rounded-[1.25rem] border-[3px] border-ink-900 bg-cream-50 shadow-press hover:bg-cream-100 short:min-h-[52px]"
+            >
+              <ListTodo className="h-5 w-5" strokeWidth={2.75} aria-hidden="true" />
+            </button>
+
             <button
               type="button"
               onClick={() => openCreate('secret')}
               aria-label="Save a password"
-              className="tactile pointer-events-auto flex min-h-[62px] w-[66px] items-center justify-center rounded-[1.25rem] border-[3px] border-ink-900 bg-cream-50 shadow-press hover:bg-cream-100 short:min-h-[52px]"
+              className="tactile pointer-events-auto flex min-h-[62px] w-[62px] shrink-0 items-center justify-center rounded-[1.25rem] border-[3px] border-ink-900 bg-cream-50 shadow-press hover:bg-cream-100 short:min-h-[52px]"
             >
               <KeyRound className="h-5 w-5" strokeWidth={2.75} aria-hidden="true" />
             </button>

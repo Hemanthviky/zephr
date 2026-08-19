@@ -1,8 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, KeyRound, Pin, Settings2 } from 'lucide-react'
+import { Check, KeyRound, ListTodo, Pin, Settings2 } from 'lucide-react'
 import Icon3D from '../shared/Icon3D'
-import { NOTE_COLORS, getColor } from '../../utils/noteHelpers'
+import {
+  NOTE_COLORS,
+  bodyToItems,
+  getColor,
+  hasChecklist,
+  itemsToBody,
+  parseNoteBody,
+} from '../../utils/noteHelpers'
 
 /**
  * The fastest way onto the board: a strip of paper that's already out of the pad.
@@ -16,7 +23,7 @@ import { NOTE_COLORS, getColor } from '../../utils/noteHelpers'
  * ⌘/Ctrl+Enter saves from the keyboard. Escape collapses, and collapsing keeps
  * the draft — there's a difference between "not now" and "delete that".
  */
-export default function QuickCapture({ onQuickSave, onExpand, onNewSecret, saving }) {
+export default function QuickCapture({ onQuickSave, onExpand, onNewChecklist, onNewSecret, saving }) {
   const [open, setOpen] = useState(false)
   const [body, setBody] = useState('')
   const [color, setColor] = useState('cream')
@@ -65,6 +72,25 @@ export default function QuickCapture({ onQuickSave, onExpand, onNewSecret, savin
     }
   }
 
+  const listed = hasChecklist(body)
+
+  /**
+   * Put a box in front of every line, or take them all off again.
+   *
+   * The commonest checklist anyone writes is one they'd started as a note —
+   * "milk, eggs, bread" on three lines — so what's worth having on this strip
+   * of paper isn't a second composer, it's the one tap that turns what's
+   * already typed into a list. It's a toggle and it round-trips, so trying it
+   * costs nothing.
+   */
+  function toggleList() {
+    if (listed) {
+      setBody(parseNoteBody(body).map((line) => line.text).join('\n'))
+      return
+    }
+    setBody(itemsToBody(bodyToItems(body)) || '- [ ] ')
+  }
+
   function handleKeyDown(event) {
     if (event.key === 'Escape') {
       event.stopPropagation()
@@ -109,9 +135,20 @@ export default function QuickCapture({ onQuickSave, onExpand, onNewSecret, savin
               </span>
             </button>
 
-            {/* The other half of the board deserves its own front door — going
-                through "new note" and then flipping a toggle to save a password
-                is one step too many for the thing people open this tab for. */}
+            {/* Two front doors beside the pad. A list and a password are both
+                things people arrive already intending to make, and going
+                through "new note" and then flipping a switch is one step too
+                many for either of them. */}
+            <button
+              type="button"
+              onClick={onNewChecklist}
+              aria-label="Start a checklist"
+              title="Start a checklist"
+              className="tactile flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl border-2 border-ink-900 bg-cream-50 shadow-press-sm hover:bg-cream-100"
+            >
+              <ListTodo className="h-5 w-5" strokeWidth={2.75} />
+            </button>
+
             <button
               type="button"
               onClick={onNewSecret}
@@ -134,7 +171,9 @@ export default function QuickCapture({ onQuickSave, onExpand, onNewSecret, savin
               maxLength={20_000}
               placeholder="Write it down before it’s gone…"
               aria-label="Note"
-              className="w-full resize-none bg-transparent text-base font-semibold leading-relaxed text-ink-900 outline-none placeholder:font-medium placeholder:text-ink-300"
+              // Ruled like the card it becomes, margin left off — this is a
+              // scrap off the pad, not a page.
+              className="ruled ruled-plain w-full resize-none bg-transparent text-base font-semibold text-ink-900 outline-none placeholder:font-medium placeholder:text-ink-300"
             />
 
             <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t-2 border-ink-900/[0.07] pt-2.5">
@@ -157,6 +196,22 @@ export default function QuickCapture({ onQuickSave, onExpand, onNewSecret, savin
               ))}
 
               <span className="mx-0.5 h-6 w-px bg-ink-900/10" aria-hidden="true" />
+
+              <button
+                type="button"
+                onClick={toggleList}
+                aria-pressed={listed}
+                aria-label={listed ? 'Take the tick boxes off' : 'Turn it into a checklist'}
+                title={listed ? 'Take the tick boxes off' : 'Turn it into a checklist'}
+                className={[
+                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-2 transition-colors',
+                  listed
+                    ? 'border-ink-900 bg-lime-400'
+                    : 'border-transparent text-ink-300 hover:bg-ink-900/[0.06] hover:text-ink-700',
+                ].join(' ')}
+              >
+                <ListTodo className="h-4 w-4" strokeWidth={2.75} />
+              </button>
 
               <button
                 type="button"

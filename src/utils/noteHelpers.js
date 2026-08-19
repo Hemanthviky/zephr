@@ -180,13 +180,130 @@ export function firstLine(body, limit = 60) {
   return trimmed.length > limit ? `${trimmed.slice(0, limit - 1)}…` : trimmed
 }
 
-/** What a card shows under its title — the body, minus the line already used. */
-export function bodyPreview(note) {
-  if (!note.body) return ''
-  const lines = String(note.body).split('\n')
-  if (note.title.trim()) return lines.join('\n').trim()
-  const [, ...rest] = lines
-  return rest.join('\n').trim()
+/* ── Checklists ─────────────────────────────────────────────────────────────
+ *
+ * A to-do list is a note whose lines happen to start with a box. That's the
+ * whole model, and it's a deliberate choice over a third `kind`:
+ *
+ *   · no migration — the `kind` column's check constraint doesn't move, so
+ *     every build already talking to this database keeps working;
+ *   · search keeps working, because the items are still in `body`, which is
+ *     the column matchesQuery reads;
+ *   · a note and a list are the same object, so half a page of prose with
+ *     three tick boxes under it is expressible, and converting between the
+ *     two loses nothing in either direction.
+ *
+ * The syntax is the one people already type — `- [ ] milk` — which also means
+ * a list pasted in from anywhere else arrives as a working checklist.
+ */
+
+// The dash is optional going in (plenty of people type `[ ] milk`) and always
+// written going out. Exactly one space after the box is eaten, so `- [ ]milk`
+// and `- [ ] milk` agree and any further indent stays the user's.
+const TASK_LINE = /^\s*(?:[-*+]\s+)?\[([ xX])\]\s?(.*)$/
+
+/** One body, as the lines the card and the editor both draw. */
+export function parseNoteBody(body) {
+  return String(body ?? '')
+    .split('\n')
+    .map((raw, index) => {
+      const match = TASK_LINE.exec(raw)
+      if (!match) return { type: 'text', index, text: raw, done: false }
+      return { type: 'task', index, text: match[2], done: match[1] !== ' ' }
+    })
+}
+
+/** `- [x] milk` — the one place the syntax is written. */
+export function formatTask(text, done) {
+  return `- [${done ? 'x' : ' '}] ${String(text ?? '').trim()}`
+}
+
+/** How far through: `{ done, total }`, total 0 for a note with no boxes. */
+export function checklistStats(body) {
+  let done = 0
+  let total = 0
+  for (const line of parseNoteBody(body)) {
+    if (line.type !== 'task') continue
+    total += 1
+    if (line.done) done += 1
+  }
+  return { done, total }
+}
+
+/** Is there a box anywhere in this note? */
+export function hasChecklist(body) {
+  return checklistStats(body).total > 0
+}
+
+/**
+ * Tick or untick one line, and hand the whole body back.
+ *
+ * By line index rather than by text: two identical items — "call mum", twice,
+ * on purpose — have to tick independently, and the index is the only thing
+ * that tells them apart.
+ */
+export function toggleTask(body, index) {
+  const lines = String(body ?? '').split('\n')
+  const match = TASK_LINE.exec(lines[index] ?? '')
+  if (!match) return body
+  lines[index] = formatTask(match[2], match[1] === ' ')
+  return lines.join('\n')
+}
+
+/**
+ * Body → items, for the list editor.
+ *
+ * Every line crosses over, not only the ones that already have a box: turning
+ * a note you've been typing into a list is how most lists get made, and
+ * dropping the prose on the way in would be data loss dressed up as a mode
+ * switch. Blank lines don't, because a blank row in a list editor is a row you
+ * have to go and delete.
+ */
+export function bodyToItems(body) {
+  return parseNoteBody(body)
+    .filter((line) => line.text.trim())
+    .map((line) => ({ text: line.text.trim(), done: line.type === 'task' && line.done }))
+}
+
+/** Items → body. The inverse, so the mode switch is a round trip. */
+export function itemsToBody(items) {
+  return items
+    .filter((item) => String(item.text ?? '').trim())
+    .map((item) => formatTask(item.text, item.done))
+    .join('\n')
+}
+
+/**
+ * What the card puts on its face: a heading, and the lines under it.
+ *
+ * The heading is the title where there is one; failing that, an untitled note
+ * borrows its own first line. A checklist never borrows — the first line of a
+ * to-do list is a to-do, and promoting it into a heading is how you lose the
+ * milk.
+ *
+ * Line indices are the ones from the stored body, not from what survives here,
+ * because ticking a box on the card writes back by index.
+ */
+export function noteFace(note) {
+  const parsed = parseNoteBody(note.body)
+  const tasks = parsed.some((line) => line.type === 'task')
+
+  // Blank lines off the top and tail: the card brings its own padding, and a
+  // stray newline at the start would push the first line off the first rule.
+  let start = 0
+  let end = parsed.length
+  while (start < end && !parsed[start].text.trim()) start += 1
+  while (end > start && !parsed[end - 1].text.trim()) end -= 1
+  let lines = parsed.slice(start, end)
+
+  let heading = String(note.title ?? '').trim()
+  if (!heading && !tasks && lines.length > 0) {
+    heading = firstLine(lines[0].text)
+    lines = lines.slice(1)
+    while (lines.length > 0 && !lines[0].text.trim()) lines = lines.slice(1)
+  }
+
+  return { heading, lines, tasks }
 }
 
 /**
