@@ -412,6 +412,68 @@
     );
   }
 
+  /* ── Ruled paper ───────────────────────────────────────────────────────
+     A note on the board and the box you type it in are both a sheet torn off
+     the same pad, so both get the pad's ruling: feint lines at a fixed pitch,
+     and one margin rule down the left in red.
+
+     The pitch *is* the line-height — `--rule` sets both — because that's the
+     only thing that keeps writing sitting on the lines once it wraps. Anything
+     drawn inside a ruled block therefore has to advance in whole multiples of
+     it: the checklist rows are `min-height: var(--rule)`, a heading takes two,
+     and no margin in there is anything but zero or a multiple.
+
+     `background-origin: content-box` starts the ruling at the first line of
+     writing rather than at the padding edge, and clipping to the border box
+     then lets the lines run the full width of the card the way a printed pad
+     does. That origin moves the margin rule sideways too, which is what
+     `--rule-pad` is for: an element that carries its own left padding (a
+     textarea, which can't put it on a child) declares that padding here and
+     the rule slides back out to sit at `--rule-gutter` from the paper's edge.
+
+     In a textarea `background-attachment: local` is the line that makes the
+     ruling scroll with the writing instead of staying nailed to the frame.
+
+     Both inks are literal rather than themed: paper keeps its daylight stock
+     after dark (see .note-paper), so a ruling that flipped to a light ink
+     would be drawing white lines on a cream page. */
+  .ruled {
+    --rule: 1.625rem;
+    --rule-gutter: 1.6rem;
+    --rule-pad: 0px;
+    --rule-ink: rgba(27, 25, 21, 0.13);
+    --rule-red: rgba(233, 63, 26, 0.55);
+    line-height: var(--rule);
+    background-image:
+      linear-gradient(to right, var(--rule-red) 0 1px, transparent 1px),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--rule) - 1px),
+        var(--rule-ink) calc(var(--rule) - 1px),
+        var(--rule-ink) var(--rule)
+      );
+    background-position: calc(var(--rule-gutter) - var(--rule-pad)) 0, 0 0;
+    background-repeat: no-repeat, repeat;
+    background-origin: content-box;
+    background-clip: border-box;
+    background-attachment: local;
+  }
+
+  /* The same pad with the margin left off — for the scrap of paper in quick
+     capture, which is too short to be worth ruling a margin on. */
+  .ruled-plain {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--rule) - 1px),
+      var(--rule-ink) calc(var(--rule) - 1px),
+      var(--rule-ink) var(--rule)
+    );
+    background-position: 0 0;
+    background-repeat: repeat;
+  }
+
   /* Skeletons — a warm shimmer, not a gray placeholder box. */
   .skeleton {
     @apply relative overflow-hidden rounded-2xl bg-cream-200;

@@ -33,6 +33,7 @@ export default function NoteBoard({
   vaultUnlocked,
   onOpen,
   onTogglePin,
+  onToggleTask,
   onDelete,
   onReveal,
   onRequestUnlock,
@@ -81,6 +82,7 @@ export default function NoteBoard({
               note={note}
               onOpen={onOpen}
               onTogglePin={onTogglePin}
+              onToggleTask={onToggleTask}
               onDelete={onDelete}
             />
           )
@@ -91,12 +93,13 @@ export default function NoteBoard({
 }
 
 /**
- * Nothing to show — which is three different situations, and telling someone
+ * Nothing to show — which is four different situations, and telling someone
  * "no notes yet" when they've just mistyped a search is how an app feels stupid.
  */
 function EmptyBoard({ query, filter, onCreate }) {
   const searching = Boolean(query.trim())
   const vaultOnly = filter === 'secret'
+  const listsOnly = filter === 'checklist'
 
   return (
     <motion.div
@@ -105,7 +108,7 @@ function EmptyBoard({ query, filter, onCreate }) {
       className="card flex flex-col items-center px-6 py-12 text-center"
     >
       <Icon3D
-        name={searching ? 'search' : vaultOnly ? 'lockkey' : 'pushpin'}
+        name={searching ? 'search' : vaultOnly ? 'lockkey' : listsOnly ? 'clipboard' : 'pushpin'}
         size={78}
         float={!searching}
         className="mb-4"
@@ -116,18 +119,22 @@ function EmptyBoard({ query, filter, onCreate }) {
           ? 'Nothing matches that'
           : vaultOnly
             ? 'No passwords saved yet'
-            : filter === 'pinned'
-              ? 'Nothing pinned up'
-              : 'The board is empty'}
+            : listsOnly
+              ? 'Nothing to tick off'
+              : filter === 'pinned'
+                ? 'Nothing pinned up'
+                : 'The board is empty'}
       </p>
       <p className="mx-auto mt-2 max-w-[20rem] text-sm font-medium leading-relaxed text-ink-400">
         {searching
           ? 'Titles, note text and tags are searchable. What’s inside a locked login isn’t — that’s the point of it.'
           : vaultOnly
             ? 'Passwords are encrypted on this device before they’re saved. Nobody on the other end can read them.'
-            : filter === 'pinned'
-              ? 'Pin the ones you keep coming back to and they’ll stay at the top.'
-              : 'Write the first thing down. Shopping list, a Wi-Fi password, the thing you’ll forget by evening.'}
+            : listsOnly
+              ? 'A checklist is a note with tick boxes in it. Shopping, packing, the four things you keep meaning to do.'
+              : filter === 'pinned'
+                ? 'Pin the ones you keep coming back to and they’ll stay at the top.'
+                : 'Write the first thing down. Shopping list, a Wi-Fi password, the thing you’ll forget by evening.'}
       </p>
 
       {!searching && (
@@ -135,9 +142,9 @@ function EmptyBoard({ query, filter, onCreate }) {
           variant="secondary"
           size="sm"
           className="mt-5"
-          onClick={() => onCreate(vaultOnly ? 'secret' : 'note')}
+          onClick={() => onCreate(vaultOnly ? 'secret' : listsOnly ? 'checklist' : 'note')}
         >
-          {vaultOnly ? 'Save a password' : 'Write a note'}
+          {vaultOnly ? 'Save a password' : listsOnly ? 'Start a checklist' : 'Write a note'}
         </Button>
       )}
     </motion.div>
