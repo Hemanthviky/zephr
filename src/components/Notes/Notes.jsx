@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertTriangle, KeyRound, ListTodo, Lock, Plus, Search, Unlock, X } from 'lucide-react'
+import { AlertTriangle, Download, KeyRound, ListTodo, Lock, Plus, Search, Unlock, X } from 'lucide-react'
+import ExportSheet from './ExportSheet'
 import NoteBoard from './NoteBoard'
 import NoteSheet from './NoteSheet'
 import QuickCapture from './QuickCapture'
@@ -82,6 +83,8 @@ export default function Notes({ user, onOpenProfile }) {
   // opens in the position that login is actually in rather than a default.
   const [editingEncrypted, setEditingEncrypted] = useState(true)
   const [draft, setDraft] = useState(null)
+
+  const [exportOpen, setExportOpen] = useState(false)
 
   const [gateOpen, setGateOpen] = useState(false)
   const [gateMode, setGateMode] = useState('auto')
@@ -333,6 +336,20 @@ export default function Notes({ user, onOpenProfile }) {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            {/* Next to the vault pill on purpose: the two things you can do to
+                the board as a whole — lock it, or take a copy of it — read as a
+                pair, and it keeps the export off the three-button dock, which
+                is for making notes rather than moving them. */}
+            <button
+              type="button"
+              onClick={() => setExportOpen(true)}
+              aria-label="Download a note or list"
+              title="Download a note or list"
+              className="tactile flex h-11 w-11 items-center justify-center rounded-xl border-2 border-ink-900 bg-cream-50 shadow-press-sm transition-colors hover:bg-cream-100"
+            >
+              <Download className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+            </button>
+
             <VaultPill
               status={vaultStatus}
               count={secretCount}
@@ -551,6 +568,8 @@ export default function Notes({ user, onOpenProfile }) {
         // away the login behind it.
         deferEscape={gateOpen}
       />
+
+      <ExportSheet open={exportOpen} onClose={() => setExportOpen(false)} notes={notes} />
 
       <VaultGate
         open={gateOpen}

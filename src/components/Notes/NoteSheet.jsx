@@ -1,16 +1,21 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   AlertTriangle,
   AlignLeft,
   Check,
+  Download,
   Eye,
   EyeOff,
+  FileText,
   Globe,
   ListTodo,
+  Loader2,
   Lock,
   Pin,
   Plus,
+  Printer,
+  Table,
   Trash2,
   Unlock,
   User,
@@ -31,6 +36,7 @@ import {
   normalizeSecretFields,
   parseTags,
 } from '../../utils/noteHelpers'
+import { downloadNote, unsupportedGlyphs } from '../../utils/noteExport'
 
 /**
  * The editor, for a paper note and for a saved login alike.
@@ -149,6 +155,11 @@ export default function NoteSheet({
   const [focusField, setFocusField] = useState(null)
 
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  // Purely so the button can say it worked — a file arriving in a folder you
+  // can't see looks exactly like a button that did nothing.
+  const [downloaded, setDownloaded] = useState(false)
+  // Which format is being built, which only the PDF is ever slow enough to need.
+  const [downloading, setDownloading] = useState(null)
   const bodyRef = useRef(null)
 
   /**
@@ -179,6 +190,7 @@ export default function NoteSheet({
       setFocusField(null)
       setFocusItem(null)
       setConfirmingDelete(false)
+      setDownloaded(false)
       return
     }
 
@@ -241,6 +253,14 @@ export default function NoteSheet({
     // Wi-Fi key down. Either way the switch is right there.
     setEncrypt(vaultRef.current.vaultSupported && vaultRef.current.vaultExists)
   }, [open, editing, initialKind, initialSecret, initialEncrypted, initialDraft])
+
+  // "Saved" goes back to the download arrow on its own — it's a receipt, not a
+  // state the note is in.
+  useEffect(() => {
+    if (!downloaded) return undefined
+    const timer = setTimeout(() => setDownloaded(false), 2200)
+    return () => clearTimeout(timer)
+  }, [downloaded])
 
   useEffect(() => {
     if (!open) return undefined
@@ -450,6 +470,53 @@ export default function NoteSheet({
     })
 
     if (ok) onClose()
+  }
+
+  /**
+   * What a file of this note would contain, built from the live fields.
+   *
+   * Not from `editing`, so what lands in the file is what you're looking at —
+   * including the line you typed thirty seconds ago and haven't saved yet.
+   * Exporting the stored row instead would hand you a file that quietly
+   * disagrees with the sheet it came out of.
+   */
+  const downloadable = {
+    kind: 'note',
+    title: title.trim(),
+    body: noteBody,
+    tags,
+    pinned,
+    color,
+    updated_at: editing?.updated_at,
+  }
+
+  // Only the PDF cares. Memoised because it walks the whole note character by
+  // character, and this component re-renders on every keystroke in it.
+  const lostGlyphs = useMemo(
+    () => (isSecret ? [] : unsupportedGlyphs({ title, body: noteBody })),
+    [isSecret, title, noteBody]
+  )
+
+  /**
+   * Save a copy, in the format the menu asked for.
+   *
+   * Never offered for a login: `downloadNote` refuses one anyway, and the button
+   * isn't drawn.
+   */
+  async function handleDownload(format) {
+    if (downloading) return
+    setDownloading(format)
+    try {
+      await downloadNote(downloadable, format)
+      setDownloaded(true)
+    } catch (err) {
+      // The PDF is the only path that can fail, and only by failing to fetch
+      // jsPDF. Nothing to say in the footer that the two other formats sitting
+      // in the same menu don't already answer.
+      console.error('[Zephr] note download failed', err)
+    } finally {
+      setDownloading(null)
+    }
   }
 
   async function handleDelete() {
@@ -1190,6 +1257,20 @@ export default function NoteSheet({
                   </button>
                 )}
 
+                {/* Only on something that exists and isn't a login. A file of
+                    what you've half-typed into a new note is a file of nothing,
+                    and a login is never downloadable at all. */}
+                {isEdit && !isSecret && !confirmingDelete && (
+                  <DownloadButton
+                    list={mode === 'list'}
+                    disabled={!hasContent}
+                    busy={downloading}
+                    done={downloaded}
+                    lost={lostGlyphs}
+                    onPick={handleDownload}
+                  />
+                )}
+
                 {confirmingDelete ? (
                   <div className="flex flex-1 items-center gap-2 rounded-[1.25rem] border-[3px] border-coral-500 bg-coral-100 px-3 py-2">
                     <p className="min-w-0 flex-1 font-display text-sm font-extrabold leading-tight text-coral-600">
@@ -1248,3 +1329,115 @@ export default function NoteSheet({
     </AnimatePresence>
   )
 }
+
+/**
+ * Save a copy of this note, in one of three formats.
+ *
+ * A menu rather than three buttons in the footer, because the footer already
+ * carries delete and save and a fourth and fifth control there would push the
+ * one people came for off the edge on a phone. A menu rather than one silent
+ * default, because the formats are genuinely different documents: Markdown is
+ * the note as text, the PDF is the note as paper you can print and tick with a
+ * pen, and CSV is the list as rows in a spreadsheet.
+ *
+ * Escape isn't handled here on purpose. The sheet already listens for it on the
+ * document, it was listening first, and a menu that swallowed the key would
+ * leave people pressing it twice with nothing visibly happening the first time.
+ */
+function DownloadButton({ list, disabled, busy, done, lost, onPick }) {
+  const [open, setOpen] = useState(false)
+  const shellRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return undefined
+    const onDown = (event) => {
+      if (!shellRef.current?.contains(event.target)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', onDown)
+    return () => document.removeEventListener('pointerdown', onDown)
+  }, [open])
+
+  const label = list ? 'Download this list' : 'Download this note'
+
+  async function pick(format) {
+    setOpen(false)
+    await onPick(format)
+  }
+
+  return (
+    <div ref={shellRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((on) => !on)}
+        disabled={disabled || Boolean(busy)}
+        aria-label={label}
+        title={label}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={[
+          'tactile flex min-h-[58px] w-[58px] items-center justify-center rounded-[1.25rem] border-[3px] border-ink-900 shadow-press transition-colors',
+          'disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none',
+          done || open
+            ? 'bg-lime-400 text-ink-900'
+            : 'bg-cream-50 text-ink-400 hover:bg-cream-100 hover:text-ink-900',
+        ].join(' ')}
+      >
+        {busy ? (
+          <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+        ) : done ? (
+          <Check className="h-5 w-5" strokeWidth={3} />
+        ) : (
+          <Download className="h-5 w-5" strokeWidth={2.75} />
+        )}
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            role="menu"
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={{ duration: 0.14 }}
+            className="absolute bottom-[calc(100%+8px)] left-0 z-50 w-[236px] overflow-hidden rounded-2xl border-2 border-ink-900 bg-cream-50 shadow-lift"
+          >
+            {DOWNLOAD_FORMATS.map((option, index) => (
+              <button
+                key={option.id}
+                type="button"
+                role="menuitem"
+                onClick={() => pick(option.id)}
+                className={[
+                  'flex w-full items-start gap-2.5 px-3.5 py-2.5 text-left transition-colors hover:bg-cream-200',
+                  index > 0 ? 'border-t-2 border-ink-900/10' : '',
+                ].join(' ')}
+              >
+                <option.icon
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                  strokeWidth={2.75}
+                  aria-hidden="true"
+                />
+                <span className="min-w-0">
+                  <span className="block font-display text-sm font-extrabold leading-tight">
+                    {option.label}
+                  </span>
+                  <span className="block text-[0.68rem] font-semibold leading-snug text-ink-400">
+                    {option.id === 'pdf' && lost.length > 0
+                      ? `${lost.length} character${lost.length === 1 ? '' : 's'} won’t print`
+                      : option.hint}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+const DOWNLOAD_FORMATS = [
+  { id: 'md', label: 'Markdown', hint: 'Text, tick boxes and all', icon: FileText },
+  { id: 'pdf', label: 'PDF', hint: 'Ruled paper, ready to print', icon: Printer },
+  { id: 'csv', label: 'CSV', hint: 'Rows for Excel or Sheets', icon: Table },
+]
